@@ -1,0 +1,33 @@
+<?php
+
+class Drop_student_menu_model extends CI_Model
+{
+	function __construct()
+	{
+		// Call the Model constructor
+		parent::__construct();
+	}
+
+	function getMenu($auth='')
+	{
+		$menu=array();
+		//auth ==> emp.
+		
+		$menu['exam_dr']=array();
+		$menu['exam_dr']["Drop Out Student"] = array();
+		$menu['exam_dr']["Drop Out Student"]['Mark Drop Out'] = site_url('drop_student/drop_student');
+		$menu['exam_dr']["Drop Out Student"]['Report'] = site_url('drop_student/drop_student_report');
+		
+		$menu['acad_da2']["Drop Out Student"] = array();
+		$menu['acad_da2']["Drop Out Student"]['Mark Drop Out'] = site_url('drop_student/drop_student');
+		$menu['acad_da2']["Drop Out Student"]['Report'] = site_url('drop_student/drop_student_report');
+		
+		$menu['acad_dr']["Drop Out Student"] = array();
+		$menu['acad_dr']["Drop Out Student"]['Mark Drop Out'] = site_url('drop_student/drop_student');
+		$menu['acad_dr']["Drop Out Student"]['Report'] = site_url('drop_student/drop_student_report');
+		
+
+		return $menu;
+		
+	}
+}

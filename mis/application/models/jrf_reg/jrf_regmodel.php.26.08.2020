@@ -1,0 +1,373 @@
+<?php
+
+class Jrf_regmodel extends CI_Model 
+{
+
+    function __construct() 
+    {        
+        parent::__construct(array('adpg'));
+        $this->load->helper(array('form', 'url'));
+        $this->load->library('form_validation'); 
+    }
+
+    public function get_jrf_detail($adm_no){
+
+        $sql = "SELECT ud.salutation,ud.first_name,ud.middle_name,
+        ud.last_name,ud.sex,ud.category,ud.dob,ud.email,ud.photopath,
+        ud.marital_status,ud.physically_challenged,dp.name AS department,br.name AS branch,
+        sa.admn_no,rrf.semester,rrf.session,rrf.session_year,rrf.timestamp FROM user_details AS ud
+        INNER JOIN departments AS dp ON ud.dept_id=dp.id INNER JOIN stu_academic AS sa ON ud.id=sa.admn_no
+        INNER JOIN branches AS br ON sa.branch_id=br.id INNER JOIN reg_regular_form AS rrf ON sa.admn_no=rrf.admn_no 
+        WHERE rrf.admn_no='$adm_no' AND sa.auth_id='jrf' AND sa.enrollment_year>=2018 ORDER BY rrf.timestamp DESC LIMIT 1"; 
+
+        //exit;    
+     
+        $query = $this->db->query($sql);
+        
+        if ($query->result_array()) 
+        {
+            return $query->result_array();
+        } 
+        else 
+        {
+            return "False";
+        }       
+        
+    }
+
+    public function get_jrf_evaluation($adm_no){
+
+        $admn_no=$adm_no;
+        $user_id=$this->session->userdata('id');        
+
+        $sql="SELECT * FROM `jrf_evaluation_main` AS jm INNER JOIN `jrf_evaluation_desc` AS jd ON 
+        jm.admn_no=jd.admn_no WHERE jd.added_by_id='$user_id' AND jd.admn_no='$admn_no' ORDER BY jd.id DESC";
+        $query = $this->db->query($sql);
+        
+        if ($query->num_rows()) 
+        {
+            return $query->result_array();
+        } 
+        else 
+        {
+            return False;
+        }
+    }
+
+    public function get_jrf_to_srf_detail($adm_no){
+
+        $admn_no=$adm_no;
+        $user_id=$this->session->userdata('id');        
+
+        $sql="SELECT jts.* FROM `jrf_to_srf` AS jts WHERE jts.converted_by_id='$user_id' AND jts.admn_no='$admn_no'";
+        $query = $this->db->query($sql);
+        
+        if ($query->num_rows()) 
+        {
+            return $query->result_array();
+        } 
+        else 
+        {
+            return False;
+        }
+    }
+
+    public function check_jrf_to_srf($adm_no){
+
+        $admn_no=$adm_no;       
+
+        $sql="SELECT jts.* FROM `jrf_to_srf` AS jts WHERE jts.admn_no='$admn_no'";
+        $query = $this->db->query($sql);
+        
+        if ($query->num_rows()) 
+        {
+            return $query->result_array();
+        } 
+        else 
+        {
+            return False;
+        }
+    }
+
+    public function all_jrf_to_srf(){
+        $sql="SELECT CONCAT_WS(' ',ud.salutation,ud.first_name,ud.middle_name,ud.last_name) AS sname,jts.* FROM `jrf_to_srf` jts INNER JOIN user_details ud ON jts.admn_no=ud.id GROUP BY jts.admn_no";
+        $query = $this->db->query($sql);
+        
+        if ($query->num_rows()) 
+        {
+            return $query->result_array();
+        } 
+        else 
+        {
+            return False;
+        }
+    }
+
+    public function set_jrf_evalutation($name){        
+       
+        $admn_no=$name['admn_no'];
+        $user_id=$this->session->userdata('id');        
+        $user_name=$this->session->userdata('name');  
+
+        $sql_check="SELECT * FROM `jrf_evaluation_main` WHERE `admn_no`='$admn_no' AND `added_by`='$user_id'";
+        $query_check = $this->db->query($sql_check);
+        
+        if ($query_check->num_rows()>0){
+
+                $sql_second="INSERT INTO `jrf_evaluation_desc`(`admn_no`, `exam_name`, `exam_date`, `exam_desc`,`file_path`,`added_by_name`, `added_by_id`) VALUES ('$name[admn_no]','$name[exam_name]','$name[exam_date]','$name[exam_desc]','$name[file_path]','$user_name','$user_id')";
+                $check=$this->db->query($sql_second);
+                if($check){
+                    return True;
+                }
+            
+            
+        }
+        else{
+           $sql="INSERT INTO `jrf_evaluation_main`(`admn_no`, `br_name`, `dep_name`, `session_year`, `session`, `semester`, `last_reg_date`, `added_by`) VALUES ('$name[admn_no]','$name[branch]','$name[department]','$name[session_year]','$name[session]','$name[semester]','$name[last_dor]','$user_id')";
+
+            if($this->db->query($sql)){
+
+                $sql_second="INSERT INTO `jrf_evaluation_desc`(`admn_no`, `exam_name`, `exam_date`, `exam_desc`,`file_path`,`added_by_name`, `added_by_id`) VALUES ('$name[admn_no]','$name[exam_name]','$name[exam_date]','$name[exam_desc]','$name[file_path]','$user_name','$user_id')";
+                    $check=$this->db->query($sql_second);
+                    if($check){
+                        return True;
+                    }
+            }
+            else{
+                $check=False;
+            }
+
+        }  
+    }
+
+
+    public function jrf_tab_data(){
+
+        $sql="SELECT CONCAT_WS(' ',ud.salutation,ud.first_name,ud.middle_name,ud.last_name) AS sname,jem.* FROM `jrf_evaluation_main` jem INNER JOIN user_details ud ON jem.admn_no=ud.id";
+        $query = $this->db->query($sql); 
+        if ($query->num_rows()) 
+        {
+            $tab_data['jrf_main']=$query->result_array();
+            
+                $sql_desc="SELECT CONCAT_WS(' ',ud.salutation,ud.first_name,ud.middle_name,ud.last_name) AS sname,jed.* FROM `jrf_evaluation_desc` jed INNER JOIN user_details ud ON jed.admn_no=ud.id";
+                $query_desc = $this->db->query($sql_desc); 
+                    if ($query_desc->num_rows()) 
+                    {
+                        $tab_data['jrf_desc']=$query_desc->result_array();
+                    }         
+            return $tab_data;
+        } 
+        else 
+        {
+            return False;
+        }
+         
+    }
+
+
+    public function all_jrf_student(){
+        $sql = "SELECT CONCAT_WS(' ',ud.salutation,ud.first_name,ud.middle_name,ud.last_name) AS sname,ud.sex,ud.category,ud.dob,ud.email,ud.photopath,ud.marital_status,ud.physically_challenged,dp.name AS department,br.name AS branch,sa.admn_no,rrf.semester,rrf.session,rrf.session_year,rrf.timestamp,max(rrf.form_id) FROM user_details AS ud INNER JOIN departments AS dp ON ud.dept_id=dp.id INNER JOIN stu_academic AS sa ON ud.id=sa.admn_no INNER JOIN branches AS br ON sa.branch_id=br.id INNER JOIN reg_regular_form AS rrf ON sa.admn_no=rrf.admn_no WHERE sa.auth_id='jrf' AND sa.enrollment_year>=2018 GROUP BY admn_no";     
+     
+        $query = $this->db->query($sql);
+        if ($query->result_array()) 
+        {
+            return $query->result_array();
+        } 
+        else 
+        {
+            return "False";
+        } 
+
+    }
+
+
+    public function getexceldata(){
+
+        $all_jrf_student=$this->all_jrf_student();
+        $jrf_student=array();
+
+        $sql_desc="SELECT * FROM `jrf_evaluation_desc` order by id desc";
+        $query_desc = $this->db->query($sql_desc); 
+        if ($query_desc->num_rows()) 
+        {
+            $jrf_student=$query_desc->result_array();
+        }
+
+        $sql_desc1="SELECT * FROM `jrf_to_srf` order by id desc";
+        $query_desc1 = $this->db->query($sql_desc1); 
+        if ($query_desc1->num_rows()) 
+        {
+            $jts_student=$query_desc1->result_array();
+        }
+
+       
+        
+        
+        $dummy=array(
+            'ce_exam' => '',
+            'ce_desc' => '', 
+            'rp_exam' => '',
+            'rp_desc' => '',
+            'jts_exam' => '', 
+            'jts_desc' => '', 
+            'ps_exam' => '',
+            'ps_desc' => ''
+        );     
+
+        $excel_data=array();
+
+        
+       
+        foreach ($all_jrf_student as $key1 => $value1) {
+            $dummy['ce_exam']='Comprehensive Examination';
+            $dummy['ce_desc']='Pending';
+            $dummy['rp_exam']='Research Proposal Seminar';
+            $dummy['rp_desc']='Pending'; 
+            $dummy['jts_exam']='JRF to SRF'; 
+            $dummy['jts_desc']='JRF'; 
+            $dummy['ps_exam']='Pre Submission Seminar';
+            $dummy['ps_desc']='Pending';
+
+            if(sizeof($jrf_student)>0){
+                foreach ($jrf_student as $key2 => $value2) {
+
+                    if($value2['admn_no']==$value1['admn_no'] && $value2['exam_name']=='Comprehensive Examination'){             
+                        $dummy['ce_exam']="Comprehensive Examination";
+                        $dummy['ce_desc']=$value2['exam_desc'];
+                        $excel_data[$key1]=array_merge($all_jrf_student[$key1],$dummy);
+                       
+                    }
+                    else if($value2['admn_no']==$value1['admn_no'] && $value2['exam_name']=='Research Proposal Seminar'){
+                        $dummy['rp_exam']="Research Proposal Seminar";
+                        $dummy['rp_desc']=$value2['exam_desc'];
+                        $excel_data[$key1]=array_merge($all_jrf_student[$key1],$dummy);
+                    }
+                    else if($value2['admn_no']==$value1['admn_no'] && $value2['exam_name']=='Pre Submission Seminar'){
+                        $dummy['ps_exam']="Pre Submission Seminar";
+                        $dummy['ps_desc']=$value2['exam_desc'];
+                        $excel_data[$key1]=array_merge($all_jrf_student[$key1],$dummy);
+                    }
+                    else{
+                        $excel_data[$key1]=array_merge($all_jrf_student[$key1],$dummy);
+                    }
+                    
+                }
+            }
+            if(sizeof($jts_student)>0){
+                foreach ($jts_student as $key => $value) {
+                   if($value['admn_no']==$value1['admn_no'] ){             
+                        $dummy['jts_exam']="JRF to SRF";
+                        $dummy['jts_desc']='SRF';
+                        $excel_data[$key1]=array_merge($all_jrf_student[$key1],$dummy);
+                       
+                    }
+                }
+            }
+            else{
+                $excel_data[$key1]=array_merge($all_jrf_student[$key1],$dummy);
+            } 
+            
+        }
+
+        return $excel_data;
+
+    }
+
+
+    public function getexam_excel($exname){
+        //echo $exname;
+        $demo=array(
+            'exam_name' => '',
+            'exam_desc' => ''
+        );   
+
+        $jrf_student=array();
+
+        $sql_main="SELECT CONCAT_WS(' ',ud.salutation,ud.first_name,ud.middle_name,ud.last_name) AS sname,jem.* FROM `jrf_evaluation_main` jem INNER JOIN user_details ud ON jem.admn_no=ud.id";
+        $query_main = $this->db->query($sql_main); 
+        if ($query_main->num_rows()){
+            $jrf_main=$query_main->result_array();
+        }    
+      
+
+        $sql_desc="SELECT CONCAT_WS(' ',ud.salutation,ud.first_name,ud.middle_name,ud.last_name) AS sname,jed.* FROM `jrf_evaluation_desc` jed INNER JOIN user_details ud ON jed.admn_no=ud.id";
+        $query_desc = $this->db->query($sql_desc); 
+        if ($query_desc->num_rows()){
+            $jrf_desc=$query_desc->result_array();
+        }   
+        
+
+        if(sizeof($jrf_main)>0){
+            foreach ($jrf_main as $key1 => $value1) {
+                $demo['exam_name']=$exname;
+                $demo['exam_desc']='Pending';
+
+                foreach ($jrf_desc as $key2 => $value2) {
+                    if($value2['admn_no']==$value1['admn_no'] && $value2['exam_name']==$exname){
+                        $demo['exam_name']=$value2['exam_name'];
+                        $demo['exam_desc']=$value2['exam_desc'];
+                        $jrf_student[$key1]=array_merge($jrf_main[$key1],$demo);
+                    }
+                    else{
+                        $jrf_student[$key1]=array_merge($jrf_main[$key1],$demo);
+                    }
+                }          
+                
+            }
+        }
+
+        return $jrf_student;
+    }
+
+
+    public function set_jrf_to_srf($name){        
+        $user_id=$this->session->userdata('id');        
+        $user_name=$this->session->userdata('name'); 
+
+        $sql="INSERT INTO `jrf_to_srf`(`admn_no`, `br_name`, `dept_name`, `session_year`, `session` , `upload_path`, `date_of_conversion`, `converted_by_id`, `converted_by_name`) VALUES ('$name[admn_no]','$name[branch]','$name[department]','$name[session_year]','$name[session]','$name[file_path]','$name[converse_date]','$user_id','$user_name')";
+
+        if($this->db->query($sql)){
+            return True;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public function get_course_detail($admn_no,$cgpa){
+        // echo $admn_no."<br>";
+        // echo $cgpa;
+        if(is_null($cgpa)){
+            $token='';
+        }
+        else{           
+            // $token=' order by t.admn_no,t.session_yr desc,t.session DESC LIMIT 1';
+            $token=' HAVING t.cgpa IS NOT NULL order by t.admn_no,t.session_yr desc,t.order_list DESC LIMIT 1';
+        }
+        $sql="select d.course_code,d.course_name ,t.* from (select d.course_code,d.course_name,d.admn_no from jrf_dsc d  where  d.admn_no='$admn_no')d left join (select y.*,fd.sub_code,fd.grade,fd.cr_hr,fd.cr_pts,fd.total from (SELECT x.* FROM( SELECT a.session_yr,a.session,a.admn_no,a.dept,a.course,a.branch,a.semester,a.id,a.`status`,
+            a.ctotcrpts,a.ctotcrhr, a.core_ctotcrpts,a.core_ctotcrhr, a.tot_cr_hr,a.tot_cr_pts,  
+            a.core_tot_cr_hr,a.core_tot_cr_pts,a.cgpa,(CASE a.session WHEN 'Monsoon' THEN '1' WHEN 'Winter' THEN '2' WHEN 
+            'Summer' THEN '3' END) AS order_list FROM final_semwise_marks_foil_freezed AS a WHERE a.admn_no='$admn_no' AND  
+            UPPER(a.course)<>'MINOR' and lower(a.course)='jrf' ORDER BY a.admn_no,a.session_yr ,order_list 
+            desc,a.actual_published_on DESC LIMIT 100000000)x  GROUP BY x.admn_no,x.session_yr,x.session) y JOIN 
+            final_semwise_marks_foil_desc_freezed fd ON fd.foil_id=y.id AND fd.admn_no=y.admn_no)t on t.admn_no=d.admn_no 
+            and d.course_code=t.sub_code $token";
+
+            /*this query is written bu Rituraj Sir*/
+        
+        $query = $this->db->query($sql); 
+        // echo $this->db->last_query();
+        if ($query->num_rows()>0){
+            return $query->result();
+        }
+        else{
+            return false;
+        }
+    }
+
+
+    /*======================== ENd Of Class ====================*/
+
+}
+
+?>

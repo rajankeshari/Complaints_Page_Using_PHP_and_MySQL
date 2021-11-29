@@ -1,0 +1,76 @@
+<?PHP
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Indent_report_model extends CI_Model {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    function getAll_Indent(){
+           
+        $sql = "select a.* from hc_indent a order by a.indent_id desc";
+        $query = $this->db->query($sql);
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return FALSE;
+        }
+        
+    }
+    
+    function get_supplier_details($id){
+           
+        $sql = "select b.s_name,concat_ws(' ',b.s_address1,b.s_address2,b.s_address3,b.s_city)as saddress,b.s_phone_no from hc_indent a 
+inner join hc_supplier b on a.s_id=b.s_id
+where a.indent_id=?";
+        $query = $this->db->query($sql,array($id));
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return FALSE;
+        }
+        
+    }
+    function get_purchase_details($id){
+        $sql = "select a.* from hc_pur_order a where a.indent_id=?";
+        $query = $this->db->query($sql,array($id));
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return FALSE;
+        }
+        
+        
+    }
+    
+    function get_indented_quantity_details($id){
+        $sql = "select b.m_id,b.m_name,a.tot_qty,c.po_id from hc_indent_description a 
+inner join hc_medicine b on b.m_id=a.m_id
+inner join hc_pur_order c on c.indent_id=a.indent_id
+where a.indent_id=? order by b.m_name";
+        $query = $this->db->query($sql,array($id));
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return FALSE;
+        }
+        
+    }
+    
+        function get_received_medi_qty($po,$mid){
+        $sql = "select sum(a.mrec_qty)as rec_qty,group_concat(a.mrec_qty)as rqty_details,group_concat(a.invoice_no)as invoice_no from hc_medi_receive a where a.po_id=? and a.m_id=?";
+        $query = $this->db->query($sql,array($po,$mid));
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return FALSE;
+        }
+        
+    } 
+    
+}
+
+?>

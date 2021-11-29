@@ -1,0 +1,295 @@
+<?php
+	class Move_to_student_model extends CI_model
+	{
+
+		 function __construct()
+		 {
+		 	parent::__construct();
+		 }
+
+		 function move_basic_details($adm_no)
+		{
+			try{
+
+//			$bt = ;
+			$this->db->query("START TRANSACTION");
+
+
+			$sql = "INSERT INTO  stu_details(admn_no , admn_date , enrollment_no , stu_type , identification_mark , parent_mobile_no , parent_landline_no ,alternate_mobile_no , alternate_email_id , migration_cert , name_in_hindi , blood_group )  SELECT admn_no , admn_date , enrollment_no , stu_type , identification_mark , parent_mobile_no , parent_landline_no ,alternate_mobile_no , alternate_email_id , migration_cert , name_in_hindi , blood_group from  alumni_basic_details WHERE admn_no = '$adm_no' ";
+
+				 	$sql1 = "DELETE FROM alumni_basic_details WHERE admn_no = '$adm_no' ";
+			$this->db->query($sql);
+				$this->db->query($sql1);
+		//}
+
+		//function move_academic_details ($adm_no)
+		//{
+			$sql = "INSERT INTO stu_academic( admn_no , auth_id ,enrollment_year , admn_based_on , iit_jee_rank , iit_jee_cat_rank , other_rank , cat_score ,gate_score , course_id,branch_id , semester)
+			  SELECT admn_no , auth_id ,enrollment_year , admn_based_on , iit_jee_rank , iit_jee_cat_rank , other_rank , cat_score ,gate_score , course_id,branch_id , semester from  alumni_academic WHERE admn_no = '$adm_no' ";
+
+				$sql1 = "DELETE FROM alumni_academic WHERE admn_no = '$adm_no' ";
+			$this->db->query($sql);
+				$this->db->query($sql1);	
+		//}
+
+
+		//function move_prev_edu_details ($adm_no)
+		//{
+			$sql = "INSERT INTO  stu_prev_education(admn_no , sno ,exam, specialization , institute , year , grade , division )  
+			  SELECT admn_no , sno ,exam, specialization , institute , year , grade , division from  alumni_prev_education WHERE admn_no = '$adm_no' ";
+
+				$sql1 = "DELETE FROM alumni_prev_education WHERE admn_no = '$adm_no' ";
+			$this->db->query($sql);
+				$this->db->query($sql1);	
+		
+	//	}
+
+
+	//	function move_admn_fee_details($adm_no)
+	//	{
+			 $sql =  "INSERT INTO stu_admn_fee(admn_no , fee_mode , fee_amount , fee_in_favour , payment_made_on , transaction_id)  SELECT admn_no , fee_mode , fee_amount , fee_in_favour , payment_made_on , transaction_id from  alumni_admn_fee WHERE admn_no = '$adm_no' ";
+
+				$sql1 = "DELETE FROM alumni_admn_fee WHERE admn_no = '$adm_no' ";
+			$this->db->query($sql);
+				$this->db->query($sql1);	
+	//	}
+
+
+	//	function move_other_details ($adm_no)
+	//	{
+
+			   $sql =  "INSERT INTO stu_other_details(admn_no , fathers_occupation , mothers_occupation ,fathers_annual_income  , mothers_annual_income  , guardian_name , guardian_relation , bank_name ,account_no , aadhaar_card_no ,extra_curricular_activity ,other_relevant_info ) SELECT admn_no , fathers_occupation , mothers_occupation ,fathers_annual_income  , mothers_annual_income  , guardian_name , guardian_relation , bank_name ,account_no , aadhaar_card_no ,extra_curricular_activity ,other_relevant_info  FROM alumni_other_details WHERE admn_no = '$adm_no' ";
+
+			   $this->db->query($sql);
+
+
+
+			   $sql =  "INSERT INTO user_other_details(id,religion ,nationality , kashmiri_immigrant , hobbies , fav_past_time , birth_place , mobile_no , father_name , mother_name) SELECT admn_no,religion ,nationality , kashmiri_immigrant , hobbies , fav_past_time , birth_place , mobile_no , father_name , mother_name  FROM alumni_other_details WHERE admn_no = '$adm_no' ";
+
+
+				$sql1 = "DELETE FROM alumni_other_details WHERE admn_no = '$adm_no' ";
+			$this->db->query($sql);
+			$this->db->query($sql1);
+		
+	//	}
+
+	//	function move_address ($adm_no)
+	//	{
+			$sql = "INSERT INTO user_address(id,line1,line2,city,state,pincode,country,contact_no,type) SELECT id,line1,line2,city,state,pincode,country,contact_no,type FROM alumni_address WHERE id='$adm_no' ";
+			$this->db->query($sql);
+			$sql1 = "DELETE FROM alumni_address WHERE id='$adm_no' ";
+			$this->db->query($sql1);
+			
+	//	}
+	//	function move_alumni_details ($adm_no)
+	//	{
+			$sql = "INSERT INTO user_details(id,salutation,first_name,middle_name,last_name,sex,category,dob,email,photopath,marital_status,physically_challenged,dept_id) SELECT id,salutation,first_name,middle_name,last_name,sex,category,dob,email,photopath,marital_status,physically_challenged,dept_id FROM alumni_details WHERE id='$adm_no' ";
+			$this->db->query($sql);
+			$sql1 = "DELETE FROM alumni_details WHERE id='$adm_no' ";
+			$this->db->query($sql1);
+	//	}
+
+
+
+
+
+
+	//	function move_reg_data($adm_no)
+	//	{
+			$sql = "INSERT INTO `reg_carryover_form`(`form_id`, `admn_no`, `semester`, `subject1_id`, `subject2_id`, `fee_date`, `fee_amt`, `receipt_path`, `transaction_id`) SELECT `form_id`, `admn_no`, `semester`, `subject1_id`, `subject2_id`, `fee_date`, `fee_amt`, `receipt_path`, `transaction_id` FROM alumni_reg_carryover_form WHERE admn_no = '$adm_no' ";
+			 
+			 $this->db->query($sql);
+
+			  $sql = "DELETE FROM alumni_reg_carryover_form WHERE admn_no = '$adm_no' ";
+			  $this->db->query($sql);
+
+
+
+
+			 $sql = "INSERT INTO `reg_other_fee`(`form_id`, `admn_no`, `fee_amt`, `fee_date`, `transaction_id`, `recipt_path`, `late_fee_amt`, `late_fee_date`, `late_fee_transaction_id`, `late_recipt_path`) SELECT `form_id`, `admn_no`, `fee_amt`, `fee_date`, `transaction_id`, `recipt_path`, `late_fee_amt`, `late_fee_date`, `late_fee_transaction_id`, `late_recipt_path` FROM alumni_reg_other_fee WHERE admn_no = '$adm_no' ";
+			 
+			 $this->db->query($sql);
+
+			  $sql = "DELETE FROM alumni_reg_other_fee WHERE admn_no = '$adm_no' ";
+			  $this->db->query($sql);
+
+
+
+
+			 $sql = "INSERT INTO `reg_other_form`(`form_id`, `admn_no`, `course_id`, `branch_id`, `semester`, `current_semester`, `session_year`, `reason`, `session`, `course_aggr_id`, `hod_status`, `hod_time`, `hod_remark`, `acad_status`, `acad_time`, `acad_remark`, `timestamp`, `status`, `re_id`) SELECT `form_id`, `admn_no`, `course_id`, `branch_id`, `semester`, `current_semester`, `session_year`, `reason`, `session`, `course_aggr_id`, `hod_status`, `hod_time`, `hod_remark`, `acad_status`, `acad_time`, `acad_remark`, `timestamp`, `status`, `re_id` FROM alumni_reg_other_form WHERE admn_no = '$adm_no' ";
+			 $this->db->query($sql);
+
+
+			 $sql1 = "INSERT INTO `reg_other_subject`(`form_id`, `sub_seq`, `sub_id`) SELECT alumni_reg_other_subject.form_id , alumni_reg_other_subject.sub_seq , alumni_reg_other_subject.sub_id FROM alumni_reg_other_subject ,alumni_reg_other_form where alumni_reg_other_form.admn_no = '$adm_no' AND alumni_reg_other_form.form_id = alumni_reg_other_subject.form_id ";
+
+			 $this->db->query($sql1);
+
+			 $sqq = "SELECT form_id FROM alumni_reg_other_form WHERE admn_no = '$adm_no' ";
+			 $tmp = $this->db->query($sqq)->result();
+
+			 foreach($tmp as $data)
+			 {
+			 	$sql1 = "DELETE FROM alumni_reg_other_subject WHERE form_id = '$data->form_id' ";
+			 	$this->db->query($sql1);
+			}
+
+ 			 $sql = "DELETE FROM alumni_reg_other_form WHERE admn_no = '$adm_no' ";
+ 			 $this->db->query($sql);
+
+
+
+
+
+			 $sql = "INSERT INTO `reg_regular_fee`(`form_id`, `admn_no`, `fee_amt`, `fee_date`, `transaction_id`, `receipt_path`, `late_fee_amt`, `late_fee_date`, `late_transation_id`, `late_receipt_path`) SELECT `form_id`, `admn_no`, `fee_amt`, `fee_date`, `transaction_id`, `receipt_path`, `late_fee_amt`, `late_fee_date`, `late_transation_id`, `late_receipt_path` FROM alumni_reg_regular_fee WHERE admn_no = '$adm_no' ";
+			 $this->db->query($sql);
+
+ 			 $sql = "DELETE FROM alumni_reg_regular_fee WHERE admn_no = '$adm_no' ";
+ 			 $this->db->query($sql);	
+
+
+
+
+
+			 $sql = "INSERT INTO `reg_regular_form`(`form_id`, `admn_no`, `course_id`, `branch_id`, `semester`, `session_year`, `session`, `course_aggr_id`, `hod_status`, `hod_time`, `hod_remark`, `acad_status`, `acad_time`, `acad_remark`, `timestamp`, `status`, `re_id`)  SELECT `form_id`, `admn_no`, `course_id`, `branch_id`, `semester`, `session_year`, `session`, `course_aggr_id`, `hod_status`, `hod_time`, `hod_remark`, `acad_status`, `acad_time`, `acad_remark`, `timestamp`, `status`, `re_id` FROM alumni_reg_regular_form WHERE admn_no = '$adm_no' ";
+			 $this->db->query($sql);
+
+ 			 $sql = "DELETE FROM alumni_reg_regular_form WHERE admn_no = '$adm_no' ";
+ 			 $this->db->query($sql);
+
+
+			 
+
+
+			 $sql = "INSERT INTO reg_rejected(admn_no , reason) SELECT admn_no , reason from alumni_reg_rejected WHERE admn_no = '$adm_no' ";
+			 $this->db->query($sql);
+
+
+ 			 $sql = "DELETE FROM alumni_reg_rejected WHERE admn_no = '$adm_no' ";
+ 			 $this->db->query($sql);
+
+
+			 $sql = "INSERT INTO `reg_summer_fee`(`form_id`, `admn_no`, `fee_amt`, `fee_date`, `transaction_id`, `receipt_path`, `late_fee_amt`, `late_fee_date`, `late_transation_id`, `late_receipt_path`) SELECT `form_id`, `admn_no`, `fee_amt`, `fee_date`, `transaction_id`, `receipt_path`, `late_fee_amt`, `late_fee_date`, `late_transation_id`, `late_receipt_path` FROM alumni_reg_summer_fee WHERE admn_no = '$adm_no' ";
+
+			 $this->db->query($sql);
+
+ 			 $sql = "DELETE FROM alumni_reg_summer_fee WHERE admn_no = '$adm_no' ";
+ 			 $this->db->query($sql);
+			 
+
+			 $sql = "INSERT INTO `reg_summer_form`(`form_id`, `admn_no`, `course_id`, `branch_id`, `semester`, `session_year`, `session`, `course_aggr_id`, `hod_status`, `hod_time`, `hod_remark`, `acad_status`, `acad_time`, `acad_remark`, `timestamp`, `status`, `re_id`) SELECT `form_id`, `admn_no`, `course_id`, `branch_id`, `semester`, `session_year`, `session`, `course_aggr_id`, `hod_status`, `hod_time`, `hod_remark`, `acad_status`, `acad_time`, `acad_remark`, `timestamp`, `status`, `re_id` FROM alumni_reg_summer_form WHERE admn_no = '$adm_no' ";
+
+
+			 $this->db->query($sql);
+
+
+			 $sql1 = "INSERT INTO `reg_summer_subject`(`form_id`, `sub_seq`, `sub_id`) SELECT alumni_reg_summer_subject.form_id ,alumni_reg_summer_subject.sub_seq ,alumni_reg_summer_subject.sub_seq FROM alumni_reg_summer_subject , alumni_reg_summer_form WHERE alumni_reg_summer_form.admn_no ='$adm_no' AND alumni_reg_summer_subject.form_id = alumni_reg_summer_form.form_id ";
+
+			 $this->db->query($sql1);
+			 $sqq = "SELECT form_id FROM alumni_reg_summer_form WHERE admn_no = '$adm_no' ";
+			 $tmp = $this->db->query($sqq)->result();
+			 foreach($tmp as $data)
+ 			 {
+ 			 	$sql1 = "DELETE FROM alumni_reg_summer_subject WHERE form_id = '$data->form_id' ";
+ 			 	$this->db->query($sql1);
+ 			 }
+
+
+ 			 $sql = "DELETE FROM alumni_reg_summer_form WHERE admn_no ='$adm_no' ";
+ 			 $this->db->query($sql);
+
+
+
+
+		//}
+
+
+
+	//	function move_1($adm_no)
+//		{
+			$sql1 = "INSERT INTO marks_subject_description(`id`, `marks_master_id`, `admn_no`, `sessional`, `theory`, 
+				`practical`, `total`, `grade`, `stu_status`, `sub_type`) SELECT `id`, `marks_master_id`, `admn_no`, `sessional`, `theory`, 
+				`practical`, `total`, `grade`, `stu_status`, `sub_type` FROM alumni_marks_subject_description WHERE admn_no='$adm_no' ";
+			$this->db->query($sql1);
+			 $sql2 = "DELETE FROM alumni_marks_subject_description WHERE admn_no='$adm_no' ";
+			 $this->db->query($sql2);
+			
+			
+			
+			
+			
+			
+//		}
+//		function move_2($adm_no)
+//		{
+			$sql3 = "INSERT INTO tabulation1(`id`, `srn`, `adm_no`, `ysession`, `wsms`, `examtype`, `sem_code`, `backlog`, 
+				`ltp`, `crdhrs`, `stu_name`, `subje_code`, `subje_order`, `subje_name`, `subje_type`, `sessional`, `theory`, 
+				`practiocal`, `totalmarks`, `grade`, `crpts`, `subje_pf`, `subje_ftsp`, `totcrhr`, `totcrpts`, `gpa`, `ctotcrhr`, 
+				`ctotcrpts`, `ogpa`, `rank`, `remarks`, `passfail`, `eheld`, `rpublished`, `YOA`, `CARRY`, `ORGCRHR`, `ORGCRPT`, 
+				`ORGGPA`, `ORGPASSFAIL`, `moderation`, `efctfrom`) SELECT `id`, `srn`, `adm_no`, `ysession`, `wsms`, `examtype`, `sem_code`, `backlog`, 
+				`ltp`, `crdhrs`, `stu_name`, `subje_code`, `subje_order`, `subje_name`, `subje_type`, `sessional`, `theory`, 
+				`practiocal`, `totalmarks`, `grade`, `crpts`, `subje_pf`, `subje_ftsp`, `totcrhr`, `totcrpts`, `gpa`, `ctotcrhr`, 
+				`ctotcrpts`, `ogpa`, `rank`, `remarks`, `passfail`, `eheld`, `rpublished`, `YOA`, `CARRY`, `ORGCRHR`, `ORGCRPT`, 
+				`ORGGPA`, `ORGPASSFAIL`, `moderation`, `efctfrom` FROM alumni_tabulation1 WHERE adm_no = '$adm_no' ";
+			$this->db->query($sql3);
+
+
+			 $sql4 = "DELETE FROM alumni_tabulation1 WHERE adm_no='$adm_no' ";
+			 $this->db->query($sql4);
+//		}
+//		function move_3($adm_no)
+//		{
+			$sql5 = "INSERT INTO final_semwise_marks_foil(`id`, `session_yr`, `session`, `dept`, `course`, `branch`, 
+				`semester`, `admn_no`, `tot_cr_hr`, `tot_cr_pts`, `core_tot_cr_hr`, `core_tot_cr_pts`, `ctotcrpts`, 
+				`core_ctotcrpts`, `ctotcrhr`, `core_ctotcrhr`, `gpa`, `core_gpa`, `cgpa`, `core_cgpa`, `status`, 
+				`core_status`, `hstatus`, `repeater`, `type`, `exam_type`) SELECT `id`, `session_yr`, `session`, `dept`, `course`, `branch`, 
+				`semester`, `admn_no`, `tot_cr_hr`, `tot_cr_pts`, `core_tot_cr_hr`, `core_tot_cr_pts`, `ctotcrpts`, 
+				`core_ctotcrpts`, `ctotcrhr`, `core_ctotcrhr`, `gpa`, `core_gpa`, `cgpa`, `core_cgpa`, `status`, 
+				`core_status`, `hstatus`, `repeater`, `type`, `exam_type` FROM alumni_final_semwise_marks_foil WHERE admn_no = 
+				'$adm_no' ";
+			$this->db->query($sql5);
+
+			 $sql6 = "DELETE FROM alumni_final_semwise_marks_foil WHERE admn_no = '$adm_no' ";
+			 $this->db->query($sql6);
+//		}
+//		function move_4($adm_no)
+//		{
+			$sql7 = "INSERT INTO final_semwise_marks_foil_desc(`foil_id`, `admn_no`, `sub_code`, `mis_sub_id`, `cr_hr`, 
+				`sessional`, `theory`, `total`, `grade`, `cr_pts`, `current_exam`, `remark`) SELECT `foil_id`, `admn_no`, `sub_code`, `mis_sub_id`, `cr_hr`, 
+				`sessional`, `theory`, `total`, `grade`, `cr_pts`, `current_exam`, `remark` FROM alumni_final_semwise_marks_foil_desc
+				WHERE admn_no='$adm_no' ";
+			$this->db->query($sql7);
+
+
+
+
+			 $sql8 = "DELETE FROM alumni_final_semwise_marks_foil_desc WHERE admn_no='$adm_no' ";
+			 $this->db->query($sql8);
+
+
+
+			 $sql9  = "UPDATE users SET status = 'A' WHERE id= '$adm_no' ";
+			$this->db->query($sql9);
+
+
+
+		$this->db->query("COMMIT");
+			return "";
+
+
+		}
+		catch(Exception $e)
+		{
+
+		$this->db->query("ROLLBACK");
+			return $e;
+
+		}
+
+	}
+	
+
+
+	}
+
+	
+?>

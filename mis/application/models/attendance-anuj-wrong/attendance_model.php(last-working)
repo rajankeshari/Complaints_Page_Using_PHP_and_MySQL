@@ -1,0 +1,135 @@
+<?php
+class Attendance_model extends CI_Model
+{
+	public function __construct()
+	{
+		parent::__construct();
+	}
+	public function get_session_year()
+	{
+		$emp_id=$this->session->userdata('id');
+		$this->load->database();
+		$query=$this->db->query("SELECT DISTINCT session_year
+								FROM subject_mapping_des AS A
+								INNER JOIN subject_mapping AS B ON A.map_id = B.map_id 
+								WHERE emp_no = '$emp_id' 
+								ORDER BY session_year;");
+		return $query->result();
+	}
+        
+      
+	public function get_subjects($data='')
+	{
+		$emp_id=$this->session->userdata('id');
+		$this->load->database();
+		if($data!== '')
+		{   
+			$session=$data['session'];
+			$session_year=$data['session_year'];
+			$q="SELECT S.subject_id as s_id, name, newt.sub_id as n_id, newt.semester,newt.group
+							FROM (SELECT session,session_year,sub_id, B.course_id,B.group, semester, emp_no, A.map_id
+								FROM subject_mapping_des AS A
+								INNER JOIN subject_mapping AS B ON A.map_id = B.map_id) AS newt
+							INNER JOIN subjects AS S ON S.id = newt.sub_id
+							WHERE newt.emp_no =  '$emp_id' AND session='$session'
+							 AND session_year='$session_year' AND newt.group='0' ";
+                                                        if(isset($data['s'])){
+                                                            $q.=" and newt.course_id='".$data['s']."'";
+        }       
+        
+        $query= $this->db->query($q);
+
+		$result= $query->result();
+		return $result;
+		}
+	}
+      
+    // Added as per rq. 4/11/15 (@rituraj), desc: To load  All record at once from where   download link to be attached  against  each  row. 
+        public function get_sub_brh_crs($data='')
+	{
+            //echo "crs_type".$data['s'];
+		$emp_id=$this->session->userdata('id');
+		$this->load->database();
+		if($data!== '')
+		{   
+			$session=$data['session'];
+			$session_year=$data['session_year'];
+			$q="SELECT S.subject_id as s_id, S.name as sub_name, newt.sub_id , newt.semester,newt.group, newt.branch_name,newt.course_name,newt.branch_id,newt.course_id
+							FROM (SELECT session,session_year,sub_id, B.branch_id,B.course_id,B.group, semester, emp_no, A.map_id,branches.name as branch_name,courses.name as course_name
+								FROM subject_mapping_des AS A
+								INNER JOIN subject_mapping AS B ON A.map_id = B.map_id
+                                                                LEFT JOIN branches ON B.branch_id=branches.id
+                                                                LEFT JOIN courses ON B.course_id=courses.id    
+                                                           ) AS newt
+							INNER JOIN subjects AS S ON S.id = newt.sub_id
+							WHERE newt.emp_no =  '$emp_id' AND session='$session'
+							 AND session_year='$session_year' AND newt.group='0' ";
+                                                        if(isset($data['s'])){
+                                                            $q.=" and newt.course_id='".$data['s']."'";
+                                                          }       
+                                                         
+        
+             $query= $this->db->query($q);
+                  //echo $this->db->last_query(); die();
+		$result= $query->result();
+		return $result;
+		}
+	}
+        // end
+	public function get_branch($data)
+	{
+		$emp_id=$data['emp_id'];
+		$subject=$data['subject'];
+		$this->load->database();
+		$query=$this->db->query("SELECT DISTINCT branch_id
+								FROM subject_mapping 
+								INNER JOIN (SELECT map_id 
+											FROM subject_mapping_des
+											WHERE emp_no = '$emp_id' AND sub_id='$subject') AS t
+								ON t.map_id = subject_mapping.map_id ;");
+		$branch_id=array();
+		$branch_id=$query->result();
+		return $this->get_branch_name($branch_id);
+	}
+	public function get_branch_name($branch_id)
+	{
+		$branch_id_arr=array();
+		for($i=0;$i<count($branch_id);$i++)
+			$branch_id_arr[$i]=$branch_id[$i]->branch_id;
+		$this->load->database();
+		$this->db->select('id,name');
+		$this->db->from('cs_branches');
+		$this->db->where_in('id',$branch_id_arr);
+		$query=$this->db->get();
+		return $query->result();
+	}
+        
+        function get_minor_stu($data){
+            $q ="select admn_no from hm_form join hm_minor_details on hm_form.form_id=hm_minor_details.form_id where hm_form.minor_hod_status ='Y' and hm_minor_details.dept_id='".$data['dept_id']."' and hm_minor_details.branch_id='".$data['branch_id']."' and hm_minor_details.offered='1'";
+            $qu=$this->db->query($q);
+            if($qu->num_rows() > 0)
+                return $qu->result();
+            return false;
+            
+        }
+		
+		 public function get_subjects_common($data)
+    {
+    	$emp_id=$data['emp_id'];
+    	$session=$data['session'];
+    	$session_year=$data['session_year'];
+    	$this->load->database();
+    	$q="SELECT S.subject_id as s_id, name, newt.sub_id as n_id, newt.semester
+							FROM (SELECT session,session_year,sub_id, B.course_id, semester, emp_no, A.map_id
+								FROM subject_mapping_des AS A
+								INNER JOIN subject_mapping AS B ON A.map_id = B.map_id) AS newt
+							INNER JOIN subjects AS S ON S.id = newt.sub_id 
+							WHERE newt.emp_no =  '$emp_id' AND session='$session' and newt.course_id='comm'
+ 							 AND session_year='$session_year' AND (semester='1' OR semester='2') ";
+
+		$query= $this->db->query($q);
+		$result= $query->result();
+		return $result;
+    }
+}
+?>

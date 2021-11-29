@@ -1,0 +1,237 @@
+<?php
+
+class Phdawarded_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+        
+    function get_basic_details($id)
+    {
+          
+     
+        
+        $sql="select a.id,concat_ws(' ',a.first_name,a.middle_name,a.last_name) as sname,a.sex,
+b.father_name,b.mother_name,b.mobile_no,a.email,a.dept_id,c.name as dname
+from user_details a 
+inner join user_other_details b on b.id=a.id
+inner join departments c on c.id=a.dept_id
+where a.id=?";
+
+        
+        $query = $this->db->query($sql,array($id));
+
+       
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    function get_guide()
+    {
+          
+     
+        
+        $sql="select a.id,concat_ws(' ',a.first_name,a.middle_name,a.last_name)as ftname,a.dept_id from user_details a 
+inner join emp_basic_details b on b.emp_no=a.id
+where b.auth_id='ft' order by a.first_name,a.middle_name,a.last_name";
+
+        
+        $query = $this->db->query($sql);
+
+       
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    function get_departments(){
+        $sql="select * from departments where type='academic'";
+ 
+        
+        $query = $this->db->query($sql);
+
+       
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    function get_faculty_dept_wise_list($id){
+        $sql="select a.id,concat_ws(' ',a.first_name,a.middle_name,a.last_name)as ftname,a.dept_id from user_details a 
+inner join emp_basic_details b on b.emp_no=a.id
+where b.auth_id='ft' and a.dept_id=? order by a.first_name,a.middle_name,a.last_name";
+
+        
+        $query = $this->db->query($sql,array($id));
+
+       
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    function add_external_guide($data){
+        if($this->db->insert('fellow_external_co_guide',$data))
+			return $this->db->insert_id();
+		else
+			return FALSE;
+        
+    }
+    
+    function get_external_organization()
+    {
+        $sql="select * from fellow_external_co_guide";
+
+        
+        $query = $this->db->query($sql);
+
+       
+        if ($this->db->affected_rows() > 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
+    function get_guide_list($id){
+        $sql="select * from  fellow_external_co_guide where id=?";
+
+        
+        $query = $this->db->query($sql,array($id));
+
+       
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    function add_phd_awarded_details($data){
+         if($this->db->insert('phd_awarded',$data))
+			return $this->db->insert_id();
+		else
+			return FALSE;
+    }
+    
+    
+    function get_current_phd_student(){
+        $sql="select x.* from(
+select a.id,concat_ws(' ',a.first_name,a.middle_name,a.last_name)as sname,c.name as dname,
+CASE
+    WHEN b.branch_id='fulltime' THEN 'Full Time'
+    WHEN b.branch_id='parttime' THEN 'Part Time'
+    ELSE ' '
+END  as 'stu_type', 'Ongoing' as status
+from user_details a 
+inner join stu_academic b on a.id=b.admn_no
+inner join departments c on c.id=a.dept_id
+where b.auth_id='jrf'
+order by a.dept_id,a.id,a.first_name,a.middle_name,a.last_name)x
+where x.id not in (select admn_no from phd_awarded)
+";
+
+        
+        $query = $this->db->query($sql);
+
+       
+        if ($this->db->affected_rows() > 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    function get_awarded_phd_student(){
+        $sql="select a.*,concat_ws(' ',b.first_name,b.middle_name,b.last_name)as sname,c.name as dname, 
+CASE
+    WHEN d.branch_id='fulltime'  THEN 'Full Time' 
+    WHEN d.branch_id='parttime' THEN 'Part Time'
+    ELSE ' '
+END  as 'stu_type', 'Completed' as status
+
+from phd_awarded a
+inner join user_details b on b.id=a.admn_no
+inner join departments c on c.id=a.dept_id
+inner join stu_academic d on d.admn_no=a.admn_no";
+
+        
+        $query = $this->db->query($sql);
+
+       
+        if ($this->db->affected_rows() > 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
+        function get_guide_coguide($id){
+        $sql="select concat_ws(' ',a.salutation,a.first_name,a.middle_name,a.last_name)as fname from user_details a where a.id=?";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    //==========external guide=======
+    
+    function get_external($id){
+        $sql="select a.ext_name from fellow_external_co_guide a where a.id=?";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    function check_exists($id){
+        $sql="select * from phd_awarded a where a.admn_no=?";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    
+    function update_stu_academic_branchid($admnno,$phdtype){
+        $sql = "update stu_academic set branch_id='".$phdtype."' where admn_no='".$admnno."'";
+        $query = $this->db->query($sql);
+        if ($this->db->affected_rows() > 0) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+	
+	function check_user_details($id){
+        $sql="select a.* from user_details a where a.id=?";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+            return $query->row();
+        } else {
+            return FALSE;
+        }
+    }
+	
+	function checkjrf($id){
+		$sql="select a.auth_id from stu_academic a where a.admn_no=?";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+            return $query->row()->auth_id;
+        } else {
+            return FALSE;
+        }
+	}
+
+}
+
+?>

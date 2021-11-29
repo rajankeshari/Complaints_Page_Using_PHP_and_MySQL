@@ -1,0 +1,38 @@
+<?php
+	$ui = new UI;
+	$ui->col()->width(2)->open()->close();
+	$col_main = $ui->col()->width(8)->open();
+	$box = $ui->box()->solid()->title('Guest Info')->uiType('primary')->open();
+		$table = $ui->table()->hover()->striped()->open();
+			echo '<tr>';
+				echo '<th>Name</th>';
+				echo '<td>'.$name.'</td>';
+			echo '</tr>';
+			echo '<tr>';
+				echo '<th>Designation</th>';
+				echo '<td>'.$designation.'</td>';
+			echo '</tr>';
+			echo '<tr>';
+				echo '<th>Gender</th>';
+				echo '<td>'.$gender.'</td>';
+			echo '</tr>';
+			echo '<tr>';
+				echo '<th>Contact</th>';
+				echo '<td>'.$contact.'</td>';
+			echo '</tr>';
+			echo '<tr>';
+				echo '<th>Email</th>';
+				echo '<td>'.$email.'</td>';
+			echo '</tr>';
+			echo '<tr>';
+				echo '<th>Address</th>';
+				echo '<td>'.$address.'</td>';
+			echo '</tr>';
+			echo '<tr>';
+				echo '<th>Identity Card</th>';
+				echo '<td><a href="'.site_url('../assets/files/edc_booking/'.$user_id.'/'.$identity_card).'">Click to view</a></td>';
+			echo '</tr>';
+		$table->close();
+	$box->close();
+	$col_main->close();
+?>

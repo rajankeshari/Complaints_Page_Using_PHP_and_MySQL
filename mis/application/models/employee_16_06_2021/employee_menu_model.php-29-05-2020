@@ -1,0 +1,90 @@
+<?php
+
+class Employee_menu_model extends CI_Model
+{
+	function __construct()
+	{
+		// Call the Model constructor
+		parent::__construct();
+	}
+
+	function getMenu()
+	{
+		$menu=array();
+		//auth ==> emp
+		$menu['emp']=array();
+		// $menu['emp']['Attendance Management']=array();
+		// $menu['emp']["Attendance Management"]["Generate Attendance"] = site_url('attendance/student_attendance');
+		// $menu['emp']["Attendance Management"]["Attendance"] = site_url('attendance/student_attendance');
+		$menu['emp']['Employee Details']=array();
+		$menu['emp']["Employee Details"]["View your Details"] = site_url('employee/view/menu/emp');
+		$menu['emp']["Employee Details"]["Edit your Details"] = site_url('employee/edit/menu/emp');
+		//$menu['emp']["Set/Change Security Question"]= site_url('sec_inside/sec_inside_controller/change_security_questions');
+
+		$menu['est_ar']=array();
+		$menu['est_ar']['Employee Details']=array();
+		$menu['est_ar']["Employee Details"]["Validation"]=array();
+		$menu['est_ar']["Employee Details"]["Validation"]["Validate Permanent"]=site_url('employee/validation');
+		//$menu['est_ar']["Employee Details"]["Validation"]["Validate Daily Rated"]=site_url('employee_daily_rated/validation');
+		//$menu['est_ar']["Employee Details"]["Database Queries"]=array();
+		//$menu['est_ar']["Employee Details"]["Database Queries"]["Get Employee By Category"]=site_url('employee/queries/queryByCategory');
+		//$menu['est_ar']["Employee Details"]["Database Queries"]["Get Employee By Department"]=site_url('employee/queries/queryByDepartment');
+		//$menu['est_ar']["Employee Details"]["Database Queries"]["Get Employee By Designation"]=site_url('employee/queries/queryByDesignation');
+		
+		//auth ==> ar_fa  
+		//Assistant Registrar Faculty
+		// This menu has been added as per verbal instruction of Chiranjeev Sir till faculty is fully separated 22.01.2020
+		$menu['ar_fa']=array();
+		$menu['ar_fa']['Employee Details']=array();
+		$menu['ar_fa']["Employee Details"]["Validation"]=array();
+		$menu['ar_fa']["Employee Details"]["Validation"]["Validate Permanent"]=site_url('employee/validation');
+		
+		
+		//auth ==> deo
+		$menu['est_da1']=array();
+		$menu['est_da1']['Manage Employees']=array();
+		$menu['est_da1']["Manage Employees"]["Add Employee"]=array();
+		$menu['est_da1']["Manage Employees"]["Add Employee"]["Add Permanent Employee"] = site_url('employee/add');
+		//$menu['est_da1']["Manage Employees"]["Add Employee"]["Add Daily Rated Employee"] = site_url('employee_daily_rated/add');
+		//$menu['est_da1']["Manage Employees"]["Remove Employee"] = site_url('employee/remove');
+		$menu['est_da1']["Manage Employees"]["View Employee Details"] = site_url('employee/view/menu/est_da1');
+		$menu['est_da1']["Manage Employees"]["Edit Employee Details"]=array();
+		$menu['est_da1']["Manage Employees"]["Edit Employee Details"]["Edit Permanent Employee"] = site_url('employee/edit/menu/est_da1');
+		//$menu['est_da1']["Manage Employees"]["Edit Employee Details"]["Edit Daily Rated Employee"] = site_url('employee_daily_rated/edit/index/est_da1');
+		//$menu['est_da1']["Manage Employees"]["Validation"]=array();
+		//$menu['est_da1']["Manage Employees"]["Validation"]["Validate Permanent"] = site_url('employee/validation');
+		//$menu['est_da1']["Manage Employees"]["Validation"]["Validate Daily Rated"] = site_url('employee_daily_rated/validation');
+               
+                // Employee Section Query 
+                $menu['est_dr']=array();
+		$menu['est_dr']['Employee Details']=array();
+		
+		$menu['ar_fa']=array();
+		$menu['ar_fa']['Employee Details']=array();
+                
+                $menu['est_da2']=array();
+		$menu['est_da2']['Employee Details']=array();
+                
+                $menu['admin']=array();
+		$menu['admin']['Employee Details']=array();
+                
+                $menu['hos']=array();
+		$menu['hos']['Employee Details']=array();
+                
+                $menu['ar_fa']["Employee Details"]["Report"]=site_url('employee/emp_report');
+				$menu['est_ar']["Employee Details"]["Report"]=site_url('employee/emp_report');
+                $menu['est_dr']["Employee Details"]["Report"]=site_url('employee/emp_report');
+                $menu['est_da2']["Employee Details"]["Report"]=site_url('employee/emp_report');      
+                $menu['admin']["Employee Details"]["Report"]=site_url('employee/emp_report'); 
+                $menu['hos']["Employee Details"]["Report"]=site_url('employee/emp_report'); 
+				
+				//===============Retired Employee================
+                $menu['est_da1']["Manage Employees"]["Add Employee"]["Add Retired Employee"] = site_url('employee/add_retired_emp');
+                
+                //==========================================   
+                
+		return $menu;
+	}
+}
+/* End of file employee_menu.php */
+/* Location: mis/application/models/employee/employee_menu.php */

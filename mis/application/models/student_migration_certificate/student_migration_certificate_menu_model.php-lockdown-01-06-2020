@@ -1,0 +1,107 @@
+<?php
+
+if (!defined("BASEPATH")) {
+    exit("No direct script access allowed");
+}
+
+class Student_migration_certificate_menu_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    function getMenu() {
+        $menu = array();
+        
+        $menu['exam_da1'] = array();
+        $menu['exam_da1']['Migration Certificate'] = array();
+        $menu['exam_da1']['Migration Certificate']['Fill Migration'] = site_url('student_migration_certificate/migration_certificate_deo');
+        $menu['exam_da1']['Migration Certificate']['Migration Status'] = site_url('student_migration_certificate/migration_print_already');
+        $menu['exam_da1']['Migration Certificate']['Issue Migration'] = site_url('student_migration_certificate/migration_print');
+         
+         $menu['acad_exam'] = array();
+        $menu['acad_exam']['Migration Certificate'] = array();
+        $menu['acad_exam']['Migration Certificate']['Fill Migration'] = site_url('student_migration_certificate/migration_certificate_deo');
+        $menu['acad_exam']['Migration Certificate']['Migration Status'] = site_url('student_migration_certificate/migration_print_already');
+         $menu['acad_exam']['Migration Certificate']['Issue Migration'] = site_url('student_migration_certificate/migration_print');
+        
+        $menu['exam_dr'] = array();
+        $menu['exam_dr']['Migration Certificate'] = array();
+        $menu['exam_dr']['Migration Certificate']['Fill Migration'] = site_url('student_migration_certificate/migration_certificate_deo');
+        $menu['exam_dr']['Migration Certificate']['Issue Migration'] = site_url('student_migration_certificate/migration_print');
+        $menu['exam_dr']['Migration Certificate']['Migration Status'] = site_url('student_migration_certificate/migration_print_already');
+        
+        $menu['acad_dr'] = array();
+        $menu['acad_dr']['Migration Certificate'] = array();
+        $menu['acad_dr']['Migration Certificate']['Fill Migration'] = site_url('student_migration_certificate/migration_certificate_deo');
+        $menu['acad_dr']['Migration Certificate']['Issue Migration'] = site_url('student_migration_certificate/migration_print');
+        $menu['acad_dr']['Migration Certificate']['Migration Status'] = site_url('student_migration_certificate/migration_print_already');
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+         /* 
+        $menu['stu'] = array();
+        $menu['stu']['Migration Certificate'] = array();
+        $menu['stu']['Migration Certificate'] = site_url('student_migration_certificate/migration_certificate');
+
+
+        $menu['acad_da1'] = array();
+        $menu['acad_da1']['Migration Certificate'] = array();
+        // $menu['acad_da1']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval');
+        $menu['acad_da1']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval/index/acad_da1');
+
+        $menu['acad_da2'] = array();
+        $menu['acad_da2']['Migration Certificate'] = array();
+        // $menu['acad_da2']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval');
+        $menu['acad_da2']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval/index/acad_da2');
+
+        $menu['acad_ar'] = array();
+        $menu['acad_ar']['Migration Certificate'] = array();
+        $menu['acad_ar']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval/index/acad_ar');
+
+
+        $menu['exam_da1'] = array();
+        $menu['exam_da1']['Migration Certificate'] = array();
+        // $menu['acad_da1']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval');
+        $menu['exam_da1']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval/index/exam_da1');
+
+        $menu['exam_no'] = array();
+        $menu['exam_no']['Migration Certificate'] = array();
+        // $menu['acad_da2']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval');
+        $menu['exam_no']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval/index/exam_no');
+
+        $menu['exam_dr'] = array();
+        $menu['exam_dr']['Migration Certificate'] = array();
+        $menu['exam_dr']['Migration Certificate']['Approval'] = site_url('student_migration_certificate/migration_approval/index/exam_dr');
+        $menu['exam_dr']['Migration Certificate']['Print'] = site_url('student_migration_certificate/migration_print');
+        
+        
+       
+          $menu['exam_da1'] = array();
+          $menu['exam_da1']['MIS Report'] = array();
+          $menu['exam_dr']['MIS Report']['Semester Registration'] = site_url('mis_report/semester_registration');
+
+          $menu['acad_ar'] = array();
+          $menu['acad_ar']['MIS Report'] = array();
+          $menu['exam_dr']['MIS Report']['Semester Registration'] = site_url('mis_report/semester_registration');
+         */
+
+
+
+
+        return $menu;
+    }
+
+}

@@ -1,0 +1,60 @@
+<?php
+
+class Student_image_report_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    function get_regular_student($eyear, $stype, $did, $cid, $bid)
+    {
+       
+        
+        $sql="SELECT a.id AS admn_no, 
+CONCAT_WS(' ',a.first_name,a.middle_name,a.last_name) AS sname,
+ h.domain_name, 
+ d.mobile_no, a.photopath, a.dob,c.blood_group, a.dept_id, b.course_id, b.branch_id, b.enrollment_year, b.auth_id,
+ e.name as dname,f.name as cname,g.name as bname
+FROM user_details a
+left JOIN stu_academic b ON b.admn_no=a.id
+left JOIN stu_details c ON c.admn_no=a.id
+left JOIN user_other_details d ON d.id=a.id
+left join departments e on e.id=a.dept_id
+left join cs_courses f on f.id=b.course_id 
+left join cs_branches g on g.id=b.branch_id
+left join emaildata h on h.admission_no=a.id
+LEFT JOIN users i ON i.id=a.id
+WHERE 1=1";
+
+if($eyear!='none'){
+$sql.= " and b.enrollment_year='".$eyear."' ";
+}
+if($stype!='none'){
+$sql.= " and b.auth_id='".$stype."' ";
+}
+if($did!='none'){
+$sql.= " and a.dept_id='".$did."' ";
+}
+if($cid!='none'){
+$sql.= " and b.course_id='".$cid."' ";
+}
+if($bid!='none'){
+$sql.= " and b.branch_id='".$bid."' ";
+}
+
+
+$sql.= " and i.status='A' order by dname,cname,bname,admn_no";
+
+            $query = $this->db->query($sql);
+
+            //echo $this->db->last_query(); die();
+            if ($this->db->affected_rows() >= 0) {
+                return $query->result();
+            } else {
+                return false;
+            }
+    }
+
+}
+
+?>

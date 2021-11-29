@@ -1,0 +1,613 @@
+<?php
+
+/* tabulation process
+ * Copyright (c) ISM dhanbad * 
+ * @category   phpExcel
+ * @package    exam_tabulation
+ * @copyright  Copyright (c) 2014 - 2015 Ism dhanbad
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
+ * @version    ##0.1##, #26/11/15#
+ * @Author     Ritu raj<rituraj00@rediffmail.com>
+*/
+
+class Exam_tabulation_model
+extends CI_Model
+{
+	
+	
+	function __construct()
+	{
+		// Call the Model constructor
+		parent::__construct();
+	}
+	
+        function getCourseOfferedByDept($id){
+            $q=$this->db->get_where($this->sem_subject,array('form_id'=>$id));
+            if($q->num_rows() > 0){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        function getCourseByDept(){
+            
+                if($this->input->post('exm_type')=="other"){
+                  $and= "  and (b.course_id!='honour' and b.course_id!='minor') ";                  
+              }else {
+                  $and= "";                  
+              }
+            
+            
+           if($this->input->post('dept')!="comm"){
+             $sql="select concat(x.course_id,'(',x.branch_id,')') as sheet_name ,x.course_id,cs_courses.duration from(
+                      select  a.dept_id,upper(b.course_id) as course_id,b.branch_id  from dept_course a  join course_branch b  on a.course_branch_id=b.course_branch_id  and a.dept_id=? and b.course_id!='capsule' ".$and."  and b.course_id!=?
+                        group by b.course_id,b.branch_id)x
+                         left join cs_courses on cs_courses.id=x.course_id";
+             $secure_array=array($this->input->post('dept'),'comm');            
+             $query = $this->db->query($sql, $secure_array);
+            //  echo $this->db->last_query();  die(); 
+          if ($query->num_rows() > 0)
+              return $query->result();
+           else {
+             return 0;
+          }
+        }else{
+          //   echo 'section_id'. $this->input->post('section_name'); die();
+               $sql="select concat(x.course_id,'(','".$this->input->post('section_name')."',')') as sheet_name ,x.course_id,cs_courses.duration from(
+                      select  a.dept_id,upper(b.course_id) as course_id,b.branch_id  from dept_course a  join course_branch b  on a.course_branch_id=b.course_branch_id  and b.course_id!='capsule' ".$and."   and b.course_id=?
+                        group by b.course_id,b.branch_id)x
+                         left join cs_courses on cs_courses.id=x.course_id";
+             $secure_array=array('comm');            
+             $query = $this->db->query($sql, $secure_array);
+             // echo $this->db->last_query(); 
+          if ($query->num_rows() > 0)
+              return $query->result();
+           else {
+             return 0;
+          }
+        }
+            //return array()
+      }
+      
+      function getStudentHonours($branch,$sem,$admn_no=null){
+        if( $admn_no !=null){
+          $replacer1="hf1.admn_no=?  and ";
+          $secure_array=array($admn_no,'1','Y',$this->input->post('dept'),$this->input->post('session_year'),$sem,$branch);             
+        }
+        else{
+            $replacer1="";
+            $secure_array=array('1','Y',$this->input->post('dept'),$this->input->post('session_year'),$sem,$branch);             
+        }
+         $sql="  
+  select A.admn_no,concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name from
+  (select hf1.admn_no from  hm_form hf1  where ".$replacer1."  hf1.honours=? and hf1.honour_hod_status=? and  hf1.dept_id=?  and session_year=? and  hf1.semester=?)A
+  inner join stu_academic on stu_academic.admn_no=A.admn_no and  stu_academic.branch_id=?
+  inner join user_details ud on ud.id=A.admn_no 
+  order by A.admn_no "; 
+            
+            $query = $this->db->query($sql, $secure_array);
+   //        echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+        
+      function getStudentIncomingMinor($branch,$sem,$admn_no=null){
+         if( $admn_no !=null){
+          $replacer1=" and hf2.admn_no=? ";
+            $secure_array=array($admn_no,'1','1','Y',$this->input->post('session_year'),$sem,$this->input->post('dept'),$branch);    
+           }
+           else{
+            $replacer1="";
+           $secure_array=array('1','1','Y',$this->input->post('session_year'),$sem,$this->input->post('dept'),$branch);    
+        }
+          $sql="
+                 select dpt.name as dept_name , A.admn_no,concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name ,A.dept_id,  A.branch_id , A.semester
+                 from 
+                ( select hf2.semester ,hf2.admn_no,hf2.dept_id,hm_minor_details.dept_id as from_dept,branch_id from hm_form hf2  
+                    inner join hm_minor_details on hm_minor_details.form_id=hf2.form_id 
+                         ".$replacer1."  and hm_minor_details.offered=? and hf2.minor=? and hf2.minor_hod_status=? and hf2.session_year=? and hf2.semester=? 
+								  and hm_minor_details.dept_id=?  and hm_minor_details.branch_id=?  
+                    )A 
+                      
+                      inner join user_details ud on ud.id=A.admn_no                        
+                       left join departments dpt on dpt.id =A.dept_id
+                       
+                       order by A.admn_no 		  
+             ";
+          
+           
+                     
+            $query = $this->db->query($sql, $secure_array);
+          //  echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+            }
+      
+      
+            
+       function getStudentListCommon($session_yr,$section){
+           $sql="select concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name , A.admn_no
+                  from 
+                   (select admn_no,section  from  stu_section_data where session_year=? and section=? )A                    
+                     inner join user_details ud on ud.id=A.admn_no 
+                     
+                      order by A.admn_no  ";
+           
+           
+            $secure_array=array($this->input->post('session_year'),$this->input->post('section_name'));            
+            $query = $this->db->query($sql, $secure_array);
+           // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+      
+          function getPREPStudentList(){            
+                  $yr=explode('-',$this->input->post('session_year'));                  
+                  $table=" reg_exam_rc_form ";                 
+            
+            $sql="select A.admn_no,concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name 
+                  from                                   
+                   ( select admn_no  from stu_academic  where auth_id=? and  enrollment_year=?) A
+                   inner join user_details ud on ud.id=A.admn_no";
+                  if($this->input->post('dept')!='all'){
+                $sql.=" and dept_id=?";                           
+                  }
+                   $sql.=" order by A.admn_no";            
+                        if($this->input->post('dept')!='all'){
+                            $secure_array=array('prep',$yr[0],$this->input->post('dept'));
+                        
+                        }else{
+                            $secure_array=array('prep',$yr[0]);
+                        }
+                      $query = $this->db->query($sql, $secure_array);        
+                    
+                        
+            // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+      
+      
+      function getJRFStudentList($dept,$course_id,$branch_id){
+            
+                    
+                  $table=" reg_exam_rc_form ";
+                  $secure_array=array($this->input->post('session'),$this->input->post('session_year'),'1','1',$course_id,$branch_id,$dept);
+            
+            $sql="select B.admn_no,concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name 
+                  from                                   
+                   (select admn_no from   ".$table."  where  session=?  and session_year=? and hod_status=? and  acad_status=?
+                   and upper(course_id)=? and branch_id=?  )B                   
+                   inner join user_details ud on ud.id=B.admn_no   and dept_id=?                                    
+                   order by B.admn_no
+                   ";            
+                        
+             $query = $this->db->query($sql, $secure_array);
+          //   echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+      
+      
+        function getStudentList($dept,$course_id,$branch_id,$sem){
+            
+              if($this->input->post('exm_type')=="other"){
+                  $where= "and  semester like '%?%' ";
+                  $table=" reg_exam_rc_form ";
+                  $secure_array=array($dept,$this->input->post('session'),$this->input->post('session_year'),'1','1',$course_id,$branch_id,$sem);
+              
+              }else if($this->input->post('exm_type')=="regular"){
+                  $where= "and  semester=? ";
+                  $table=" reg_regular_form ";
+                  $secure_array=array($dept,$this->input->post('session'),$this->input->post('session_year'),'1','1',$course_id,$branch_id,$sem);
+              }
+            $sql="select B.admn_no,concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name 
+                  from
+                 (select course_id,branch_id from dept_course a  join course_branch b  on a.course_branch_id=b.course_branch_id  and a.dept_id=? group by b.course_id,b.branch_id)A
+                  inner join
+                  (select admn_no,course_id,branch_id ,semester from   ".$table."  where  session=?  and session_year=? and hod_status=? and  acad_status=?
+                   and upper(course_id)=? and branch_id=?  ".$where."  )B on A.course_id=B.course_id  and A.branch_id=B.branch_id  
+                   left join user_details ud on ud.id=B.admn_no                    
+                   order by B.admn_no
+                   ";            
+                        
+             $query = $this->db->query($sql, $secure_array);
+            // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+      
+      function getSubjectsByAdminNoFrom_tabulation($branch, $course_id,$sem,$admn_no){
+         /* $p=  explode('-', $this->input->post('session_year'));
+          $a=  substr($p[0],-2)-1;
+          $b= substr($p[1],-2)-1;
+          * */
+          
+          //echo $a;echo $b;
+            /*$secure_array=array($admn_no,$a.$b,'S',
+                               ($this->input->post('session')=='Monsoon'?'MS':($this->input->post('session')=='Winter'?'WS':($this->input->post('session')=='Summer')?'SS':"")),
+                                $this->input->post('dept'),$course_id,$branch,$sem);                               
+            $sql=" select  tb.gpa, tb.ogpa,tb.totcrhr,tb.totcrpts as totalcreditpoint, tb.ctotcrhr, tb.ctotcrpts,  if((tb.theory=0 and tb.practiocal=0 and tb.sessional=0),'Practicle','Theory') as type,
+							  tb.subje_ftsp, tb.subje_code  as  sub_code ,tb.ltp as LTP,tb.sessional,tb.theory,tb.practiocal as practical,tb.grade,tb.crpts ,tb.totalmarks as total, tb.crdhrs as credit_hours from  tabulation2 tb where tb.adm_no=?  and tb.`session`=? and tb.examtype=? and tb.wsms=? and  tb.sem_code=  
+                  (select d.semcode from dip_m_semcode d  where d.deptmis=? and d.course=? and  d.branch=? and d.sem=?)";
+            */
+           /* $secure_array=array($admn_no,$a.$b,
+                               ($this->input->post('session')=='Monsoon'?'MS':($this->input->post('session')=='Winter'?'WS':($this->input->post('session')=='Summer')?'SS':"")),
+                                $this->input->post('dept'),$course_id,$branch,$sem);                               
+            
+            
+             $sql=" select tb.examtype, tb.gpa, tb.ogpa,tb.totcrhr,tb.totcrpts as totalcreditpoint, tb.ctotcrhr, tb.ctotcrpts,  if((tb.theory=0 and tb.practiocal=0 and tb.sessional=0),'Practicle','Theory') as type,
+							  tb.subje_ftsp, tb.subje_code  as  sub_code ,tb.ltp as LTP,tb.sessional,tb.theory,tb.practiocal as practical,tb.grade,tb.crpts ,tb.totalmarks as total, tb.crdhrs as credit_hours from  tabulation2 tb where tb.adm_no=?  and tb.`session`=? and tb.wsms=? and  tb.sem_code=  
+                  (select d.semcode from dip_m_semcode d  where d.deptmis=? and d.course=? and  d.branch=? and d.sem=?)  group by tb.examtype,tb.subje_code order by tb.examtype desc,tb.subje_code ";
+           
+            
+            */
+             $secure_array=array($admn_no,
+                               ($this->input->post('session')=='Monsoon'?'MS':($this->input->post('session')=='Winter'?'WS':($this->input->post('session')=='Summer')?'SS':"")),
+                                $this->input->post('dept'),$course_id,$branch,$sem);                               
+            
+            
+             $sql=" select tb.examtype,  tb.subje_name,   tb.gpa, tb.ogpa,tb.totcrhr,tb.totcrpts as totalcreditpoint, tb.ctotcrhr, tb.ctotcrpts,  if((tb.theory=0 and tb.practiocal=0 and tb.sessional=0),'Practicle','Theory') as type,
+							  tb.subje_ftsp, tb.subje_code  as  sub_code ,tb.ltp as LTP,tb.sessional,tb.theory,tb.practiocal as practical,tb.grade,tb.crpts ,tb.totalmarks as total, tb.crdhrs as credit_hours from  tabulation1 tb where tb.adm_no=?  and tb.wsms=? and  tb.sem_code=  
+                  (select d.semcode from dip_m_semcode d  where d.deptmis=? and d.course=? and  d.branch=? and d.sem=?)  group by tb.examtype,tb.subje_code order by tb.examtype desc,tb.subje_code ";
+           
+            
+
+           
+          $query = $this->db->query($sql, $secure_array);
+     // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+          
+      }
+      
+       function get_grade_point($tot){
+           $secure_array=array($tot);
+           $sql=" select gp.grade  from  grade_points gp  where ? between gp.min and gp.max";
+               $query = $this->db->query($sql, $secure_array);
+      // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->row()->grade;
+        else {
+            return 0;
+        }
+      
+       }
+       
+       function get_grade_pt($tot){
+           $secure_array=array($tot);
+           $sql=" select gp.points  from  grade_points gp  where ? between gp.min and gp.max";
+               $query = $this->db->query($sql, $secure_array);
+      // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->row()->points;
+        else {
+            return 0;
+        }
+      
+       }
+      
+      
+       function getSubjectsByAdminNo($branch_id,$sem,$admn_no,$type=null){
+           
+           if($type=='O'){
+               $secure_array=array($admn_no,$this->input->post('session_year'),$type,$this->input->post('dept'),$sem);                               
+      
+           
+           $sql=" 
+   select grade_points.points ,  (grp.credit_hours*grade_points.points)  as totcrdthr ,grp.* from
+   (select C.*,e.dept_id,e.aggr_id,e.course_id,e.branch_id,e.semester,e.`group` from (select B.*,d.sequence as seq from
+   (select A.*,c.id as sub_id,c.name,c.credit_hours,c.`type`,c.subject_id as sub_code , concat(c.lecture,'-',c.tutorial,'-',c.practical) as LTP from
+    (select a.stu_status,a.theory,a.sessional,a.practical,a.total,a.grade,b.subject_id,b.`session`,b.session_year,b.sub_map_id from marks_subject_description as a
+     inner join marks_master as b on a.marks_master_id=b.id where a.admn_no=? and b.session_year=? and b.type=? ) A 
+     inner join subjects as c on A.subject_id=c.id ) B inner join course_structure as d on B.subject_id=d.id ) C 
+     inner join subject_mapping as e on C.sub_map_id = e.map_id where e.dept_id=? and e.semester=? 
+     group by C.sub_code order by e.semester,C.seq asc )grp
+     left join grade_points on grade_points.grade=grp.grade  order by grp.semester,grp.seq asc
+     "; 
+           }
+           
+           
+           else if(strtoupper($branch_id)!='JRF')
+           {
+               $secure_array=array($admn_no,$this->input->post('session_year'),$this->input->post('dept'),$sem);                               
+      
+           
+           $sql=" 
+   select grade_points.points ,  (grp.credit_hours*grade_points.points)  as totcrdthr ,grp.*from
+   (select C.*,e.dept_id,e.aggr_id,e.course_id,e.branch_id,e.semester,e.`group` from (select B.*,d.sequence as seq from
+   (select A.*,c.name,c.credit_hours,c.`type`,c.subject_id as sub_code , concat(c.lecture,'-',c.tutorial,'-',c.practical) as LTP from
+    (select a.stu_status,a.theory,a.sessional,a.practical,a.total,a.grade,b.subject_id,b.`session`,b.session_year,b.sub_map_id from marks_subject_description as a
+     inner join marks_master as b on a.marks_master_id=b.id where a.admn_no=? and b.session_year=?  ) A 
+     inner join subjects as c on A.subject_id=c.id ) B inner join course_structure as d on B.subject_id=d.id ) C 
+     inner join subject_mapping as e on C.sub_map_id = e.map_id where e.dept_id=? and e.semester=? 
+     group by C.sub_code order by e.semester,C.seq asc )grp
+     left join grade_points on grade_points.grade=grp.grade  order by grp.semester,grp.seq asc
+     ";
+           }
+           
+           else{
+                $secure_array=array($admn_no,$this->input->post('session_year'),'J');                                
+                 $sql=" 
+ SELECT grade_points.points, (grp.credit_hours*grade_points.points) AS totcrdthr,grp.*
+FROM (
+SELECT C.*,e.dept_id,e.aggr_id,e.course_id,e.branch_id,e.semester,e.`group`
+FROM (
+SELECT B.*
+FROM (
+SELECT A.*,c.name,c.credit_hours,c.`type` ,c.subject_id AS sub_code, CONCAT(c.lecture,'-',c.tutorial,'-',c.practical) AS LTP
+FROM (
+SELECT a.stu_status,a.theory,a.sessional,a.practical,a.total,a.grade,b.subject_id,b.`session`,b.session_year,b.sub_map_id
+FROM marks_subject_description AS a
+INNER JOIN marks_master AS b ON a.marks_master_id=b.id
+WHERE a.admn_no=? AND b.session_year=? and b.type=? ) A
+INNER JOIN subjects AS c ON A.subject_id=c.id ) B
+) C
+INNER JOIN subject_mapping AS e ON C.sub_map_id = e.map_id
+
+GROUP BY C.sub_code
+)grp
+LEFT JOIN grade_points ON grade_points.grade=grp.grade
+ORDER BY grp.semester ASC
+
+     ";  
+           }   
+           
+          $query = $this->db->query($sql, $secure_array);
+    //  echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+      
+     /* function getSubMst($id){
+               $sql=" 
+ select b.subject_id, b.name,a.sub_id from  subject_mapping_des as a  inner join  subjects b on a.sub_id = b.id  where  a.map_id=? group by a.sub_id
+     ";
+           
+           
+          $query = $this->db->query($sql, array($id));
+       // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result_array();
+
+        else {
+            return 0;
+        }
+      }*/
+	    function getSubMst($id){
+			$data=array();
+               $sql=" 
+ select b.subject_id, b.name,a.sub_id from  subject_mapping_des as a  inner join  subjects b on a.sub_id = b.id  where  a.map_id=? group by a.sub_id
+     ";
+           
+           
+          $query = $this->db->query($sql, array($id));
+       // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0){
+         $r= $query->result();
+	 $i=0;
+			foreach($r as $p){
+				$data[$i]['subject_id'] = $p->subject_id;
+				$data[$i]['name'] = $p->name;
+				$data[$i]['max'] = "Max ( ".$this->getMaxMarks($p->sub_id)." ) ";
+			$i++;}
+			//print_r($data); die();
+			return $data;
+        }else {
+            return 0;
+        }
+      }
+      
+      function totalCrbyId($id){
+ /*              $sql=" 
+ select sum(b.credit_hours) as `total_cr` from  subject_mapping_des as a  inner join  subjects b on a.sub_id = b.id  where  a.map_id=?
+     ";
+   */        $sql="select sum(A.credit_hours) as total_cr from (select c.* from subject_mapping as a 
+inner join subject_mapping_des as d on a.map_id =d.map_id
+inner join course_structure as b on d.sub_id=b.id and a.semester=b.semester
+inner join subjects as c on b.id=c.id
+where a.map_id=? and a.`session`=? and a.session_year=?
+group by floor(b.sequence)) A";
+           
+          $query = $this->db->query($sql, array($id,$this->input->post('session'),$this->input->post('session_year')));
+       // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->row()->total_cr;
+        else {
+            return 0;
+        }
+      }
+        
+     
+      function getOGPA($admn_no,$sem){
+          $sql="select ogpa,passfail,examtype from resultdata where admn_no=? and RIGHT(sem_code,1)=? order by passfail desc limit 1";
+         $query = $this->db->query($sql, array($admn_no,($sem-1)));
+       // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+          return $query->result();
+        else {
+            return 0;
+        }
+      }
+        
+		
+	function getMaxMarks($id){
+		$sql = "select (case when max(b.total) is null then '0' else max(b.total) end) as total from marks_master as a 
+join  marks_subject_description as b on a.id=b.marks_master_id
+where a.subject_id=?";
+
+ $query = $this->db->query($sql, array($id));
+       // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+          return $query->row()->total;
+        else {
+            return 0;
+        }
+
+	}
+        
+        function save_excel_output($unmatched,$admn_no,$branch_id,$course_id,$sem,$sum_totcrdthr,$sum_totcrdpts_final,$gpa,$cgpa,$status){
+        date_default_timezone_set("Asia/Calcutta");
+        $returntmsg = "";    
+         $this->db->trans_start(); 
+        $data= array('session_yr'=>$this->input->post('session_year'),
+	              'session'   => $this->input->post('session'),                      
+                      'dept'=>  $this->input->post('dept'),
+                      'course'=>$course_id,
+                      'branch'=>$branch_id,                      
+                      'semester' =>$sem,
+                      'admn_no' =>$admn_no,
+                      'tot_cr_hr'    => $sum_totcrdthr,
+                      'tot_cr_pts'   =>   $sum_totcrdpts_final,
+                      'gpa'   =>$gpa,
+                      'cgpa'  =>$cgpa,
+                      'status' => $status,
+                      'type' =>  ($this->input->post('exm_type')=='other'?'O':($this->input->post('exm_type')=='jrf'?'J':'R'))
+            );
+        
+      
+        
+        $select = $this->db->select('gpa,id')->where(
+                array('session_yr'=>$this->input->post('session_year'),
+	              'session'   => $this->input->post('session'),                      
+                      'dept'=>  $this->input->post('dept'),
+                      'course'=>$course_id,
+                      'branch'=>$branch_id,                      
+                      'semester' =>$sem,
+                      'admn_no' =>$admn_no,
+                      'type' =>  ($this->input->post('exm_type')=='other'?'O':($this->input->post('exm_type')=='jrf'?'J':'R'))
+                     )
+                )->get('final_semwise_marks_foil');
+            
+          if ($select->num_rows()) {
+             
+           /*  $row = $select->row();   
+             
+            if($row->gpa!=$gpa){                                  
+            $this->db->where(   
+                       array('session_yr'=>$this->input->post('session_year'),
+	              'session'   => $this->input->post('session'),                      
+                      'dept'=>  $this->input->post('dept'),
+                      'course'=>$course_id,
+                      'branch'=>$branch_id,                      
+                      'semester' =>$sem,
+                      'admn_no' =>$admn_no,
+                      'type' =>  ($this->input->post('exm_type')=='other'?'O':($this->input->post('exm_type')=='jrf'?'J':'R'))
+                      )
+                   );
+               $this->db->update('final_semwise_marks_foil', $data);
+               
+               $this->db->where(   
+                       array('foil_id'=>$row->id,	              
+                             'admn_no' =>$admn_no                      
+                            )
+                   );
+                   $k=0;                                
+                   while($k<count($unmatched)){
+                    $unmatched[$k]['foil_id']=$row->id;
+                   // $unmatched[$k]['admn_no']=$admn_no;
+                    $this->update_des($unmatched[$k]);
+                    $k++;
+                   }                
+            
+              
+          }else{
+                $this->db->insert('final_semwise_marks_foil', $data);
+                $j=0;
+                $last_insert_id= $this->db->insert_id();
+                if($last_insert_id){
+                   while($j<count($unmatched)){
+                    $unmatched[$j]['foil_id']=$last_insert_id;
+                    $j++;
+                   }                
+                 
+                   $this->insert_batch_des($unmatched);
+                } 
+                
+          }  
+           */ 
+        } else { 
+            
+               $this->db->insert('final_semwise_marks_foil', $data);
+                $j=0;
+                $last_insert_id= $this->db->insert_id();
+                if($last_insert_id){
+                    $temp =array();
+                   while($j<count($unmatched)){
+                    $unmatched[$j]['foil_id']=$last_insert_id;                
+                     $j++;
+                   }                
+               //  echo '<pre>';
+            //print_r($unmatched); echo '</pre>'; 
+            
+                   $this->insert_batch_des($unmatched);
+                } 
+           }
+        
+      
+          $this->db->trans_complete();
+           
+          
+            if ($this->db->trans_status() != FALSE) {
+                $returntmsg = "success";
+               
+            }
+            else{
+                $returntmsg .= "Error while Inserting/updating: ".$this->db->_error_message() . ",";
+            }
+         
+         return $returntmsg;
+             
+        }
+        
+          function insert_batch_des($data){
+               $this->db->insert_batch('final_semwise_marks_foil_desc', $data);                    
+               }
+               function update_des($data){
+               $this->db->update('final_semwise_marks_foil_desc', $data);                    
+               }
+                
+            
+                
+        
+}
+?>

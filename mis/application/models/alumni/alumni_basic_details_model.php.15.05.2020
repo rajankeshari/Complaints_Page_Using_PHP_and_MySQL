@@ -1,0 +1,35 @@
+<?php
+
+Class Alumni_basic_details_model extends CI_Model
+{
+	var $table = 'alumni_user_other_details';
+	function __construct()
+	{
+		parent::__construct();
+	}
+
+	/*function get_student_details_by_id($admn_no)
+	{
+		$sql = "SELECT * from alumni_basic_details where admn_no = '$admn_no' ";
+		$query = $this->db->query($sql);
+		return $query->result();
+	}*/
+
+
+
+	function get_student_details_by_id($stu_id )
+	{
+		if($stu_id != '')
+		{
+			$query = $this->db->where('id="'.$stu_id.'"','',FALSE)->get($this->table);
+			if($query->num_rows() === 1)
+				return $query->row();
+			else
+				return FALSE;
+		}
+		else
+			return FALSE;
+	}
+}
+
+?>

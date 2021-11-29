@@ -1,0 +1,34 @@
+<?php
+
+class Academic_report_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+        
+    function get_student_list()
+    {
+          
+        $sql = "select 
+b.dept_id,
+c.course_id,
+c.branch_id,c.semester,a.admn_no,concat_ws(' ',b.first_name,b.middle_name,b.last_name)as stu_name,b.sex,b.category,a.sub_cast,a.iss_dist,a.iss_state,a.iss_auth from stu_obc_category a
+inner join user_details b on a.admn_no=b.id
+inner join stu_academic c on c.admn_no=a.admn_no
+order by b.dept_id,c.course_id,c.branch_id,c.semester,a.admn_no";
+
+        $query = $this->db->query($sql);
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
+
+}
+
+?>

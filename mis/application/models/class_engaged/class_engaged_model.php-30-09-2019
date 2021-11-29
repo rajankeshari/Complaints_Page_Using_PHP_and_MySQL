@@ -1,0 +1,174 @@
+<?php
+
+class Class_engaged_model extends CI_Model {
+
+    function __construct() {
+        // Call the Model constructor
+        parent::__construct();
+    }
+
+    function get_faculty_class_hours($id,$syear,$sess) {
+      /*  $myquery = " 
+select a.session_year,a.`session`,a.dept_id,a.course_id,a.branch_id,a.semester,c.name,a.map_id,b.*,
+concat(d.first_name,' ',d.middle_name,' ',d.last_name) as f_name,e.name as sub_name,e.*,f.*,
+g.date
+from subject_mapping as a
+inner join subject_mapping_des as b on a.map_id=b.map_id
+inner join departments c on a.dept_id=c.id
+inner join user_details d on d.id=b.emp_no
+inner join subjects e on e.id=b.sub_id
+inner join total_class_table f on f.map_id=b.map_id and f.sub_id=b.sub_id
+inner join class_engaged g on g.map_id=a.map_id
+where a.dept_id='".$id."' and session_year='".$syear."'
+and session='".$sess."'
+group by b.sub_id order by f_name" ;*/
+        
+   /*     $myquery = " 
+select f.session_id,a.map_id,a.session_year,a.`session`,a.dept_id,a.course_id,a.branch_id,a.semester,
+b.emp_no,b.coordinator,b.sub_id,c.name,
+concat(d.first_name,' ',d.middle_name,' ',d.last_name) as f_name,
+e.name as sub_name,e.*
+from subject_mapping a
+inner join subject_mapping_des b on a.map_id=b.map_id
+inner join departments c on a.dept_id=c.id
+inner join user_details d on d.id=b.emp_no
+inner join subjects e on e.id=b.sub_id
+inner join session_track f on f.session_year=a.session_year and f.`session`=a.`session`
+and f.branch_id=a.branch_id and f.course_id=a.course_id and f.semester=a.semester
+where a.dept_id='".$id."'
+and a.session_year='".$syear."'
+and a.`session`='".$sess."'
+and (e.type='Theory' or e.type='Sessional')
+group by b.sub_id order by f_name,a.course_id,a.branch_id,a.semester" ;*/
+        
+        $myquery="SELECT g.group_no,f.session_id,a.map_id,a.session_year,a.`session`,a.dept_id,a.course_id,a.branch_id,a.semester, b.emp_no,b.coordinator,b.sub_id,c.name, CONCAT(d.first_name,' ',d.middle_name,' ',d.last_name) AS f_name, e.name AS sub_name,e.*,a.section
+FROM subject_mapping a
+INNER JOIN subject_mapping_des b ON a.map_id=b.map_id
+INNER JOIN departments c ON a.dept_id=c.id
+INNER JOIN user_details d ON d.id=b.emp_no
+INNER JOIN subjects e ON e.id=b.sub_id
+INNER JOIN session_track f ON f.session_year=a.session_year AND f.`session`=a.`session` AND f.branch_id=a.branch_id AND f.course_id=a.course_id AND f.semester=a.semester
+left join prac_group_attendance g on g.session_id=f.session_id and g.sub_id=b.sub_id
+WHERE a.dept_id=? AND a.session_year=? AND a.`session`=? AND (e.type='Theory' OR e.type='Sessional')
+/*GROUP BY b.sub_id,g.group_no*/
+GROUP BY b.sub_id,g.group_no,b.emp_no
+ORDER BY f_name,a.course_id,a.branch_id,a.semester,g.group_no";
+      
+        $query = $this->db->query($myquery,array($id,$syear,$sess));
+
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return FALSE;
+        }
+    }
+    
+        function get_faculty_byDept($id) {
+        $myquery = "select a.id,concat(a.first_name,' ',a.middle_name,' ',a.last_name) as f_name,b.auth_id from 
+user_details a 
+inner join emp_basic_details b on a.id=b.emp_no
+where a.dept_id='".$id."' and b.auth_id='ft' order by f_name
+ " ;
+      
+        $query = $this->db->query($myquery);
+
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return FALSE;
+        }
+    }
+    function get_total_classes($mid,$subid,$dfrom,$dto)
+    {
+    if($dfrom=='01-01-1970' && $dto='01-01-1970')
+    {
+     $myquery = "/*select count(*) as t_classes from class_engaged*/  select total_class from total_class_table where map_id=".$mid." and sub_id='".$subid."'" ;
+    }
+    else{    
+    $myquery = "/*select count(*) as t_classes from class_engaged*/  select total_class from total_class_table where map_id=".$mid." and sub_id='".$subid."' and STR_TO_DATE(date, '%d-%m-%Y')
+  BETWEEN STR_TO_DATE('".$dfrom."', '%d-%m-%Y')
+    AND STR_TO_DATE('".$dto."', '%d-%m-%Y')" ;
+    }
+      
+    
+        $query = $this->db->query($myquery);
+       // echo $this->db->last_query();
+       
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return FALSE;
+        }
+        
+    }
+    
+    function get_date_of_classes($mid,$subid,$dfrom,$dto,$gid)
+    {
+     
+        if($gid>=1){
+        $gr="and group_no=".$gid; 
+        }else{
+            $gr="";
+        }
+    if($dfrom=='01-01-1970' && $dto='01-01-1970')
+    {
+        $myquery = " select * from class_engaged where map_id=".$mid." and sub_id='".$subid."' ".$gr."  order by STR_TO_DATE(date, '%d-%m-%Y')" ;
+       }
+       else{    
+       $myquery = " select *  from class_engaged 
+    where map_id=".$mid." and sub_id='".$subid."' ".$gr." and 
+    STR_TO_DATE(date, '%d-%m-%Y') BETWEEN STR_TO_DATE('".$dfrom."', '%d-%m-%Y') 
+    AND STR_TO_DATE('".$dto."', '%d-%m-%Y') 
+    order by STR_TO_DATE(date, '%d-%m-%Y')" ;
+       }
+
+
+           $query = $this->db->query($myquery);
+          // echo $this->db->last_query();
+
+           if ($query->num_rows() > 0) 
+           {
+               return $query->result();
+           } else {
+               return FALSE;
+           }
+        
+    }
+    
+    function get_aggr_id_year($subid,$sem)
+    {
+       $myquery = "select aggr_id from course_structure where id='".$subid."' and semester='".$sem."' " ;
+       $query = $this->db->query($myquery);
+           if ($query->num_rows() > 0) 
+           {
+               return $query->row();
+           } else {
+               return FALSE;
+           }
+        
+    }
+
+    function get_map_details($mapid,$empno) {
+        $myquery = "select a.*,b.name as cname,c.name as bname,e.subject_id,e.name,
+concat_ws(' ',f.first_name,f.middle_name,f.last_name)as fname,concat_ws(' ',e.lecture,e.tutorial,e.practical)as ltp,
+right(a.aggr_id,9)as bocs,d.emp_no,d.sub_id
+from subject_mapping a 
+inner join cs_courses b on b.id=a.course_id
+inner join cs_branches c on c.id=a.branch_id
+inner join subject_mapping_des d on d.map_id=a.map_id
+inner join subjects e on e.id=d.sub_id
+inner join user_details f on f.id=d.emp_no
+where a.map_id=".$mapid." and d.emp_no='".$empno."' " ;
+      
+        $query = $this->db->query($myquery);
+
+        if ($query->num_rows() > 0) {
+            return $query->row();
+        } else {
+            return FALSE;
+        }
+    }
+    
+        
+
+}

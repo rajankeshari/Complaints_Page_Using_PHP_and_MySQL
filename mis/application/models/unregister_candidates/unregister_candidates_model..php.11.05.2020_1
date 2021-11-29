@@ -1,0 +1,269 @@
+<?php
+class Unregister_candidates_model extends CI_model{
+
+public function sessiondata()
+  {
+   $datas=array();
+   $stmtd="select id,name from cbcs_courses where id not in ('minor','honour','m.phil','comm','online') order by name asc";
+   $excdep=$this->db->query($stmtd);
+   $valuesd=$excdep->result_array();
+   $datas['course']=$valuesd;
+
+
+
+
+   $stmty="select session_year from mis_session_year";
+   $excutey=$this->db->query($stmty);
+   //if($excutey->num_rows() > 0)
+     
+      $valuesy=$excutey->result_array();
+      $datas['session_year']=$valuesy;
+      
+
+
+
+   $stmts="select * from mis_session ";
+   $excutes=$this->db->query($stmts); 
+   $values=$excutes->result_array();
+   $datas['session']=$values;
+   return $datas;
+
+  }
+  public function all_unregister_candicates($sess,$sessyear,$course,$id)
+  {
+       
+    
+	
+	   $smt="SELECT z.admn_no,CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,z.semester,z.course_id,z.session
+				FROM users u
+				JOIN stu_academic AS sa ON sa.admn_no=u.id
+				JOIN (
+				SELECT rrf.*
+				FROM reg_regular_form AS rrf
+			    WHERE
+				rrf.session_year='$sessyear' AND rrf.session='$sess' AND rrf.hod_status ='1' AND rrf.acad_status='1' AND (rrf.`status`='0' OR rrf.`status` IS NULL))AS z ON z.admn_no=u.id
+				JOIN user_details AS ud ON ud.id=u.id
+				WHERE u.`status`='A' AND u.id LIKE '%$id%' AND sa.course_id='$course'";
+	$query=$this->db->query($smt);
+		 if($query)
+		 {
+		 $result=$query->result_array();
+		 return $result;
+		 }
+		 else
+		 {
+		 return false;
+		 }
+        
+
+   }
+   public function bothsess_all_unregister_candicate($sessyear,$course,$id)
+   {
+
+     $smt="SELECT  z.admn_no,CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,z.semester,z.course_id,z.session
+				FROM users u
+				JOIN stu_academic AS sa ON sa.admn_no=u.id
+				JOIN (
+				SELECT rrf.*
+				FROM reg_regular_form AS rrf
+			    WHERE
+				rrf.session_year='$sessyear' AND rrf.hod_status ='1' AND rrf.acad_status='1' AND (rrf.`status`='0' OR rrf.`status` IS NULL)) AS z ON z.admn_no=u.id
+				JOIN user_details AS ud ON ud.id=u.id
+				WHERE u.`status`='A' AND u.id LIKE '%$id%' AND sa.course_id='$course'";
+	$query=$this->db->query($smt);
+		 if($query)
+		 {
+		 $result=$query->result_array();
+		 return $result;
+		 }
+		 else
+		 {
+		 return false;
+		 }
+        
+   }
+  
+   
+   public function fulltime_parttimephd($sess,$sessyear,$course){
+   		
+   	   $smt="select sa.admn_no,CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,upper(z.branch_id),CONCAT_WS(' ',uds.`first_name`, uds.`middle_name`, uds.`last_name`) AS profsname,sa.other_rank from stu_academic as sa  
+			 join(  
+			select u.* from users u where u.`status`='A'and  u.id like '%dp%' or u.id like '%$course%') as p on p.id=sa.admn_no
+			join 
+			(select rrf.* from reg_regular_form as rrf where rrf.session_year='$sessyear' and rrf.session='$sess'and rrf.hod_status ='1' 
+			and rrf.acad_status='1' and  rrf.`status`='0' or rrf.`status` IS NULL)as z on z.admn_no=p.id
+			join user_details as ud on ud.id=p.id 
+			join project_guide as pg on pg.admn_no=sa.admn_no 
+			join user_details as uds on pg.guide=uds.id 
+			 where sa.other_rank='fulltime' or sa.other_rank='parttime'";
+        $query=$this->db->query($smt);
+	    if($query)
+		{
+		 
+		 $result=$query->result_array();
+		 return $result;
+		}
+		else
+		{
+
+		 return false;
+
+		}
+
+
+
+   }
+   public function fulltimephd($sess,$sessyear,$course,$ft){
+   	
+   	   
+
+		$smt="select sa.admn_no,CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,upper(z.branch_id),CONCAT_WS(' ',uds.`first_name`, uds.`middle_name`, uds.`last_name`) AS profsname,sa.other_rank from stu_academic as sa  
+join(  
+select u.* from users u where u.`status`='A'and  u.id like '%$course%' or u.id like '%dp%') as p on p.id=sa.admn_no
+join 
+(select rrf.* from reg_regular_form as rrf where rrf.session_year='$sessyear' and rrf.session='$sess'and rrf.hod_status ='1' 
+and rrf.acad_status='1' and  rrf.`status`='0' or rrf.`status` IS NULL)as z on z.admn_no=p.id
+join user_details as ud on ud.id=p.id 
+join project_guide as pg on pg.admn_no=sa.admn_no 
+join user_details as uds on pg.guide=uds.id 
+ where sa.other_rank='fulltime' or sa.other_rank='fulltime'";
+        $query=$this->db->query($smt);
+	    if($query)
+		{
+		 
+		 $result=$query->result_array();
+		 return $result;
+		}
+		else
+		{
+
+		 return false;
+
+		}
+
+   }
+   public function parttimephd($sess,$sessyear,$course,$ft){
+
+   	   $f='dp';
+
+		   	$smt="select sa.admn_no, CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,upper(z.branch_id),CONCAT_WS(' ',uds.`first_name`, uds.`middle_name`, uds.`last_name`) AS profsname,sa.other_rank,z.* from stu_academic as sa  
+		join(  
+		select u.* from users u where u.`status`='A'and  u.id like '$course' or u.id like '%$f%') as p on p.id=sa.admn_no
+		join 
+		(select rrf.* from reg_regular_form as rrf where rrf.session_year='$sessyear' and rrf.session='$sess'and rrf.hod_status ='1' 
+		and rrf.acad_status='1' and  rrf.`status`='0' or rrf.`status` IS NULL)as z on z.admn_no=p.id
+		join user_details as ud on ud.id=p.id 
+		join project_guide as pg on pg.admn_no=sa.admn_no 
+		join user_details as uds on pg.guide=uds.id 
+		where sa.other_rank='parttime'";
+        $query=$this->db->query($smt);
+	    if($query)
+		{
+		 
+		 $result=$query->result_array();
+		 return $result;
+		}
+		else
+		{
+
+		 return false;
+
+		}
+
+
+   }
+    public function  session_both_fulltime_parttimephd($sessyear,$course){
+   		
+   	   $smt="select sa.admn_no,CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,upper(z.branch_id),CONCAT_WS(' ',uds.`first_name`, uds.`middle_name`, uds.`last_name`) AS profsname,sa.other_rank from stu_academic as sa  
+			 join(  
+			select u.* from users u where u.`status`='A'and  u.id like '%dp%' or u.id like '%$course%') as p on p.id=sa.admn_no
+			join 
+			(select rrf.* from reg_regular_form as rrf where rrf.session_year='$sessyear'and rrf.hod_status ='1' 
+			and rrf.acad_status='1' and  rrf.`status`='0' or rrf.`status` IS NULL)as z on z.admn_no=p.id
+			join user_details as ud on ud.id=p.id 
+			join project_guide as pg on pg.admn_no=sa.admn_no 
+			join user_details as uds on pg.guide=uds.id 
+			 where sa.other_rank='fulltime' or sa.other_rank='parttime'";
+        $query=$this->db->query($smt);
+	    if($query)
+		{
+		 
+		 $result=$query->result_array();
+		 return $result;
+		}
+		else
+		{
+
+		 return false;
+
+		}
+
+
+
+   }
+   public function  session_both_fulltimephd($sessyear,$course){
+   	
+   	   
+
+	 	$smt="select sa.admn_no,CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,upper(z.branch_id),CONCAT_WS(' ',uds.`first_name`, uds.`middle_name`, uds.`last_name`) AS profsname,sa.other_rank from stu_academic as sa  
+			 join(  
+			select u.* from users u where u.`status`='A'and  u.id like '%dp%' or u.id like '%$course%') as p on p.id=sa.admn_no
+			join 
+			(select rrf.* from reg_regular_form as rrf where rrf.session_year='$sessyear' and rrf.session='$sess'and rrf.hod_status ='1' 
+			and rrf.acad_status='1' and  rrf.`status`='0' or rrf.`status` IS NULL)as z on z.admn_no=p.id
+			join user_details as ud on ud.id=p.id 
+			join project_guide as pg on pg.admn_no=sa.admn_no 
+			join user_details as uds on pg.guide=uds.id 
+			 where sa.other_rank='fulltime'";
+        $query=$this->db->query($smt);
+	    if($query)
+		{
+		 
+		 $result=$query->result_array();
+		 return $result;
+		}
+		else
+		{
+
+		 return false;
+
+		}
+
+   }
+   public function session_both_parttimephd($sessyear,$course)
+   {
+
+   	   $f='dp';
+
+		   	$smt="select sa.admn_no, CONCAT_WS(' ',ud.`first_name`, ud.`middle_name`, ud.`last_name`) AS stu_name,upper(z.branch_id),CONCAT_WS(' ',uds.`first_name`, uds.`middle_name`, uds.`last_name`) AS profsname,sa.other_rank,z.* from stu_academic as sa  
+		join(  
+		select u.* from users u where u.`status`='A'and  u.id like '$course' or u.id like '%$f%') as p on p.id=sa.admn_no
+		join 
+		(select rrf.* from reg_regular_form as rrf where rrf.session_year='$sessyear' and rrf.hod_status ='1' 
+		and rrf.acad_status='1' and  rrf.`status`='0' or rrf.`status` IS NULL)as z on z.admn_no=p.id
+		join user_details as ud on ud.id=p.id 
+		join project_guide as pg on pg.admn_no=sa.admn_no 
+		join user_details as uds on pg.guide=uds.id 
+		where sa.other_rank='parttime'";
+        $query=$this->db->query($smt);
+	    if($query)
+		{
+		 
+		 $result=$query->result_array();
+		 return $result;
+		}
+		else
+		{
+
+		 return false;
+
+		}
+
+
+   }
+
+
+ 
+}
+
+?>

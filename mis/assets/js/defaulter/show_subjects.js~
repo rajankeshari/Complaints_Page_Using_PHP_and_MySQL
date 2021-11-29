@@ -1,0 +1,16 @@
+$(document).ready(function(){
+	$.ajax({
+		url : site_url("defaulter/defaulter_sheet_ajax/get_session_year"),
+		success:function(result){
+			$('#session_year').html(result);
+		}
+	});
+	$('#session_name').on('change', function() {
+		var session_year = $('#session_year').val();  
+		$.ajax({url : site_url("employee/defaulter_ajax/get_subject/"+this.value+"/"+session_year),
+				success : function (result) {
+					$('#subject').html(result);
+				}});
+	});
+
+});

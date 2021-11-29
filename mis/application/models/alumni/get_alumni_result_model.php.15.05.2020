@@ -1,0 +1,28 @@
+<?php
+	class Get_alumni_result_model extends CI_model
+	{
+		 function __construct()
+		 {
+		 	parent::__construct();
+		 }
+		 function get_result($adm_no)
+		 {
+		 	$sql = "SELECT id, sem_code, srn, adm_no, subje_name,ysession, wsms, MAX(examtype) AS examtype, 
+		 	MAX(totalmarks) AS totalmarks, MIN(grade) AS grade , MAX(gpa) as gpa FROM alumni_tabulation1 WHERE adm_no='$adm_no' 
+		 	GROUP BY subje_name";// group by subje_name";
+		 	$query = $this->db->query($sql);
+		 	return $query->result();
+		 }
+		 function get_left_result($adm_no)
+		 {
+		 	$sql = "SELECT MAX(alumni_marks_subject_description.total) AS total, MIN(alumni_marks_subject_description.grade) AS grade, 
+		 	subjects.name , subject_mapping.semester,alumni_final_semwise_marks_foil.gpa as gpa FROM alumni_marks_subject_description, marks_master, subjects, subject_mapping,alumni_final_semwise_marks_foil 
+		 	WHERE alumni_marks_subject_description.admn_no = '$adm_no' AND alumni_marks_subject_description.marks_master_id = marks_master.id 
+		 	AND marks_master.sub_map_id = subject_mapping.map_id AND marks_master.subject_id = subjects.id AND alumni_final_semwise_marks_foil.admn_no = '$adm_no' AND subject_mapping.semester= alumni_final_semwise_marks_foil.semester
+		 	group by subjects.subject_id";
+
+		 	$query = $this->db->query($sql);
+		 	$data = $query->result();
+		 	return $data;
+		 }
+	}

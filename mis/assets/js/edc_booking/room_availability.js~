@@ -1,0 +1,45 @@
+/*
+$(document).ready(function() {
+	//request.abort();
+	//var result ;
+
+
+	/*$.ajax({
+	method: 'POST',
+        url: site_url('edc_booking/management/load_building_status/old/' + $('#auth').text()),
+        error : function(e) {
+            alert(e.responseText);
+        },
+	data : {flag : 1} ,
+	
+        success: function(result) {
+            $('#result_content').html(result);
+		//myvar = true;
+        }
+
+    });*///}
+
+
+	
+
+	
+    //get the value of child of li with active class
+   /* $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var activeTab = e.target;
+        var activeTabString= $(activeTab).attr('href');//alert(activeTabString);
+        var active_building = activeTabString.substring(1, activeTabString.length - 4);
+	//loaded = true ;
+
+        $.ajax({
+            url: site_url('edc_booking/management/load_building_status/' + active_building + '/' + $('#auth').text()),
+            error : function(e) {
+                alert(e.responseText);
+            },
+            success: function(result) {//alert(active_building);
+                $(activeTabString).html(result);
+            }
+        });
+    });
+
+	
+});**/

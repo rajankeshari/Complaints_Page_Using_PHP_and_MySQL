@@ -1,0 +1,36 @@
+<?php
+class Unregister_candidates_menu_model extends CI_model
+
+{
+
+   function __construct()
+   {
+
+	parent::__construct();
+	
+   }
+
+  function getMenu()
+  {
+
+	$menu = array();
+  	$menu['adac']['Unregister Candidates']=array();
+    $menu['adac']['Unregister Candidates']['Unregister Candidates List']=site_url('unregister_candidates/Unregister_candidates');
+
+    $menu['adug']['Unregister Candidates']=array();
+    $menu['adug']['Unregister Candidates']['Unregister Candidates List']=site_url('unregister_candidates/Unregister_candidates');
+
+    $menu['adpg']['Unregister Candidates']=array();
+    $menu['adpg']['Unregister Candidates']['Unregister Candidates List']=site_url('unregister_candidates/Unregister_candidates');
+                           
+    return $menu;
+ 
+  }
+
+
+}
+
+
+
+
+?>

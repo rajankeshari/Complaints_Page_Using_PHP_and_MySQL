@@ -1,0 +1,170 @@
+<?php
+
+class Stu_sub_weighage_model extends CI_Model
+{
+
+
+	function __construct()
+	{
+		// Call the Model constructor
+		parent::__construct();
+	}
+function getSessionYear(){
+	$sql="select * from mis_session_year order by id desc";
+	$query = $this->db->query($sql);
+#echo" common ".  $this->db->last_query(); exit;
+
+    if ($this->db->affected_rows() > 0) {
+         return $query->result();
+     } else {
+         return false;
+     }
+}
+public function getStuDetails($id,$sessionYear,$session){
+$sql="select * from reg_regular_form a where a.admn_no='$id' and a.session_year='$sessionYear' and a.`session`='$session' and a.acad_status='1' and a.hod_status='1'";
+	$query = $this->db->query($sql);
+	#echo" common ".  $this->db->last_query(); exit;
+
+    if ($this->db->affected_rows() > 0) {
+         return $query->result();
+     } else {
+         return false;
+     }
+}
+
+
+public function get_stu_subject($form_id,$stu_id,$sessionYear,$session,$section){
+	$sql="select a.*,b.id as offered_id,c.emp_no,concat(u.salutation,' ',u.first_name,' ',u.middle_name,' ',u.last_name) as name,b.semester,s.section from cbcs_stu_course a INNER JOIN  cbcs_subject_offered b on a.subject_code=b.sub_code
+inner join cbcs_subject_offered_desc c on b.id=c.sub_offered_id
+inner join user_details u on c.emp_no=u.id
+inner join stu_section_data s on a.admn_no=s.admn_no
+where a.admn_no='$stu_id' and a.form_id='$form_id' and a.session_year='$sessionYear' and a.session='$session' and b.sub_group='$section' and c.section=s.section and  c.coordinator='1'
+order by SUBSTR(a.sub_category,3)+0 asc ";
+	$query = $this->db->query($sql);
+	//echo" common ".  $this->db->last_query(); exit;
+
+    if ($this->db->affected_rows() > 0) {
+         return $query->result();
+     } else {
+         return false;
+     }
+}
+
+function get_detail_weightage($subid,$syear,$sess,$empno,$course,$branch,$sem){
+	$sql="select b.* from cbcs_marks_dist_child b
+inner join cbcs_marks_dist a  on b.id=a.id
+where a.sub_code=? and a.session_year=? and a.`session`=? and a.emp_no=?
+and a.course_id=? and a.branch_id=? and a.semester=? ";
+	$query = $this->db->query($sql,array($subid,$syear,$sess,$empno,$course,$branch,$sem));
+	//echo" common ".  $this->db->last_query(); exit;
+
+    if ($this->db->affected_rows() > 0) {
+         return $query->result();
+     } else {
+         return false;
+     }
+
+
+}
+function get_detail_weightage_download($subid,$syear,$sess,$empno,$course,$branch,$sem){
+	$sql="select a.lecture_plan_path from cbcs_marks_dist a where
+	a.session_year='$syear' and a.`session`='$sess' and a.branch_id='$branch' and a.course_id='$course' and a.semester='$sem' and a.sub_code='$subid' ";
+	$query = $this->db->query($sql,array($subid,$syear,$sess,$empno,$course,$branch,$sem));
+	//echo" common ".  $this->db->last_query();
+
+    if ($this->db->affected_rows() > 0) {
+         return $query->result();
+     } else {
+         return false;
+     }
+
+
+}
+function get_student_all_subject_common($admm_no, $sem,$sec, $syear, $sess){
+
+		$sem_sec=$sem.'_'.$sec;
+		$sql = "(select  a.section,a.course_id as course,a.branch_id as branch,a.semester as semester,a.session_year as session_year,a.`session` as session, c.*,g.subject_id as subject_code,g.name as subject_name,f.aggr_id,f.semester as sem,concat_ws(' ' ,d.first_name,d.middle_name,d.last_name)as name from reg_regular_form a
+inner join subject_mapping b on b.session_year=a.session_year and b.`session`=a.`session` and b.aggr_id=a.course_aggr_id and b.semester=a.semester
+inner join subject_mapping_des c on c.map_id=b.map_id
+inner join user_details d on d.id=c.emp_no
+inner join stu_section_data e on e.admn_no=a.admn_no and e.session_year=a.session_year and e.section=b.section
+inner join course_structure f on f.id =c.sub_id /*and f.semester=a.semester*/ and f.sequence like '%.%'
+inner join subjects g on g.id=f.id
+where a.admn_no='$admm_no' and a.session_year='$syear' and a.`session`='$sess'
+and a.hod_status='1' and a.acad_status='1'
+group by c.sub_id)
+
+union all
+(select  a.section,a.course_id as course,a.branch_id as branch,a.semester as semester,a.session_year as session_year,a.`session` as session, c.*,g.subject_id as subject_code,g.name as subject_name,f.aggr_id,f.semester as sem,concat_ws(' ' ,d.first_name,d.middle_name,d.last_name)as name from reg_regular_form a
+inner join subject_mapping b on b.session_year=a.session_year and b.`session`=a.`session` and b.aggr_id=a.course_aggr_id and b.semester=a.semester
+inner join subject_mapping_des c on c.map_id=b.map_id
+inner join user_details d on d.id=c.emp_no
+inner join stu_section_data e on e.admn_no=a.admn_no and e.session_year=a.session_year and e.section=b.section
+inner join course_structure f on f.id =c.sub_id /*and f.semester=a.semester*/ and f.sequence not like '%.%'
+inner join subjects g on g.id=f.id
+inner join reg_regular_elective_opted h on h.form_id=a.form_id
+where a.admn_no='$admm_no' and a.session_year='$syear' and a.`session`='$sess'
+and a.hod_status='1' and a.acad_status='1'
+group by c.sub_id)
+";
+
+		$query = $this->db->query($sql,array($admm_no, $sem,$sec, $syear, $sess,$admm_no, $sem,$sec, $syear, $sess));
+
+	# echo $this->db->last_query(); die();
+		if ($this->db->affected_rows() >= 0) {
+				return $query->result();
+		} else {
+				return false;
+		}
+}
+function get_student_all_subject($admm_no,$sem,$syear,$sess)
+{
+
+		$sql = "select x.* from((select a.subject_id,a.name,'Core' as 'paper_type',a.id as sub_id,b.aggr_id from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.course_aggr_id from reg_regular_form a  where a.admn_no=? and
+a.semester=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1') and b.semester=?
+and b.sequence not like '%.%')
+union
+(
+select d.subject_id,d.name,
+CASE WHEN c.aggr_id like '%honour%' THEN 'Elective(Honour)' when c.aggr_id  like '%minor%' THEN 'Elective(Minor)'  WHEN c.aggr_id NOT LIKE '%honour%' THEN 'Elective'  else 'Elective' END AS paper_type,d.id as sub_id,c.aggr_id
+from reg_regular_elective_opted a
+inner join reg_regular_form b on a.form_id=b.form_id
+inner join course_structure c on c.id=a.sub_id
+inner join subjects d on d.id=a.sub_id
+where b.admn_no=? and  b.semester=?
+and b.session_year=? and b.`session`=?
+and b.hod_status='1' and b.acad_status='1')
+union
+(
+select a.subject_id,a.name,'Honours' as 'paper_type',a.id as sub_id,b.aggr_id from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.honours_agg_id from hm_form a where a.admn_no=? and a.honours='1' and a.honour_hod_status='Y' limit 1)
+and b.semester=? and b.sequence not like '%.%'
+)
+union
+(
+select a.subject_id,a.name,'Minor' as 'paper_type',a.id as sub_id,b.aggr_id from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(
+select m.minor_agg_id from hm_minor_details m where
+m.form_id=(select a.form_id from hm_form a where a.admn_no=? and a.minor='1' and a.minor_hod_status='Y')
+and m.offered='1')
+and b.semester=?))x
+group by x.sub_id
+";
+$query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess,$sem,$admm_no,$sem,$syear,$sess,$admm_no,$sem,$admm_no,$sem));
+
+
+
+	 //echo $this->db->last_query(); die();
+		if ($this->db->affected_rows() >= 0) {
+				return $query->result();
+		} else {
+				return false;
+		}
+
+}
+
+}

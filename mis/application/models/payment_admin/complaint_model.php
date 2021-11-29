@@ -1,0 +1,214 @@
+<?php
+	class Complaint_model extends CI_model
+	{
+
+        private $tabulation='payserver';
+        private $misdev = 'misdev';
+        private $parentserver = 'parentserver';
+
+        function __construct()
+		{
+            parent::__construct();
+           
+        }
+
+        public function check_order_no_mis_success($order_number)
+        {
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+            $sql = "select * from sbi_success_details_semester_fees where txnid = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+        public function check_order_no_sbi_settlement($order_number)
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+            $sql = "select * from sbi_final_settlement_data where merchant_order_number = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+        public function check_order_no_mis_failure($order_number)
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+            $sql = "select * from sbi_failure_details_semester_fees where txnid = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+        public function check_order_no_full_transaction($order_number)
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+            $sql = "select * from sbi_full_transaction where merchant_order_number = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+
+        public function check_full_trans_order_number($order_number)
+        {
+
+            $sql = "select * from `sbi_full_transaction` where `merchant_order_number` = ? order by ID asc";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->result_array();
+}
+
+        public function get_order_details($order_number,$session_year,$session)
+        {
+
+            $sql = "select * from `sbi_full_transaction` where `other_detail` = ? and session_year = ? and session = ? order by ID asc";
+            $query = $this->db->query($sql, array($order_number,$session_year,$session));
+            return $query->result_array();
+
+        }
+
+        public function check_generate_receipt_status($order_number)
+        {
+            $sql = "select * from `sbi_success_details_semester_fees` where txnid = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+        public function check_generate_receipt_status_failure($order_number)
+        {
+            $sql = "select * from `sbi_failure_details_semester_fees` where txnid = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+        public function get_details_failure_payment($order_number)
+        {
+
+            $sql = "select * from `sbi_failure_details_semester_fees` where txnid = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->result_array();
+
+        }
+
+        public function get_success_receipt($id)
+        {
+
+            $sql = "select `payment_receipt` from `sbi_success_details_semester_fees` where id = ?";
+            $query = $this->db->query($sql,array($id));
+            $success_array = $query->result_array();
+            return $success_array[0]['payment_receipt'];
+
+        }
+
+        public function get_details_success_payment($order_number)
+        {
+
+            $sql = "select * from `sbi_success_details_semester_fees` where txnid = ?";
+            $query = $this->db->query($sql,array($order_number));
+            return $query->result_array();
+
+        }
+
+        public function check_status_settled($order_number)
+        {
+
+            $sql = "select * from `sbi_final_settlement_data` where merchant_order_number = ?";
+            $query = $this->db->query($sql, array($order_number));
+            return $query->num_rows();
+
+        }
+
+        // public function get_bank_fee_details_success_online($admn_no)
+        // {
+
+        //      $sql = "select * from bank_fee_details where admn_no = ? and payment_status = '1' and payment_mode = 'online'";
+        //      $query = $this->db->query($sql, array($admn_no));
+        //     //echo $this->db->last_query();
+        //      return $query->result_array();
+
+        // }
+
+        // public function get_bank_fee_details_failure_online($admn_no)
+        // {
+
+        //      $sql = "select * from bank_fee_details where admn_no = ? and payment_status = '2' and payment_mode = 'online'";
+        //      $query = $this->db->query($sql, array($admn_no));
+        //      //echo $this->db->last_query();
+        //      return $query->result_array();
+
+        // }
+
+        public function get_bank_fee_details_success_online($admn_no,$order_number,$session_year,$session)   // bank fee table and payment success table
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+             $sql = "select * from bank_fee_details b inner join sbi_success_details_semester_fees c on b.admn_no = c.admn_no where b.admn_no = ? and b.payment_status = '1' and b.payment_mode = 'online' and b.session = ? and b.session_year = ? and c.txnid = ?";
+             $query = $this->db->query($sql, array($admn_no,$session,$session_year,$order_number,));
+             //echo $this->db->last_query(); //exit;
+             return $query->result_array();
+
+        }
+
+        public function get_bank_fee_details_failure_online($admn_no,$order_number,$session_year,$session)
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+             //$sql = "select * from bank_fee_details where admn_no = ? and payment_status = '2' and payment_mode = 'online'";
+             $sql = "select * from bank_fee_details b inner join sbi_failure_details_semester_fees c on b.admn_no = c.admn_no where b.admn_no = ? and b.payment_status = '2' and b.payment_mode = 'online' and b.session = ? and b.session_year = ? and c.txnid = ?";
+             $query = $this->db->query($sql, array($admn_no,$session,$session_year,$order_number));
+             //echo $this->db->last_query();
+             return $query->result_array();
+
+        }
+
+        public function get_order_no_full_transaction_details($order_number)
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->misdev, TRUE);
+
+            $sql = "select * from sbi_full_transaction where merchant_order_number = ?";
+            $query = $this->db->query($sql, array($order_number));
+            if ($query->num_rows() > 0) {
+
+                return $query->result_array();
+            }
+            else {
+               
+                return false;
+            }
+           
+
+        }
+
+        public function store_user_enquiry_order_number($data_enquiry)
+        {
+
+            // $CI = &get_instance();
+            // $this->db2 = $CI->load->database($this->parentserver, TRUE);
+
+            $this->db->insert('online_payment_store_details_enquiry',$data_enquiry);
+
+        }
+
+        //public function 
+
+    }
+
+    ?>

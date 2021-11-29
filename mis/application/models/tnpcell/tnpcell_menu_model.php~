@@ -1,0 +1,259 @@
+<?php
+
+class Tnpcell_menu_model extends CI_Model
+{
+	function __construct()
+	{
+		// Calling the Model parent constructor
+		parent::__construct();
+		$this->load->model('tnpcell/tnp_basic_model','',true);
+	}
+	var $table_projects = 'tnp_cv_projects';
+    var $table_achievements='tnp_cv_achievements';
+    var $table_jnf_user_details='jnf_user_details';
+    var $table_CD = 'cs_courses';
+    var $table_recruiter_details='recruiter_details';
+    var $table_tnp_company_jnf_inf='tnp_company_jnf_inf';
+	function getMenu()
+	{
+	    /*checking if CV filled*/
+	    $flag=0;
+	    $user_id=$this->CI->session->userdata('id');
+	    $query=$this->db->get_where($this->table_projects, array('user_id'=>$user_id));
+	    if($query->result()) $flag=1;
+	    $query= $this->db->get_where($this->table_achievements, array('user_id'=>$user_id));
+	    if($query->result()) $flag=1;
+	    
+	    $menu=array();
+
+	    /*Student*/
+	    //Give student access only if he is in final or pre final year(intern or fulltime).
+	    $course = $this->db->get_where($this->table_CD,array('id'=>$this->session->userdata('course_id')))->result();
+	    // echo '<pre>';
+	    // print_r($course);
+	    // echo '</pre>';
+	    // print_r($this->session->userdata('semester'));	//Kuldeep
+	    //if($this->session->userdata('semester') > ($course[0]->duration))	//Kuldeep
+	    if($this->session->userdata('semester') > 2*($course[0]->duration)-2)
+	    {
+				$menu['stu']=array();
+			    $menu['stu']['T&P']=array();      
+				if($flag==0)
+					$menu['stu']['T&P']["Fill CV"] = site_url('tnpcell/cv/');
+			    else 
+			    {
+			        //$menu['stu']['T&P']["View CV"] = site_url('tnpcell/cv/print_cv');
+			        $menu['stu']['T&P']["Edit CV"] = site_url('tnpcell/cv/edit_cv');
+			    }
+				//$menu['stu']['T&P']["View JNF"] = site_url('tnpcell/view_jnf/');  
+				
+				if(date("m") >= 7)
+					$curr_session = date("Y")."-".(date("Y")+1);
+				else
+					$curr_session = (date("Y")-1)."-".(date("Y"));
+				$stu_id = $this->session->userdata("id");
+					
+					
+				if($this->tnp_basic_model->select_placement_portal($curr_session)){
+					$menu['stu']['T&P']["Register For Placements"] = site_url('tnpcell/stu_registration/RegistrationForPlacement');
+					
+				}
+					
+					
+				if($this->tnp_basic_model->select_stu_for_placement_registration($stu_id))
+				{
+					$menu['stu']['T&P']["Company Info"] = site_url('tnpcell/company_info');
+					$result = $this->tnp_basic_model->select_stu_for_placement_registration($stu_id);
+					$blocked = $result[0]->blocked;
+					if($blocked == "0")
+						$menu['stu']['T&P']["Register For Company"] = site_url('tnpcell/stu_registration/RegistrationforCompany');		
+				}
+		}
+		else if($this->session->userdata('semester') > 2*($course[0]->duration)-4){ //dinesh
+			$menu['stu']=array();
+			    $menu['stu']['T&P']=array();      
+				if($flag==0)
+					$menu['stu']['T&P']["Fill CV"] = site_url('tnpcell/cv/');
+			    else 
+			    {
+			        //$menu['stu']['T&P']["View CV"] = site_url('tnpcell/cv/print_cv');
+			        $menu['stu']['T&P']["Edit CV"] = site_url('tnpcell/cv/edit_cv');
+			    }
+				//$menu['stu']['T&P']["View JNF"] = site_url('tnpcell/view_jnf/');
+				  
+				
+				if(date("m") >= 7)
+					$curr_session = date("Y")."-".(date("Y")+1);
+				else
+					$curr_session = (date("Y")-1)."-".(date("Y"));
+				
+				$stu_id = $this->session->userdata("id");
+					
+					
+				if($this->tnp_basic_model->select_placement_portal($curr_session))
+					$menu['stu']['T&P']["Register For Internship"] = site_url('tnpcell/stu_registration/RegistrationForPlacement');
+					
+					
+				if($this->tnp_basic_model->select_stu_for_internship_registration($stu_id))
+				{
+					$menu['stu']['T&P']["Company Info"] = site_url('tnpcell/company_inf_info');
+					$result = $this->tnp_basic_model->select_stu_for_internship_registration($stu_id);
+					$blocked = $result[0]->blocked;
+					if($blocked == "0")
+						$menu['stu']['T&P']["Register For Company"] = site_url('tnpcell/stu_registration/RegistrationforCompany');		
+				}
+		}
+
+  //Dinesh 
+ 
+
+
+	    /*T&P Officer*/
+	    //19 oct
+	    /*$menu['tpo']=array();
+		$menu['tpo']["Manage Portal"]['Download Branchwise CV'] = site_url('tnpcell/open_close_portal/');
+		$menu['tpo']["Manage Portal"]['Allow To Edit CV'] = site_url('tnpcell/allow_to_edit_cv/');
+		$menu['tpo']["Manage Portal"]['Download profilesheet'] = site_url('tnpcell/open_close_portal/profilesheet_form');  
+		$menu['tpo']["Manage Portal"]['View Students Registered For Placement'] = site_url('tnpcell/manage_portal/'); 
+		$menu['tpo']["Manage Portal"]['View Students Registered For Internship'] = site_url('tnpcell/manage_portal_inf/'); 
+		$menu['tpo']["Manage Portal"]['Manage Placement Calender'] = site_url('tnpcell/allot_date/'); 
+		$menu['tpo']["Manage Portal"]['Manage Internship Calender'] = site_url('tnpcell/allot_date_inf/');   
+		$menu['tpo']["Placement Registration"]= site_url('tnpcell/placement_registration/');  
+		
+		$menu['tpo']['Fill Company Details / POC'] = site_url('tnpcell/fill_company_detail');
+		$menu['tpo']["Company Info"] = site_url('tnpcell/company_info');  
+		$menu['tpo']["Placement Results"] = site_url('tnpcell/stu_placement');
+		$menu['tpo']["Internship Results"] = site_url('tnpcell/stu_internship'); //19
+		$menu['tpo']["Job Notification Form"]["View JNF"] = site_url('tnpcell/view_jnf');
+		$menu['tpo']["Job Notification Form"]['Configure JNF'] = site_url('tnpcell/config_jnf');
+        $menu['tpo']["Job Notification Form"]["Fill / Edit JNF"] = site_url('tnpcell/edit_jnf');
+        $menu['tpo']["Intern Notification Form"]["View INF"] = site_url('tnpcell/view_inf');
+		$menu['tpo']["Intern Notification Form"]['Configure INF'] = site_url('tnpcell/config_inf');
+        $menu['tpo']["Intern Notification Form"]["Fill / Edit INF"] = site_url('tnpcell/edit_inf');
+      //  $menu['tpo']["Validate Registered Companies"] = site_url('tnpcell/validateRegisteredCompanies');
+      */
+        $menu['tpo']=array();
+        $menu['tpo']["Company Info"] = site_url('tnpcell/company_info');  
+        $menu['tpo']["Session Management"]= site_url('tnpcell/placement_registration/');
+        $menu['tpo']['Fill Company Details'] = site_url('tnpcell/fill_company_detail');
+        
+        //$menu['tpo']['Report'] = site_url('tnpcell/pass_fail_list');//Kuldeep 12.01.18 pass_fail_list
+ 		
+ 		$menu['tpo']["Validate Registered Companies"] = site_url('tnpcell/validateRegisteredCompanies');//15 may
+ 		
+ 		$menu['tpo']["Manage Students"]['Download Branchwise CV'] = site_url('tnpcell/open_close_portal/');
+		$menu['tpo']["Manage Students"]['Allow To Edit CV'] = site_url('tnpcell/allow_to_edit_cv/');
+		$menu['tpo']["Manage Students"]['Download profilesheet'] = site_url('tnpcell/open_close_portal/profilesheet_form');
+
+ 		$menu['tpo']["Manage Internship"]["Intern Notification Form"]['Configure INF'] = site_url('tnpcell/config_inf');
+ 		$menu['tpo']["Manage Internship"]["Intern Notification Form"]["Fill / Edit INF"] = site_url('tnpcell/edit_inf');
+ 		$menu['tpo']["Manage Internship"]["Intern Notification Form"]["View INF"] = site_url('tnpcell/view_inf');
+        $menu['tpo']["Manage Internship"]["Intern Notification Form"]["Allow INF Edit"] = site_url('tnpcell/allow_edit_inf');
+        $menu['tpo']["Manage Internship"]["Internship calender"] = site_url('tnpcell/allot_date_inf/');
+        $menu['tpo']["Manage Internship"]["Company Registration Portal For student"]=site_url('tnpcell/manage_portal_inf/');
+        $menu['tpo']["Manage Internship"]["Internship Results"] = site_url('tnpcell/stu_internship');
+
+        $menu['tpo']["Manage Placement"]["Job Notification Form"]['Configure JNF'] = site_url('tnpcell/config_jnf');
+ 		$menu['tpo']["Manage Placement"]["Job Notification Form"]["Fill / Edit JNF"] = site_url('tnpcell/edit_jnf');
+ 		$menu['tpo']["Manage Placement"]["Job Notification Form"]["View JNF"] = site_url('tnpcell/view_jnf');
+ 		$menu['tpo']["Manage Placement"]["Job Notification Form"]["Allow JNF Edit"] = site_url('tnpcell/allow_edit_jnf');
+ 		$menu['tpo']["Manage Placement"]["Job Notification Form"]["JD Upload"] = site_url('tnpcell/jd_upload');
+        $menu['tpo']["Manage Placement"]["Placement calender"] =site_url('tnpcell/allot_date/');
+        $menu['tpo']["Manage Placement"]["Company Registration Portal For student"] = site_url('tnpcell/manage_portal/');
+        $menu['tpo']["Manage Placement"]["Placement Results"] = site_url('tnpcell/stu_placement');
+
+		$menu['tpo']["Complete Calender"] =site_url('tnpcell/alloted_date/');  
+		
+
+/*
+        $menu['da_tpo']=array();
+		$menu['da_tpo']["Manage Portal"]['Download Branchwise CV'] = site_url('tnpcell/open_close_portal/');
+		$menu['da_tpo']["Manage Portal"]['Allow To Edit CV'] = site_url('tnpcell/allow_to_edit_cv/');
+		$menu['da_tpo']["Manage Portal"]['Download profilesheet'] = site_url('tnpcell/open_close_portal/profilesheet_form');  
+		$menu['da_tpo']["Manage Portal"]['View Students Registered For Placement'] = site_url('tnpcell/manage_portal/');  
+		$menu['da_tpo']["Manage Portal"]['View Students Registered For Internship '] = site_url('tnpcell/manage_portal_inf/');
+		/*$menu['da_tpo']["Manage Portal"]['Manage Placement Calender'] = site_url('tnpcell/allot_date/');  
+		$menu['da_tpo']["Placement Registration"]= site_url('tnpcell/placement_registration/');  */
+		
+		/*$menu['da_tpo']['Fill Company Details & POC'] = site_url('tnpcell/fill_company_detail');
+		$menu['da_tpo']["Company Info"] = site_url('tnpcell/company_info');  
+		$menu['da_tpo']["Placement Results"] = site_url('tnpcell/stu_placement');
+		$menu['da_tpo']["Job Notification Form"]["View JNF"] = site_url('tnpcell/view_jnf');
+		$menu['da_tpo']["Job Notification Form"]['Configure JNF'] = site_url('tnpcell/config_jnf');
+        $menu['da_tpo']["Job Notification Form"]["Fill / Edit JNF"] = site_url('tnpcell/edit_jnf');
+        $menu['da_tpo']["Intern Notification Form"]["View INF"] = site_url('tnpcell/view_inf');
+		$menu['da_tpo']["Intern Notification Form"]['Configure INF'] = site_url('tnpcell/config_inf');
+        $menu['da_tpo']["Intern Notification Form"]["Fill / Edit INF"] = site_url('tnpcell/edit_inf');*/
+
+     //   $menu['da_tpo']["Validate Registered Companies"] = site_url('tnpcell/validateRegisteredCompanies');
+
+  //       $menu['rec']=array();
+  //       $menu['rec']["Intern Notification Form"]["Fill / Edit INF"] = site_url('tnpcell/edit_inf');
+		// $menu['rec']["Intern Notification Form"]["View INF"] = site_url('tnpcell/view_inf');
+		// $menu['rec']["Job Notification Form"]["Fill / Edit JNF"] = site_url('tnpcell/edit_jnf');
+		// $menu['rec']["Job Notification Form"]["View JNF"] = site_url('tnpcell/view_jnf');  
+		// $menu['rec']["Registered Students"]['View Registered Students'] = site_url('tnpcell/manage_portal/');
+		// $menu['rec']["Registered Students"]['Download profilesheet'] = site_url('tnpcell/open_close_portal/profilesheet_form');
+		// $menu['rec']["Registered Students"]['Download Branchwise CV'] = site_url('tnpcell/open_close_portal/');
+
+		//dinesh
+		$menu['da_tpo']=array();
+        $menu['da_tpo']["Company Info"] = site_url('tnpcell/company_info');  
+        $menu['da_tpo']["Session Management"]= site_url('tnpcell/placement_registration/');
+        $menu['da_tpo']['Fill Company Details'] = site_url('tnpcell/fill_company_detail');
+ 		
+ 		$menu['da_tpo']["Manage Students"]['Download Branchwise CV'] = site_url('tnpcell/open_close_portal/');
+		$menu['da_tpo']["Manage Students"]['Allow To Edit CV'] = site_url('tnpcell/allow_to_edit_cv/');
+		$menu['da_tpo']["Manage Students"]['Download profilesheet'] = site_url('tnpcell/open_close_portal/profilesheet_form');
+
+ 		$menu['da_tpo']["Manage Internship"]["Intern Notification Form"]['Configure INF'] = site_url('tnpcell/config_inf');
+ 		$menu['da_tpo']["Manage Internship"]["Intern Notification Form"]["Fill / Edit INF"] = site_url('tnpcell/edit_inf');
+ 		$menu['da_tpo']["Manage Internship"]["Intern Notification Form"]["View INF"] = site_url('tnpcell/view_inf');
+        $menu['da_tpo']["Manage Internship"]["Internship calender"] = site_url('tnpcell/allot_date_inf/');
+        $menu['da_tpo']["Manage Internship"]["Company Registration Portal For student"]=site_url('tnpcell/manage_portal_inf/');
+        $menu['da_tpo']["Manage Internship"]["Internship Results"] = site_url('tnpcell/stu_internship');
+
+        $menu['da_tpo']["Manage Placement"]["Job Notification Form"]['Configure JNF'] = site_url('tnpcell/config_jnf');
+ 		$menu['da_tpo']["Manage Placement"]["Job Notification Form"]["Fill / Edit JNF"] = site_url('tnpcell/edit_jnf');
+ 		$menu['da_tpo']["Manage Placement"]["Job Notification Form"]["View JNF"] = site_url('tnpcell/view_jnf');
+        $menu['da_tpo']["Manage Placement"]["Placement calender"] =site_url('tnpcell/allot_date/');
+        $menu['da_tpo']["Manage Placement"]["Company Registration Portal For student"] = site_url('tnpcell/manage_portal/');
+        $menu['da_tpo']["Manage Placement"]["Placement Results"] = site_url('tnpcell/stu_placement');
+        
+        //-----------------//
+        //echo $user_id;die();
+        $query = $this->db->get_where($this->table_recruiter_details,array('id'=>$user_id))->result();//print_r($query);die();
+        if(!empty($query)){
+        	$query = $this->db->get_where($this->table_jnf_user_details,array('company_id'=>$query[0]->company_id))->result();//print_r($query);die();
+        	$query2 = $this->db->get_where($this->table_tnp_company_jnf_inf,array('company_id'=>$query[0]->company_id))->result();//print_r($query);die();
+        }
+        $menu['rec']=array();
+        //$menu['rec']['Fill Company Details'] = site_url('tnpcell/fill_company_detail');
+ 		
+ 		//$menu['tpo']["Manage Students"]['Download Branchwise CV'] = site_url('tnpcell/open_close_portal/');
+		//$menu['tpo']["Manage Students"]['Allow To Edit CV'] = site_url('tnpcell/allow_to_edit_cv/');
+		//$menu['tpo']["Manage Students"]['Download profilesheet'] = site_url('tnpcell/open_close_portal/profilesheet_form');
+
+ 		//$menu['rec']["Manage Internship"]["Intern Notification Form"]['Configure INF'] = site_url('tnpcell/config_inf');
+ 		if(!empty($query) && !empty($query2) && ($query[0]->filled_inf == '0' || $query2[0]->edit_inf == '1'))
+	 		$menu['rec']["Manage Internship"]["Intern Notification Form"]["Fill INF"] = site_url('tnpcell/edit_inf');
+ 		$menu['rec']["Manage Internship"]["Intern Notification Form"]["View INF"] = site_url('tnpcell/view_inf');
+        //$menu['tpo']["Manage Internship"]["Internship calender"] = site_url('tnpcell/allot_date_inf/');
+        $menu['rec']["Manage Internship"]["Registered Student Detail for Internship"]=site_url('tnpcell/manage_portal_inf/');
+        //$menu['tpo']["Manage Internship"]["Internship Results"] = site_url('tnpcell/stu_internship');
+
+        //$menu['rec']["Manage Placement"]["Job Notification Form"]['Configure JNF'] = site_url('tnpcell/config_jnf');
+        if(!empty($query) && !empty($query2) && ($query[0]->filled_jnf == '0' || $query2[0]->edit_jnf == '1'))
+ 			$menu['rec']["Manage Placement"]["Job Notification Form"]["Fill JNF"] = site_url('tnpcell/edit_jnf');
+ 		$menu['rec']["Manage Placement"]["Job Notification Form"]["View JNF"] = site_url('tnpcell/view_jnf');
+        //$menu['tpo']["Manage Placement"]["Placement calender"] =site_url('tnpcell/allot_date/');
+        $menu['rec']["Manage Placement"]["Registered Student Detail for Placement"] = site_url('tnpcell/manage_portal/');
+        //$menu['tpo']["Manage Placement"]["Placement Results"] = site_url('tnpcell/stu_placement');
+        
+        //-----------------------//
+        
+		return $menu;
+	}
+}
+/* End of file menu_model.php */
+/* Location: mis/application/models/course_structure/menu_model.php */

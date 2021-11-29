@@ -1,0 +1,23 @@
+commit 016466a23bd4f1fd044faad62015e3b3ebd6571f
+Author: Anant <iamanantkr@gmail.com>
+Date:   Tue Nov 24 06:49:18 2015 +0530
+
+    changes
+
+diff --git a/application/controllers/feedback/faculty.php b/application/controllers/feedback/faculty.php
+index 0154171..592f05e 100755
+--- a/application/controllers/feedback/faculty.php
++++ b/application/controllers/feedback/faculty.php
+@@ -82,10 +82,10 @@ class Faculty extends MY_Controller
+ 			$course_name = $this->faculty_model->get_course_name_by_course_id($data['subject'][$i]['course_id']);
+ 			
+ 			// var_dump($data['subject']);
+-			if ($data['subject'][$i]['course_id'] != "comm")
++			if (!empty($course_name))
+ 				$data['subject'][$i]['course_name'] = $course_name[0]->name;
+ 			else
+-				$data['subject'][$i]['course_name'] = "Common First Year";
++				$data['subject'][$i]['course_name'] = "Course Name Not avaliable";
+ 			
+ 			$subject_info = $this->faculty_model->get_subject_info_from_subject_id($subject_id);
+ 			$data['subject'][$i]['real_subject_id'] = $subject_info[0]->subject_id;

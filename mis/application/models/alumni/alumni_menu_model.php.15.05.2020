@@ -1,0 +1,103 @@
+<?php
+
+class Alumni_menu_model extends CI_Model
+{
+	function __construct()
+	{
+		// Calling the Model parent constructor
+		parent::__construct();
+	}
+
+	function getMenu()
+	{
+		$menu=array();
+		
+	//	$menu['acad_ar']=array();
+	//	$menu['acad_ar']['Manage alumni']=array();
+    //	$menu['acad_ar']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['acad_ar']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+
+
+		
+	//	$menu['acad_dr']=array();
+	//	$menu['acad_dr']['Manage alumni']=array();
+    //	$menu['acad_dr']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['acad_dr']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+		
+		
+/*
+		$menu['hod']=array();
+		$menu['hod']['Manage alumni']=array();
+    	$menu['hod']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+		$menu['hod']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+*/			
+		
+
+
+	//	$menu['dean_acad']=array();
+	//	$menu['dean_acad']['Manage alumni']=array();
+   // 	$menu['dean_acad']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['dean_acad']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+
+	//	$menu['exam_dr']=array();
+	//	$menu['exam_dr']['Manage alumni']=array();
+   // 	$menu['exam_dr']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['exam_dr']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+	//	$menu['exam_dr']["Manage alumni"]["Restore student"] = site_url('alumni/restore_student');
+		
+		
+		
+	//	$menu['exam_da1']=array();
+	//	$menu['exam_da1']['Manage alumni']=array();
+    //	$menu['exam_da1']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['exam_da1']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+
+	//	$menu['exam_ar']=array();
+	//	$menu['exam_ar']['Manage alumni']=array();
+    //	$menu['exam_ar']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['exam_ar']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+	//	$menu['exam_ar']["Manage alumni"]["Restore student"] = site_url('alumni/restore_student');
+
+
+
+	//	$menu['acad_ar']=array();
+	//	$menu['acad_ar']['Manage alumni']=array();
+    //	$menu['acad_ar']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['acad_ar']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+		
+	//	$menu['exam_alu']=array();
+	//	$menu['exam_alu']['Manage alumni']=array();
+    //	$menu['exam_alu']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['exam_alu']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+
+
+
+
+	//	$menu['acad_alu']=array();
+	//	$menu['acad_alu']['Manage alumni']=array();
+    //	$menu['acad_alu']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['acad_alu']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+		
+		$menu['admin']=array();
+		$menu['admin']['Manage alumni']=array();
+    	$menu['admin']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+		$menu['admin']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		//$menu['admin']["Manage alumni"]["Restore student"] = site_url('alumni/restore_student');
+		$menu['admin']["Manage alumni"]["Delete From Main"] = site_url('alumni/show_moved_alumni_details');
+
+	//	$menu['alu_admin']=array();
+	//	$menu['alu_admin']['Manage alumni']=array();
+    //	$menu['alu_admin']["Manage alumni"]["Add alumni"] = site_url('alumni/add_alumni');
+	//	$menu['alu_admin']["Manage alumni"]["View alumni"] = site_url('alumni/view_alumni_details');
+		
+		return $menu;
+	}
+}
+/* End of file menu_model.php */
+/* Location: mis/application/models/course_structure/menu_model.php */

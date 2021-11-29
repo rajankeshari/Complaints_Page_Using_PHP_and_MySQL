@@ -1,0 +1,15 @@
+function myfunction1() {
+    var x = document.getElementById("first_pat").value;
+    document.getElementById("f").innerHTML = x;
+	document.getElementById("l").innerHTML = x;
+}
+
+function myfunction2() {
+    var y = document.getElementById("first_adm").value;
+    document.getElementById("f1").innerHTML = y;
+}
+
+function myfunction3() {
+    var z = document.getElementById("last_adm").value;
+    document.getElementById("l1").innerHTML = z;
+}

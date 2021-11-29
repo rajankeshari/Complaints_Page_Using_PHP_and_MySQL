@@ -1,0 +1,248 @@
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */  
+
+ /* Module to save  Marks Finalization status 
+  @mode: Ajax
+  @actor:exam_dr
+  @param:mapping key,subject key
+  @des:Store YES/NO selected by the actor while allowing marks updation for faculty for chosen subject.\'Yes\' will disallow  marks update option for concerned Faulty & \'No\'  will allow the same. Ensuring one has already opened or need to open the date for marks update for the concerned  subject
+  @return:true/false
+ **/
+ function foo(map_id,marks_master_id,subject_id,sub_name,sub_code){
+         
+    if (confirm("Are you Sure?")){           
+       // $("#remark_"+map_id+"_"+subject_id).show();
+             
+        $("#Lform").removeData('validator'); // removing  All  form's rule   
+        $("#Lform").validate();
+         $("#status_"+map_id+"_"+subject_id).rules('add', {
+            required: true,        
+            messages: {
+                required: 'choose status',                
+            },
+            invalidHandler: function (form) {
+                $("#msg").html("");
+                $("#msg").show();
+                $("#msg").addClass("alert alert-danger");
+                $("#msg").html(' <a href="#" class="close" data-dismiss="alert">&times;</a><i class="fa fa-exclamation"></i><strong>Action Failed.</strong> Required column(s) are missing.Need to fill first.');
+                setTimeout(function () {
+                    $("#msg").hide();
+                }, 5000);
+            }
+        });
+         
+     $("#remark_"+map_id+"_"+subject_id).rules('add', {
+            required: true,
+            minlength: 5,
+            maxlength: 200,
+            messages: {
+                required: 'Put Remark here',
+                minlength: 'remark must be min. 5 character long',
+                maxlength: 'remark must be max. 200 character long',
+            },            
+            
+            invalidHandler: function (form) {
+                $("#msg").html("");
+                $("#msg").show();
+                $("#msg").addClass("alert alert-danger");
+                $("#msg").html(' <a href="#" class="close" data-dismiss="alert">&times;</a><i class="fa fa-exclamation"></i><strong>Action Failed.</strong> Required column(s) are missing.Need to fill first.');
+                 setTimeout(function(){ $("#msg").hide(); }, 5000);
+            }
+        });
+         if ($("#Lform").valid()) {      
+        var  actionCaption='Marks Finalization Status ';
+                      //ajax call                    
+                  var postdata = {marks_master_id:marks_master_id,map_id: map_id, subject_id: subject_id, status: $("#status_"+map_id+"_"+subject_id).val(),remark: $("#remark_"+map_id+"_"+subject_id).val(),sub_name:sub_name,sub_code:sub_code};
+                    $.ajax({
+                        url: site_url('exam_control/examControl/ajax_marks_final_status_change'),
+                        type: "POST",
+                        dataType: "json",
+                        data: postdata,
+                        success: function (jsonObj) {                            
+                            $("#msg").html("");
+                            $("#msg").show();                        
+                            if (jsonObj.result === "Successfully") {                                                                                                                                       
+                               // $("#remark_"+map_id+"_"+subject_id).hide();        
+                                if(jsonObj.status=='Y')                               
+                                   $("#status_row_"+map_id+"_"+subject_id).css('background-color', 'dff0d8');
+
+
+                                else if(jsonObj.status=='N')
+                                $("#status_row_"+map_id+"_"+subject_id).css('background-color', '#fcf8e3');
+                                
+                                      // US common date timestamp
+                                 d = new Date();
+                                 var timestamp = d.timestamp();                                    
+                                 $("#msg").removeClass().addClass("alert alert-success");
+                                 $("#msg").html(" <a href='#' class='close' data-dismiss='alert'>&times;</a><i class='fa fa-check'></i><strong>" + actionCaption + " done " + jsonObj.result + " </strong>for subject " + sub_name+"["+sub_code+"]"+ " on "+timestamp+"" );
+                            } else {
+                                $("#msg").removeClass().addClass("alert alert-danger");
+                                $("#msg").html(" <a href='#' class='close' data-dismiss='alert'>&times;</a><i class='fa fa-exclamation'></i><strong>" + actionCaption + " " + jsonObj.result + "</strong> for subject " + sub_name+"["+sub_code+"]"+ " on "+timestamp+",<p>"+ jsonObj.error +"</p>");
+                            }
+                            setTimeout(function () {
+                                $("#msg").hide();
+                            }, 5000);
+                            if ($("#collapse_" + map_id +"_"+subject_id).hasClass('collapse in'))
+             $("#collapse_" + map_id +"_"+subject_id).removeClass("collapse in").addClass("collapse"); 
+             $("#remark_" + map_id +"_"+subject_id).attr('disabled',true);
+             $("#chnage_status_" + map_id +"_"+subject_id).attr('disabled',true);       
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(xhr.statusText);
+                            alert(thrownError);
+                        },
+                    })
+                }
+            Date.prototype.timestamp = function() {
+            var yyyy = this.getFullYear().toString();
+            var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
+            var dd  = this.getDate().toString();
+            var h = this.getHours().toString();
+            var m = this.getMinutes().toString();
+            var s = this.getSeconds().toString();
+            return (dd[1]?dd:"0"+dd[0]) + "/" + (mm[1]?mm:"0"+mm[0]) + "/" + yyyy + "  " + ((h > 12) ? h-12 : h) + ":" + (m[1]?m:"0"+m[0]) + ":" + (s[1]?s:"0"+s[0]) +" "+((h > 12) ? "PM" : "AM");
+        };          
+        }        
+        }  
+   function collapse_fix(map_id,sub_id){
+          if ($("#collapse_" + map_id +"_"+sub_id).hasClass('collapse'))
+             $("#collapse_" + map_id +"_"+sub_id).removeClass("collapse in").addClass("collapse"); 
+             $("#remark_" + map_id +"_"+sub_id).attr('disabled',false);
+             $("#chnage_status_" + map_id +"_"+sub_id).attr('disabled',false);             
+     }
+     
+  
+    $(document).ready(function () {  
+   
+     $.ajax({
+        url: site_url("attendance/attendance_ajax/get_session_year_exam"),
+        data: {'sy': $('#hsyear').val()},
+        success: function (result) {
+            $('.gS').html(result);
+        }
+    });
+           if ($('#dept').val() == "comm"|| $('#dept').val() == "prep") {		  	
+            
+                /*  if ($('#dept').val() == "comm"  ){
+			 $('.optional_th').show();
+                         $('.optional_td').show();			                                                   				
+                     } else {
+                         $('.optional_th').hide();
+                         $('.optional_td').hide();			                                                   				
+                     }         */
+             $.ajax({
+            url: site_url('exam_control/examControl/get_PREP_COMM_Guide_List/'),
+            type: "POST",
+            async: true,
+            dataType: "json",
+            data: {dept_id: $('#dept').val(), session_year: ($("#session_year_attendance").val()==null?$('#hsyear').val(): $("#session_year_attendance").val()),session: $("#session_attendance").val()},
+            success: function (jsonObj) {                
+                $('#faclist').append("<option value=''>-select faculty-</option>");
+                $('#faclist').empty();
+                if (jsonObj.length > 0) {
+                    for (var i = 0; i < jsonObj.length; i++) {
+                         $('#faclist').append('<option value="' + jsonObj[i].id + '" >' + jsonObj[i].salutation + ' ' + jsonObj[i].first_name + ' ' + jsonObj[i].middle_name + ' ' + jsonObj[i].last_name + '</option>');
+                    }   $('#faclist').val( $('#hfacsel').val());
+                }
+                
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.statusText);
+                alert(thrownError);
+            },
+        });                         
+       }else{
+      
+        	      /* $('.optional_th').hide();
+                       $('.optional_td').hide();		                                                   				
+      */
+           
+         $.ajax({
+            url: site_url('fellowship/fellowshipProcess/get_DeptWise_Guide_List/'),
+            type: "POST",
+            async: true,
+            dataType: "json",
+            data: {dept_id: $('#dept').val()},
+            success: function (jsonObj) {                
+                $('#faclist').append("<option value=''>-select faculty-</option>");
+                $('#faclist').empty();
+                if (jsonObj.length > 0) {
+                    for (var i = 0; i < jsonObj.length; i++) {
+                         $('#faclist').append('<option value="' + jsonObj[i].id + '" >' + jsonObj[i].salutation + ' ' + jsonObj[i].first_name + ' ' + jsonObj[i].middle_name + ' ' + jsonObj[i].last_name + '</option>');
+                    } $('#faclist').val( $('#hfacsel').val());
+                }
+                
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.statusText);
+                alert(thrownError);
+            },
+        });
+    } 
+       
+    
+      if  ($('#dept option').filter(function () {return  $(this).val()=='ss' }).length)                                        
+           $('#dept option').eq('ss').remove();
+       if($('#dept option').filter(function () {return  $(this).val()=='comm' }).length)                                        
+           $('#dept option').eq('comm').remove();
+       if ($('#dept option').filter(function () {return  $(this).val()=='prep' }).length)                                        
+           $('#dept option').eq('prep').remove();
+    
+    $('#dept').on('change', function () {
+          
+        if (this.value == "comm"|| this.value == "prep") {	
+             $.ajax({
+            url: site_url('exam_control/examControl/get_PREP_COMM_Guide_List/'),
+            type: "POST",
+            async: true,
+            dataType: "json",
+            data: {dept_id: $(this).val(), session_year: $("#session_year_attendance").val(),session: $("#session_attendance").val()},
+            success: function (jsonObj) {                
+                $('#faclist').append("<option value=''>-select faculty-</option>");
+                $('#faclist').empty();
+                if (jsonObj.length > 0) {
+                    for (var i = 0; i < jsonObj.length; i++) {
+                         $('#faclist').append('<option value="' + jsonObj[i].id + '" >' + jsonObj[i].salutation + ' ' + jsonObj[i].first_name + ' ' + jsonObj[i].middle_name + ' ' + jsonObj[i].last_name + '</option>');
+                    }
+                }
+                
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.statusText);
+                alert(thrownError);
+            },
+        });                         
+       }else{
+                 
+                  
+         $.ajax({
+            url: site_url('fellowship/fellowshipProcess/get_DeptWise_Guide_List/'),
+            type: "POST",
+            async: true,
+            dataType: "json",
+            data: {dept_id: $(this).val()},
+            success: function (jsonObj) {                
+                $('#faclist').append("<option value=''>-select faculty-</option>");
+                $('#faclist').empty();
+                if (jsonObj.length > 0) {
+                    for (var i = 0; i < jsonObj.length; i++) {
+                         $('#faclist').append('<option value="' + jsonObj[i].id + '" >' + jsonObj[i].salutation + ' ' + jsonObj[i].first_name + ' ' + jsonObj[i].middle_name + ' ' + jsonObj[i].last_name + '</option>');
+                    }
+                }
+                
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.statusText);
+                alert(thrownError);
+            },
+        });
+    } 
+    });
+    
+    
+    
+});
+

@@ -1,0 +1,16 @@
+<?php
+Class Student_change_photo_model extends CI_Model{
+	function __construct(){
+		parent::__construct();
+	}
+
+	function update_photo($id,$path){
+		$sql="UPDATE user_details set photopath='$path' WHERE id='$id'";
+		if($this->db->query($sql))
+			return true;
+		else
+			return false;
+
+	}
+
+}

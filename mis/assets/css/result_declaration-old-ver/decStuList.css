@@ -1,0 +1,27 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* result_declaration process
+ * Copyright (c) IIT-ISM dhanbad * 
+ * @category   css
+ * @package    result declaraion
+ * @copyright  Copyright (c) 2016 - 2017 IIT-ISM dhanbad
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
+    Created on : Jan 1, 2017, 4:22:02 PM
+    Author     : Ritu Raj <rituraj00@rediffmail.com>
+*/
+    @page { margin: 80px 50px 160px 50px; font-size: 12px;}
+    body{ font-size: 11px;}
+    #header { position: fixed; left: 0px; top: -190px; right: 0px; height: 80px; text-align: center; }
+    #footer { position: fixed; left: 0px; bottom: -100px; right: 0px; height: 100px;  }
+    #footer .page:after { content: counter(page, upper-roman); }
+    h2{ font:16px; font-weight:bold;}
+    table{ width:100%;}
+    /*.form-control{ width:50px;}*/
+    .pagenum:before {
+        content: counter(page);
+    }
+    .table{border: 1px solid #000; border-collapse:collapse;}
+    .table td,.table tr,.table th{border: 1px solid #000;}  

@@ -1,0 +1,125 @@
+
+
+
+/* Attendance sheet generation for exam (All js function required for the sub-module)
+ * Copyright (c) ISM dhanbad * 
+ * @category   PHPExcel
+ * @package    exam_attendance
+ * @copyright  Copyright (c) 2014 - 2015 Ism dhanbad
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
+ * @version    ##0.1##, #6/11/15#
+ * @Author     Ritu raj<rituraj00@rediffmail.com>
+*/
+
+$(document).ready(function(){
+     $('#sec').hide();
+	$.ajax({
+		url : site_url("attendance/attendance_ajax/get_session_year_exam"),
+		success:function(result){
+			$('.gS').html(result);
+		}
+	});
+	/*$('#session_attendance').on('change', function() {
+		var session_year = $('#session_year_attendance').val();  
+		$.ajax({url : site_url("attendance/attendance_ajax/get_subject/"+this.value+"/"+session_year),
+				success : function (result) {
+					$('#subject_attendance').html(result);
+				}});
+	});
+        $('#session_attendance_honour').on('change', function() {
+		var session_year = $('#session_year_attendance_h').val();  
+		$.ajax({url : site_url("attendance/attendance_ajax/get_subject/"+this.value+"/"+session_year+"/honour"),
+				success : function (result) {
+					$('#subject_attendance_h').html(result);
+				}});
+	});
+        $('#session_attendance_minor').on('change', function() {
+		var session_year = $('#session_year_attendance_m').val();  
+		$.ajax({url : site_url("attendance/attendance_ajax/get_subject/"+this.value+"/"+session_year+"/minor"),
+				success : function (result) {
+					$('#subject_attendance_m').html(result);
+				}});
+	});
+	$('#subject_attendance').on('change', function() {
+		$.ajax({url:site_url("attendance/attendance_ajax/get_branch/"+this.value),
+			success : function(result) {
+				$('#branch_attendance').html(result);
+		}});
+
+	});
+        
+        $('#subject_attendance_h').on('change', function() {
+		$.ajax({url:site_url("attendance/attendance_ajax/get_branch/"+this.value),
+			success : function(result) {
+				$('#branch_attendance_h').html(result);
+		}});
+
+	});
+        $('#subject_attendance_m').on('change', function() {
+		$.ajax({url:site_url("attendance/attendance_ajax/get_branch/"+this.value),
+			success : function(result) {
+				$('#branch_attendance_m').html(result);
+		}});
+
+	});
+        
+	$('#branch_attendance').on('change', function() {
+		var session_year = $('#session_year_attendance').val();
+		var session = $('#session_attendance').val();
+		var subject = $('#subject_attendance').val();
+	
+		$.ajax({url : site_url("attendance/attendance_ajax/get_course1"),
+			type:"POST",
+			data:{"branch":this.value,"session_year":session_year,"session":session,"subject":subject},
+				success : function (result) {
+					$('#course_attendance').html(result);
+				}});
+	});
+	
+	$('#session_attendance_c').on('change', function() {
+		var session_year = $('#session_year_attendance_c').val();  
+		$.ajax({url : site_url("attendance/attendance_ajax/get_subject_common/"+this.value+"/"+session_year),
+			success : function (result) {
+				$('#subject_attendance_c').html(result);
+				}});
+	});
+
+	$('#subject_attendance_c').on('change',function() {
+		var session_year = $('#session_year_attendance_c').val();
+		var session = $('#session_attendance_c').val();
+		$.ajax({url : site_url("attendance/attendance_ajax/get_section_common1/"+this.value+"/"+session+"/"+session_year),
+			success : function (result) {
+				$('#section_id').html(result);
+			}});
+	});
+*/
+
+        $('#exm_type').on('change',function() {
+            var exists = false;
+             $('#dept option').each(function(){
+                  if (this.value == 'comm') {
+                   exists = true;                   
+                 }
+               });
+	     if(this.value!="regular" && this.value!=""){         
+               if(exists==true)
+                $("#dept option[value='comm']").remove();
+             }else{
+                  if(exists==false)
+             $("#dept").append('<option value="comm">Common</option>');
+         }
+	});
+	$('#dept').on('change',function() {
+		var session_year=$('#session_year_attendance').val();
+                if(this.value=="comm"){
+                    $('#sec').show();
+		$.ajax({url : site_url("exam_attendance/exam_attd/get_section_common2/"+session_year),type:"json",
+			success : function (result) {
+				$('#section_id').html(result);
+			}});
+                } else{
+                        $('#sec').hide();
+                }
+	});
+
+});

@@ -1,0 +1,193 @@
+<?php
+
+class Consultancy_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+/*    public function get_many_records($table_name = '', $filters_id_values = "", $request_fields = "", $order_by = '') {
+  $str = '';
+        if ($request_fields) {
+            foreach ($request_fields as $column_name) {
+                $str.= $column_name . ', ';
+            }
+        } else {
+            $str = '*';
+        }
+       
+  	   $this->db->select($str);
+
+        if ($filters_id_values) {
+            foreach ($filters_id_values as $filter) {
+                $this->db->where($filter['id'], $filter['value']);
+            }
+        }
+
+        if ($order_by) {
+            $this->db->order_by($order_by);
+        }
+
+        $this->db->from($table_name);
+        return $this->db->get()->result_array();
+    }
+*/
+
+/* Added by CK on 21 June 2019 */
+public function get_many_records() { 
+
+$query = $this->db->query("select a.*, b.emp_no, concat_ws(' ', c.first_name,c.middle_name,c.last_name) as ename
+from cons_master a
+inner join
+cons_member b on a.id=b.cons_master_id 
+inner join
+user_details c on c.id=b.emp_no
+where b.`type`='ci'
+order by a.id desc
+");
+		
+		if($query->num_rows() > 0)
+			return $query->result_array();
+		else
+			return false;
+}
+
+    public function get_records_from_two_join($tableOne, $tableOneColumn, $tableTwo, $tableTwoColumn, $filters_id_values, $orderBy = "", $req_data = "") {
+
+        if ($req_data) {
+            $this->db->select($req_data);
+        } else {
+            $this->db->select('*');
+        }
+
+
+        $this->db->from("$tableOne a");
+        $this->db->join("$tableTwo b", "b.$tableTwoColumn=a.$tableOneColumn", "inner");
+        if ($filters_id_values) {
+            foreach ($filters_id_values as $filter) {//filter should be Table combination LIKE   $this->db->where("b.enrollment_year", $id);
+                $this->db->where($filter['id'], $filter['value']);
+            }
+        }
+
+        if ($orderBy) {//filter should be Table combination LIKE    $this->db->order_by('c.track_title', 'asc');
+            $this->db->order_by($orderBy);
+        }
+
+        return $this->db->get()->result_array();
+    }
+
+    public function add_update_record($table, $data = array(), $id_name = '') {
+        $this->db->set($data);
+        if ($id_name) {
+            $this->db->where($id_name, $data[$id_name]);
+            $query = $this->db->update($table);
+        } else {//adding record in table
+            $query = $this->db->insert($table);
+        }
+    }
+
+    public function delete_many_records($table_name, $filters_id_values = "") {
+        if ($filters_id_values) {
+            foreach ($filters_id_values as $filter) {
+                $this->db->where($filter['id'], $filter['value']);
+            }
+        }
+        $this->db->delete($table_name);
+    }
+
+    public function get_record_from_filter($table_name, $request_fields = "", $filters_id_values) {
+        $str = '';
+        if ($request_fields) {
+            foreach ($request_fields as $column_name) {
+                $str.= $column_name . ', ';
+            }
+        } else {
+            $str = '*';
+        }
+
+        $this->db->select($str);
+        if ($filters_id_values) {
+            foreach ($filters_id_values as $filter) {
+                $this->db->where($filter['id'], $filter['value']);
+            }
+        }
+        $query = $this->db->get($table_name);
+        return $query->row_array();
+    }
+
+    public function select_group_wise_data($table, $filters_id_values = array(), $groupWiseColumn, $returnKey, $returnValue, $order_by = "", $value = "") {
+        if ($filters_id_values) {
+            foreach ($filters_id_values as $filter) {
+                $this->db->where($filter['id'], $filter['value']);
+            }
+        }
+        if ($groupWiseColumn) {
+            $this->db->group_by($groupWiseColumn);
+        }
+        if ($order_by) {
+            $this->db->order_by($order_by);
+        }
+        $this->db->select($returnKey, $returnValue);
+        $this->db->from($table);
+        $return_data = $this->db->get()->result_array();
+        $opt_str = "";
+        if (!$value) {
+            $opt_str.='<option selected="selected" value=""> Select a Value </option>';
+        } else {
+            $opt_str.='<option value=""> Select a Value </option>';
+        }
+        if (!empty($return_data)) {
+            foreach ($return_data as $return_data_value) {
+
+                if (!empty($return_data_value[$returnKey])) {
+                    $opt_str.='<option ';
+                    if (($value) && ($value == $return_data_value[$returnKey])) {
+                        $opt_str.='selected="selected" ';
+                    }
+                    $opt_str.='value="' . $return_data_value[$returnKey] . '">' . $return_data_value[$returnValue] . '</option>';
+                }
+            }
+        }
+        $opt_str.='<option value="newValue"> Choose Others</option>';
+        return $opt_str;
+    }
+
+    public function get_records_groupby_from_two_join_two_column($tableOne, $tableOneColumn, $tableOneColumnTwo, $tableTwo, $tableTwoColumn, $tabletwoColumnTwo, $filters_id_values, $orderBy = "", $req_data = "", $groupWiseColumn = "") {
+
+        if ($req_data) {
+            $this->db->select($req_data);
+        } else {
+            $this->db->select('*');
+        }
+
+
+        $this->db->from("$tableOne a");
+        $this->db->join("$tableTwo b", "b.$tableTwoColumn=a.$tableOneColumn and b.$tabletwoColumnTwo=a.$tableOneColumnTwo", "inner");
+        if ($filters_id_values) {
+            foreach ($filters_id_values as $filter) {//filter should be Table combination LIKE   $this->db->where("b.enrollment_year", $id);
+                $this->db->where($filter['id'], $filter['value']);
+            }
+        }
+
+        if ($orderBy) {//filter should be Table combination LIKE    $this->db->order_by('c.track_title', 'asc');
+            $this->db->order_by($orderBy);
+        }
+        if ($groupWiseColumn) {
+            $this->db->group_by($groupWiseColumn);
+        }
+
+        return $this->db->get()->result_array();
+    }
+	public function update_record_from_filter($table, $data = array(), $filters_id_values = array()) {
+        if ($filters_id_values) {
+            $this->db->set($data);
+            foreach ($filters_id_values as $filter) {
+                $this->db->where($filter['id'], $filter['value']);
+            }
+            $query = $this->db->update($table);
+        }
+    }
+
+}
+
+?>

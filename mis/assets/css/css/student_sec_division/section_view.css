@@ -1,0 +1,46 @@
+ #heading{
+    margin-left: 5%;
+  }
+  #preparatory_val{
+   float: right;
+  }
+  #border{
+    border: 1px solid #3C8DBC;
+    color: rgba(255,255,255,0.8);
+    text-shadow: #333 0px 0px 0px;
+    font-size:16px;
+    font-family: sans-serif;
+  }
+  #prep_color{
+      background-color: #3C8DBC;
+  }
+  #new_ent_color{
+      background-color: #3C8DBC;
+  }
+  #head_border{
+    padding-left: 0%;
+    font-size:16px;
+  }
+
+  #sec_numeric{
+    float: right;
+  }
+
+  #sec_alphabetic{
+    float: left;
+  }
+
+  #section_border{
+    border: 1px solid #FFFFFF;
+    color: rgba(255,255,255,0.8);
+    text-shadow: #300 0px 0px 0px;
+    font-size:16px;
+    font-family: sans-serif;
+  }
+
+  #head_data{
+    padding-left: 0%;
+    font-size:20px;
+    padding-right: 5%;
+    padding-left: 5%;
+  }

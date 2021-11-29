@@ -1,0 +1,85 @@
+<?php
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+*/
+
+
+class Exam_tabulation_config{ 
+   static $bottom_page_margin_row='16';
+   static $top_page_margin_row = '8';
+   static $dynamic_header_row='6';
+   static $each_offset='9';
+   static $tot_rows_in_page='3';
+   static $tot_rows_in_page_other='1';   
+   static $core_col_range_start='D';    
+   static $M_col_range_end='I';
+   static $M_col_range_start='C';
+    
+   //  FIX  UPTO 13 PAPERS SHOW    
+      static $gutter ='1.75';
+
+   static $core_col_range_end='M';
+   static $H_col_range_start='N';
+   static $H_col_range_end='P';     
+   
+  
+   static $total_with_hon_start='Q';
+   static $total_with_hon_end='U';  
+  
+      // end
+    static $total_start='Q'; 
+      static $total_end='U'; 
+  
+   //extend core  range  even  with hons
+   /*static $core_col_range_end='N';
+   static $H_col_range_start='O';
+   static $H_col_range_end='P';*/
+  
+   // end
+  
+  /*
+   // DYANMIC 
+    static $gutter ='1.0';//  dyammic                       
+    static $core_col_range_end='Q';
+    static $H_col_range_start='O';
+    static $H_col_range_end='Q';   
+   // DYANMIC 
+   static $total_with_hon_start='R';
+   static $total_with_hon_end='V';   
+   // end    
+    static $total_start='R';
+    static $total_end='V';  
+ // end  */ 
+   static $curr_sem='6';   
+   // to be changed to true or false , false means it will write in marks_foil table of database and true will not allow to write any thing   
+   static $freeze_spl=	false ;    
+   static $freeze_other=false;
+   static $freeze_reg=false ;
+   static $freeze_espl=false;
+  // end  
+   // to be changed to true or false , false means it will not check result dec validation ie, tabulation update is allowed. else vice versa
+static  $result_dec_chk_spl_validation_permsn=true;
+static  $result_dec_chk_espl_validation_permsn=true;
+static  $result_dec_chk_reg_validation_permsn=true  ;//(1)
+static  $result_dec_chk_other_validation_permsn=true;
+
+  
+   static $Template_header1 = array(1=>'Sub Code' , 2=>'L-T-P' , 3=>'Cr. Hr.' , 4=>'Theory' , 5=>'Sessional' , 6=>'Total' ,7=>'Grade' , 8=>'Cr. Pts.', 9=>'Remark');
+   static $Template_header2 = array(1=>'Total Credit Hours' , 2=>'Total Credit Points' , 3=>'Grade Point Average' , 4=>'CGPA  /  Ranks  /  Position' ,5=>'Remark');
+   static $Template_header5 = array(1=>'Cumm. Credit Hours' , 2=>'Cumm. Credit Points' );
+   static $Template_header3 = array(1=>'No. of Candidates' , 2=>'Absent' , 3=>'Passed' , 4=>'Failed' ,5=>'Pass Percentage');
+   static $Signature_header=  array(1=> 'Eligibility Verified by',2=>'Signature of Tabulator',3=>'Chairman Moderation Board', 4=>'For Chairman Examination Board');                              
+   static $fixed_header = array(1=>'Result Moderated' , 2=>'Result Approved  and may be Published');
+		
+	static $mask_write_validation =false  ; //Default-false// need to true if write irrespective of a constraints  posed (update foils table  even no data changes  in particular  criteria fields of parent table[final_semwise_final_foil]),'TRUE' deals in the case  where child table  have had missing records however parent table has been written  perfectly
+  
+    static $mask_final_status_remark_validation =true;//need to false if  final status in  final foil table  to be written only for final yr otherwise true for writing the same  for all.
+	
+    static $mask_update_foil_master_reg = true; // always  true(1)
+   
+   
+   
+}
+

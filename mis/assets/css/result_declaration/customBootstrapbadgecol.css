@@ -1,0 +1,29 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Mar 4, 2017, 3:26:26 PM
+    Author     : Ritu Raj <rituraj00@rediffmail.com>
+*/
+
+.badge-danger {
+  background-color: #d43f3a;
+}
+
+.badge-warning {
+background-color: #d58512;
+}
+
+.badge-success {
+background-color: #398439;
+}
+
+.badge-info {
+background-color: #269abc;
+}
+
+.badge-inverse {
+background-color: #333333;
+}

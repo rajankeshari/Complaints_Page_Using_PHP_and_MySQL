@@ -1,0 +1,114 @@
+<?PHP
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Transcript_bunch_model extends CI_Model {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+        function get_all_student($syear,$stu_sess,$did, $cid, $bid, $sem,$etype)
+        {
+           // echo $syear; echo $etype; echo $did;echo $cid;echo $bid;echo $sem;echo $stu_sess;die();
+            if($etype=="regular"){ $et='R';}
+            if($etype=="other"){ $et='O';}
+            if($etype=="special"){ $et='S';}
+            if($etype=="earlyspecial"){ $et='E';}
+            if($etype=="jrf"){ $et='J';}
+    $sql = "select a.admn_no,a.course,a.branch,a.semester,CONCAT(b.first_name,' ',b.middle_name,' ',b.last_name) AS stu_name ,
+e.name AS dname,if(f.admn_no is not null,concat_ws(' ',c.name,'(Honours)'),c.name)as cname,d.name AS bname
+from final_semwise_marks_foil a 
+inner join user_details b on b.id=a.admn_no
+INNER JOIN cs_courses c ON c.id=a.course
+INNER JOIN cs_branches d ON d.id=a.branch
+INNER JOIN departments e ON e.id=b.dept_id
+left join hm_form f on f.admn_no=a.admn_no
+where  a.session_yr=?
+and a.`session`=? and b.dept_id=? and a.course=? and a.branch=? and a.semester=? and a.`type`=?
+ORDER BY a.admn_no";
+    $query = $this->db->query($sql, array($syear,$stu_sess,$did, $cid, $bid, $sem,$et));
+            
+            
+
+
+
+        
+
+       // echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
+    function get_all_student_individual($syear,$etype,$did, $cid, $bid, $sem,$admn_no=null)
+        {
+        if($sem%2==0){ $stu_sess='Winter';}else{$stu_sess='Monsoon';}		
+         $admn_no=preg_replace('/\s+/', '',$admn_no);
+		 
+         if( $admn_no !=null){
+             if(substr_count($admn_no, ',')>0){                               
+                $admn_no="'". implode("','", explode(',', $admn_no)) ."'";
+                $replacer1="  and a.admn_no in(".$admn_no.") ";                                         
+                $secure_array=array($syear,$did, $cid, $bid, $sem);    
+             }else{  
+                $replacer1=" and a.admn_no=? ";
+                 $secure_array=array($syear,$did, $cid, $bid, $sem,$admn_no);    
+             } 
+           }
+           else{
+            $replacer1="";
+           $secure_array=array($syear,$did, $cid, $bid, $sem); 
+        }
+        $sql = "select a.admn_no,a.course,a.branch,a.semester,CONCAT(b.first_name,' ',b.middle_name,' ',b.last_name) AS stu_name ,
+e.name AS dname,c.name as cname,d.name AS bname
+from final_semwise_marks_foil a 
+inner join user_details b on b.id=a.admn_no
+INNER JOIN cs_courses c ON c.id=a.course
+INNER JOIN cs_branches d ON d.id=a.branch
+INNER JOIN departments e ON e.id=b.dept_id
+left join hm_form f on f.admn_no=a.admn_no
+where  a.session_yr=?
+and a.`session`='".$stu_sess."' and a.dept=? and a.course=? and a.branch=? and a.semester=? 
+ ".$replacer1."  ORDER BY a.admn_no"; 
+
+      
+   
+
+
+
+
+      
+ $query = $this->db->query($sql,$secure_array);
+  //      echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+
+    
+    function ger_cgpa($adno,$sem,$cid,$type='R')
+        {
+          $sql = "select ctotcrhr,ctotcrpts,gpa,cgpa FROM final_semwise_marks_foil
+WHERE id=(SELECT id FROM final_semwise_marks_foil WHERE admn_no=? and semester=? and course=? and  type=? order by id desc limit 1)";
+         
+        $query = $this->db->query($sql, array($adno,$sem,$cid, $type));
+
+        //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
+    
+
+}
+
+?>

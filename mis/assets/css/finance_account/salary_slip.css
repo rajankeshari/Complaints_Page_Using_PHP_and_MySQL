@@ -1,0 +1,58 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Feb 3, 2016, 2:40:58 PM
+    Author     : RITU RAJ <rituraj@rediffmail.com>
+*/
+.black{
+    color: #000;
+}
+body{ 
+    overflow-x: hidden; /* For Opera */
+    -webkit-box-shadow:
+        inset #19d4ff 0 0 0 5px,
+        inset #18cdf7 0 0 0 1px,
+        inset #53dfff 0 0 0 10px,
+        inset #50d8f7 0 0 0 11px,
+        inset #8ce9ff 0 0 0 16px,
+        inset #88e2f7 0 0 0 17px,
+        inset #c5f4ff 0 0 0 22px,
+        inset #bfecf7 0 0 0 23px;
+    -moz-box-shadow:
+        inset #19d4ff 0 0 0 5px,
+        inset #18cdf7 0 0 0 1px,
+        inset #53dfff 0 0 0 10px,
+        inset #50d8f7 0 0 0 11px,
+        inset #8ce9ff 0 0 0 16px,
+        inset #88e2f7 0 0 0 17px,
+        inset #c5f4ff 0 0 0 22px,
+        inset #bfecf7 0 0 0 23px;
+    box-shadow:
+        inset #19d4ff 0 0 0 5px,
+        inset #18cdf7 0 0 0 1px,
+        inset #53dfff 0 0 0 10px,
+        inset #50d8f7 0 0 0 11px,
+        inset #8ce9ff 0 0 0 16px,
+        inset #88e2f7 0 0 0 17px,
+        inset #c5f4ff 0 0 0 22px,
+        inset #bfecf7 0 0 0 23px;
+}
+.bg{
+    -khtml-opacity:.50; 
+    -moz-opacity:.50; 
+    -ms-filter:alpha(opacity=50);
+    filter:alpha(opacity=50);
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0.5);
+    opacity:.50;      
+    background-image: url('../../images/ism/ismlogo.png'); background-position:center; background-repeat: no-repeat;
+ }
+
+
+
+
+
+
+

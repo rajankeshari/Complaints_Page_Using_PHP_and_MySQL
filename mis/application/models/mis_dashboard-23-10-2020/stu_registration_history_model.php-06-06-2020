@@ -1,0 +1,53 @@
+<?php
+
+class Stu_registration_history_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+        
+    function get_details($admn_no)
+    {
+       
+        $sql = "select x.* from(
+(select 'na' as form_id,a.adm_no as admn_no,b.course_id,b.branch_id,right(a.sem_code,1) as semester,'na' as section,
+a.ysession as session_year,a.wsms as `session`,'na' as hod_status,'na' as acad_status,'na' as timestamp,'Tabulation1' as exam_type
+ from tabulation1 a 
+inner join stu_academic b on b.admn_no=a.adm_no
+where a.adm_no=?
+group by a.sem_code)
+
+union
+(select a.form_id,a.admn_no,a.course_id,a.branch_id,a.semester,a.section,
+a.session_year,a.`session`,a.hod_status,a.acad_status,a.timestamp,'Regular' as exam_type from reg_regular_form a where a.admn_no=?)
+union
+(select a.form_id,a.admn_no,a.course_id,a.branch_id,a.semester,'na' as section,
+a.session_year,a.`session`,a.hod_status,a.acad_status,a.timestamp,'Other' as exam_type from reg_other_form a where a.admn_no=?)
+union
+(select a.form_id,a.admn_no,a.course_id,a.branch_id,a.semester,'na' as section,
+a.session_year,a.`session`,a.hod_status,a.acad_status,a.timestamp,'Exam' as exam_type from reg_exam_rc_form a where a.admn_no=?)
+union
+(select a.form_id,a.admn_no,a.course_id,a.branch_id,a.semester,'na' as section,
+a.session_year,a.`session`,a.hod_status,a.acad_status,a.timestamp,'Summer' as exam_type from reg_summer_form a where a.admn_no=?)
+)x
+order by x.session_year,x.session/*,x.semester,x.session,x.timestamp*/";
+        $query = $this->db->query($sql,array($admn_no,$admn_no,$admn_no,$admn_no,$admn_no));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() > 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+
+    
+    
+
+ 
+    
+
+}
+
+?>

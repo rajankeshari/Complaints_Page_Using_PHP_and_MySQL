@@ -1,0 +1,704 @@
+<?php
+	class Move_alumni_model_convocation extends CI_model
+	{
+		
+
+		 function __construct()
+		 {
+		 	parent::__construct();
+		 }
+
+
+		 
+		 
+		 //======================================BY ANUJ========================================================================
+		 
+		 function getData_convocation($dept_nm,$course_nm,$branch_nm,$year){
+			 
+			 $sql="select a.* from convocation_admin_final a where a.dept_id=? and a.course_id=? and a.branch_id=? and a.yop=?";
+
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_nm,$course_nm,$branch_nm,$year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return $query->result();
+				} else {
+					return false;
+				}
+					 
+			 
+		 }
+		 
+		  function get_all_alumni_tables(){
+			  $sql="SELECT table_name FROM INFORMATION_SCHEMA.tables  WHERE table_schema='mis_40_50' and TABLE_NAME LIKE 'alumni%'";
+			  $query = $this->db->query($sql);
+
+			  if ($this->db->affected_rows() > 0) {
+					return $query->result();
+				} else {
+					return false;
+				}
+		 
+		 }
+		 
+		 
+		 //============Insert Starts===========================================
+		
+		function move_to_alumni($tbl_name,$dept_id,$course_id,$branch_id,$passing_year)   {
+			
+			$main_tbl=substr($tbl_name, strpos($tbl_name, "_") + 1);   
+			
+			if($tbl_name=='alumni_user_address' || $tbl_name=='alumni_user_details' || $tbl_name=='alumni_user_other_details' || $tbl_name=='alumni_change_password_log' || $tbl_name=='alumni_users'){
+				$test_con="id";
+			}
+			else if($tbl_name=='alumni_tabulation1'){
+				$test_con="adm_no";
+			}
+			else if($tbl_name=='alumni_complaint' || $tbl_name=='alumni_swimming_medical_report' || $tbl_name=='alumni_swimming_student_details' ){
+				$test_con="user_id";
+			}
+			else if($tbl_name=='alumni_user_notifications' ){
+				$test_con="user_to";
+			}
+			else {
+				$test_con="admn_no";
+			}
+			
+			if($main_tbl!='reg_regular_elective_opted' && $main_tbl!='reg_summer_subject' && $main_tbl!='reg_other_subject' && $main_tbl!='reg_idle_fee' && $main_tbl!='reg_exam_rc_subject' && $main_tbl!='hm_minor_details' && $main_tbl!='change_branch_option' ){
+
+			 $sql="insert into ".$tbl_name."	
+select * from ".$main_tbl." where ".$test_con." in (select a.admn_no from convocation_admin_final a where a.dept_id=? and a.course_id=? and a.branch_id=? and a.yop=? )";
+		$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+//echo $sql;echo '<br>';
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+
+		}
+
+
+
+				//echo $sql;die();
+				
+			 
+		 
+		 }
+		 
+		 
+		 
+		
+		 
+		 function insert_completed_convocation_dcb($dept_id,$course_id,$branch_id,$passing_year,$status){
+			 $sql="insert into convocation_move_complete(dept_id,course_id,branch_id,passing_year,`status`) values(?,?,?,?,?) ";
+
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year,$status));
+
+			  // echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			 
+		 }
+		 
+		  function delete_completed_convocation_dcb($dept_id,$course_id,$branch_id,$passing_year){
+			 $sql="delete from convocation_move_complete where dept_id=? and course_id=? and branch_id=? and passing_year=? ";
+
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			  // echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			 
+		 }
+		 
+		 //============Delete Starts============================================
+		 
+		 function delete_from_alumni($tbl_name,$dept_id,$course_id,$branch_id,$passing_year)   {
+			
+			if($tbl_name=='alumni_user_address' || $tbl_name=='alumni_user_details'  || $tbl_name=='alumni_user_other_details' || $tbl_name=='alumni_change_password_log' || $tbl_name=='alumni_users'){
+				$test_con="id";
+			}
+			else if($tbl_name=='alumni_tabulation1'){
+				$test_con="adm_no";
+			}
+			else if($tbl_name=='alumni_complaint' ||$tbl_name=='alumni_swimming_medical_report' || $tbl_name=='alumni_swimming_student_details' ){
+				$test_con="user_id";
+			}
+			else if($tbl_name=='alumni_user_notifications' ){
+				$test_con="user_to";
+			}
+			else {
+				$test_con="admn_no";
+			}
+
+			//-----------------------------------------------------------------------
+if($tbl_name!='alumni_reg_regular_elective_opted' && $tbl_name!='alumni_reg_summer_subject' && $tbl_name!='alumni_reg_other_subject' && $tbl_name!='alumni_reg_idle_fee' && $tbl_name!='alumni_reg_exam_rc_subject' && $tbl_name!='alumni_hm_minor_details' && $tbl_name!='alumni_change_branch_option' ){
+
+$sql=" delete from ".$tbl_name." where ".$test_con." in (select a.admn_no from convocation_admin_final a where a.dept_id=? and a.course_id=? and a.branch_id=? and a.yop=?)";
+
+				//echo $sql;
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			
+
+		}
+
+
+			//-----------------------------------------------------------------------
+			
+			 
+			 
+		 
+		 }
+		 //=========TRUNCATE ALUMNI TABLES=================================================================================
+		function truncate_all_alumni_tables($tname){
+			 $sql="truncate table  ".$tname;
+
+				//echo $sql;die();
+				$query = $this->db->query($sql);
+
+			   //echo $this->db->last_query(); echo '<br>';
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			 
+		 }
+		  
+		 //==========================================================================================
+
+
+		 
+
+		  //============Delete End============================================
+		
+		 
+		 
+		 //==============VIew alumni=================================
+		 
+		 function getData_alumni($dept_nm,$course_nm,$branch_nm,$year){
+				$sql="select a.id as admn_no,concat_ws(' ',a.first_name,a.middle_name,a.last_name)as sname,b.name as dname from alumni_user_details a 
+inner join departments b on b.id=a.dept_id where a.id in (select a.admn_no from convocation_admin_final a where a.dept_id=? and a.course_id=? and a.branch_id=? and a.yop=?)";
+			  $query = $this->db->query($sql,array($dept_nm,$course_nm,$branch_nm,$year));
+
+			  if ($this->db->affected_rows() > 0) {
+					return $query->result();
+				} else {
+					return false;
+				}
+		 
+		 }
+		 
+		 
+		 //Delete alumni tables
+		 
+		 function drop_alumni_tables($tbl){
+			 $sql="drop table ".$tbl;
+
+				//echo $sql;die();
+				$query = $this->db->query($sql);
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+		}
+		 
+		 //reg_regular_elective_opted  table
+		 function move_to_alumni_reg_regular_elective_opted($dept_id,$course_id,$branch_id,$passing_year)   {
+						
+			 $sql="insert into alumni_reg_regular_elective_opted
+select a.* from reg_regular_elective_opted a where a.form_id in
+(
+	select b.form_id from reg_regular_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			function move_to_alumni_reg_summer_subject($dept_id,$course_id,$branch_id,$passing_year){
+				 $sql="insert into alumni_reg_summer_subject
+select a.* from reg_summer_subject a where a.form_id in
+(
+	select b.form_id from reg_summer_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
+			function move_to_alumni_reg_other_subject($dept_id,$course_id,$branch_id,$passing_year){
+				 $sql="insert into alumni_reg_other_subject
+select a.* from reg_other_subject a where a.form_id in
+(
+	select b.form_id from reg_other_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
+			function move_to_alumni_reg_idle_fee($dept_id,$course_id,$branch_id,$passing_year){
+				$sql="insert into alumni_reg_idle_fee
+select a.* from reg_idle_fee a where a.form_id in
+(
+	select b.form_id from reg_idle_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			  //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			function move_to_alumni_reg_exam_rc_subject($dept_id,$course_id,$branch_id,$passing_year){
+					$sql="insert into alumni_reg_exam_rc_subject
+select a.* from reg_exam_rc_subject a where a.form_id in
+(
+	select b.form_id from reg_exam_rc_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+			   
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
+			function move_to_alumni_hm_minor_details($dept_id,$course_id,$branch_id,$passing_year){
+					$sql="insert into alumni_hm_minor_details
+select a.* from hm_minor_details a where a.form_id in
+(
+	select b.form_id from hm_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			
+			}
+			function move_to_alumni_change_branch_log($dept_id,$course_id,$branch_id,$passing_year){
+				$sql="insert into alumni_change_branch_option
+select a.* from change_branch_option a where a.cb_log_id in
+(
+	select b.id from change_branch_log b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+				
+				
+				
+			}
+
+//right now stopped from controller , not calling
+		function move_to_alumni_user_notifications1($dept_id,$course_id,$branch_id,$passing_year){
+				$sql="insert into alumni_user_notifications
+select a.* from user_notifications a where
+a.user_from in (
+select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+)
+";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+				
+				
+				
+			}
+			
+			
+
+			//++++++++++++++++++++++++++++++++++Deleteing Records from mis table+++++++++++++++++++++++++++++
+
+function drop_from_main_table($tbl_name,$dept_id,$course_id,$branch_id,$passing_year)   {
+			
+			$main_tbl=substr($tbl_name, strpos($tbl_name, "_") + 1);   
+			
+			if($tbl_name=='alumni_user_address' || $tbl_name=='alumni_user_details' || $tbl_name=='alumni_user_other_details' || $tbl_name=='alumni_change_password_log' || $tbl_name=='alumni_users'){
+				$test_con="id";
+			}
+			else if($tbl_name=='alumni_tabulation1'){
+				$test_con="adm_no";
+			}
+			else if($tbl_name=='alumni_complaint' || $tbl_name=='alumni_swimming_medical_report' || $tbl_name=='alumni_swimming_student_details' ){
+				$test_con="user_id";
+			}
+			else if($tbl_name=='alumni_user_notifications' ){
+				$test_con="user_to";
+			}
+			else {
+				$test_con="admn_no";
+			}
+			
+			if($main_tbl!='reg_regular_elective_opted' && $main_tbl!='reg_summer_subject' && $main_tbl!='reg_other_subject' && $main_tbl!='reg_idle_fee' && $main_tbl!='reg_exam_rc_subject' && $main_tbl!='hm_minor_details' && $main_tbl!='change_branch_option' ){
+
+			 $sql="delete from ".$main_tbl." where ".$test_con." in (select a.admn_no from convocation_admin_final a where a.dept_id=? and a.course_id=? and a.branch_id=? and a.yop=? )";
+		$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+//echo $sql;echo '<br>';
+			   echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+
+		}
+
+			 
+		 
+		 }
+
+//Dependent table deletion+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+		 function delete_from_reg_regular_elective_opted($dept_id,$course_id,$branch_id,$passing_year)   {
+						
+			 $sql="delete from reg_regular_elective_opted  where form_id in
+(
+	select b.form_id from reg_regular_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			function delete_from_reg_summer_subject($dept_id,$course_id,$branch_id,$passing_year){
+				 $sql="delete from reg_summer_subject  where form_id in
+(
+	select b.form_id from reg_summer_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
+			function delete_from_reg_other_subject($dept_id,$course_id,$branch_id,$passing_year){
+				 $sql="delete from reg_other_subject  where form_id in
+(
+	select b.form_id from reg_other_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
+			function delete_from_reg_idle_fee($dept_id,$course_id,$branch_id,$passing_year){
+				$sql="delete from reg_idle_fee  where form_id in
+(
+	select b.form_id from reg_idle_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			  //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			function delete_from_reg_exam_rc_subject($dept_id,$course_id,$branch_id,$passing_year){
+					$sql="delete from reg_exam_rc_subject where form_id in
+(
+	select b.form_id from reg_exam_rc_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+			   
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
+			function delete_from_hm_minor_details($dept_id,$course_id,$branch_id,$passing_year){
+					$sql="delete from hm_minor_details  where form_id in
+(
+	select b.form_id from hm_form b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			
+			}
+			function delete_from_change_branch_log($dept_id,$course_id,$branch_id,$passing_year){
+				$sql="delete from change_branch_option  where cb_log_id in
+(
+	select b.id from change_branch_log b where b.admn_no in
+	 (
+		select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=? 
+	 ) 
+)";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+				
+				
+				
+			}
+
+			//========
+			function delete_from_alumni_user_notifications1($dept_id,$course_id,$branch_id,$passing_year){
+				$sql="delete from user_notifications  where
+a.user_from in (
+select admn_no from convocation_admin_final where dept_id=? and course_id=? and branch_id=? and yop=?
+)
+";
+				//echo $sql;die();
+				$query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+
+			   //echo $this->db->last_query(); 
+				if ($this->db->affected_rows() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+				
+				
+				
+				
+			}
+
+
+			//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		 
+
+function move_completed_status($dept_nm,$course_nm,$branch_nm,$year){
+
+ $sql="select * from convocation_move_complete where dept_id=? and course_id=? and branch_id=?and passing_year=?";
+			  $query = $this->db->query($sql,array($dept_nm,$course_nm,$branch_nm,$year));
+
+			  if ($this->db->affected_rows() > 0) {
+					return $query->row();
+				} else {
+					return false;
+				}
+
+
+}
+
+
+function move_completed_details(){
+			 
+			 $sql="select a.*,b.name as dname,c.name as cname,d.name as bname from convocation_move_complete a
+inner join departments b on b.id=a.dept_id
+inner join cs_courses c on c.id=a.course_id
+inner join cs_branches d on d.id=a.branch_id";
+
+				//echo $sql;die();
+				$query = $this->db->query($sql);
+
+			   //echo $this->db->last_query(); die();
+				if ($this->db->affected_rows() > 0) {
+					return $query->result();
+				} else {
+					return false;
+				}
+					 
+			 
+		 }
+
+		 function update_completed_convocation_dcb($dept_id,$course_id,$branch_id,$passing_year){
+		$sql = "update convocation_move_complete
+set status='1' where dept_id=? and course_id=? and branch_id=? and passing_year=?";
+        $query = $this->db->query($sql,array($dept_id,$course_id,$branch_id,$passing_year));
+        
+        if ($this->db->affected_rows() > 0) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+
+
+		 }
+
+
+
+
+
+
+
+	}
+
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+

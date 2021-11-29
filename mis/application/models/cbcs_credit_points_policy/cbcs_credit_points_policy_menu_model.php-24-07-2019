@@ -1,0 +1,48 @@
+<?php
+
+if (!defined("BASEPATH")) {
+    exit("No direct script access allowed");
+}
+
+class cbcs_credit_points_policy_menu_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    function getMenu() {
+        $menu = array();
+
+
+       $menu['deo'] = array();
+       $menu['deo']['CBCS'] = array();
+	   $menu['deo']['CBCS']['Credit Point Policy'] = site_url('cbcs_credit_points_policy/credit_point_policy');
+       $menu['deo']['CBCS']['Credit Point Master'] = site_url('cbcs_credit_points_master/credit_point_master');
+	    $menu['deo']['CBCS']['Course Master']= array();
+       $menu['deo']['CBCS']['Course Master']['Course Wise'] = site_url('cbcs_subject_master/subject_master_dept');
+       $menu['deo']['CBCS']['Course Master']['Upload'] = site_url('cbcs_subject_master/subject_master_upload');
+
+	      $menu['hod']['CBCS']['Offer Course'] = site_url('cbcs_offered_subjects/offer_subject');
+      $menu['hod']['CBCS']['Opted Course'] = site_url('cbcs_offered_subjects/offer_subject/opted_subject');
+       $menu['deo']['CBCS']['Curriculam Policy'] = site_url('cbcs_curriculam_policy/curriculam');
+
+      $menu['deo']['CBCS']['Curriculam Master'] = site_url('cbcs_curriculam_master/curriculammaster');
+      $menu['deo']['CBCS']['Course Structure Policy'] = site_url('cbcs_coursestructure_policy/coursestructure');
+
+	     $menu['adug'] = array();
+        $menu['adug']['CBCS'] = array();
+		      $menu['adug']['CBCS']['Course Transfer'] = site_url('cbcs_subject_transfer/cbcs_regular_subject_transfer');
+          $menu['adug']['CBCS']['Course Transfer Course Wise'] = site_url('cbcs_subject_transfer/cbcs_regular_subject_transfer_new');
+          $menu['adug']['CBCS']['Course Transfer Admission Number Wise'] = site_url('cbcs_subject_transfer/cbcs_regular_subject_transfer_admn_wise');
+
+		$menu['dpgc'] = array();
+        $menu['dpgc']['CBCS'] = array();
+		$menu['dpgc']['CBCS']['Course Transfer'] = site_url('cbcs_subject_transfer/cbcs_regular_subject_transfer');
+    $menu['adug']['CBCS']['Course Transfer Course Wise'] = site_url('cbcs_subject_transfer/cbcs_regular_subject_transfer_new');
+    $menu['adug']['CBCS']['Course Transfer Admission Number Wise'] = site_url('cbcs_subject_transfer/cbcs_regular_subject_transfer_admn_wise');
+
+
+        return $menu;
+    }
+
+}

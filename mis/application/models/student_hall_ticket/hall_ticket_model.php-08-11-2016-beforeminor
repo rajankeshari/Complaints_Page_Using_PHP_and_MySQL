@@ -1,0 +1,492 @@
+<?php
+
+class Hall_ticket_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    
+    function check_reg_status($admm_no,$syear,$sess){
+        
+        $sql = "select a.* from reg_regular_form a where a.admn_no=?  and a.session_year=? and a.`session`=?
+                ORDER BY timestamp DESC    LIMIT 1;";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();;
+        } else {
+            return false;
+        }
+        
+    }
+    function check_other_status($admm_no,$syear,$sess){
+        
+        $sql = "select A.* from (
+(select a.* from reg_other_form a
+where a.admn_no=? and  a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1)
+union
+(select a.* from reg_exam_rc_form a
+where a.admn_no=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1)
+)A group by A.admn_no,A.course_id,A.branch_id,A.semester,A.session_year,A.session";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess,$admm_no,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();;
+        } else {
+            return false;
+        }
+        
+    }
+    
+    function student_personal_details($admm_no){
+        
+        $sql = "select a.id as admn_no,concat_ws(' ',a.first_name,a.middle_name,a.last_name) as stu_name,c.name as dname,
+d.name as cname,e.name as bname,a.photopath from user_details a
+inner join stu_academic b on b.admn_no=a.id
+inner join departments c on a.dept_id=c.id
+inner join cs_courses  d on d.id=b.course_id
+inner join cs_branches e on e.id=b.branch_id
+where a.id=?";
+
+        $query = $this->db->query($sql,array($admm_no));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();;
+        } else {
+            return false;
+        }
+        
+    }
+    function student_personal_details_jrf($admm_no){
+        
+        $sql = "select a.id as admn_no,concat_ws(' ',a.first_name,a.middle_name,a.last_name) as stu_name,c.name as dname,
+'N/A' as cname,'N/A' as bname,a.photopath from user_details a
+inner join stu_academic b on b.admn_no=a.id
+inner join departments c on a.dept_id=c.id
+where a.id=?";
+
+        $query = $this->db->query($sql,array($admm_no));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();;
+        } else {
+            return false;
+        }
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    function get_student($admm_no,$syear,$sess)
+    {
+          
+        $sql = "select a.admn_no,concat_ws(' ',b.first_name,b.middle_name,b.last_name) as stu_name,a.semester,a.session_year,a.`session`,c.name as dname,
+d.name as cname,e.name as bname,b.photopath
+ from reg_regular_form a  
+inner join user_details b on a.admn_no=b.id
+inner join departments c on b.dept_id=c.id
+inner join cs_courses  d on d.id=a.course_id
+inner join cs_branches e on e.id=a.branch_id
+where a.admn_no=?
+and a.session_year=? and a.`session`=?
+and a.hod_status='1' and a.acad_status='1'";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess));
+
+       echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    
+    function get_student_other($admm_no,$syear,$sess){
+        
+        $sql = "(SELECT a.admn_no, CONCAT_WS(' ',b.first_name,b.middle_name,b.last_name) AS stu_name,a.semester,a.session_year,a.`session`,c.name AS dname, d.name AS cname,e.name AS bname,b.photopath
+FROM reg_other_form a
+INNER JOIN user_details b ON a.admn_no=b.id
+INNER JOIN departments c ON b.dept_id=c.id
+INNER JOIN cs_courses d ON d.id=a.course_id
+INNER JOIN cs_branches e ON e.id=a.branch_id
+WHERE a.admn_no=? AND a.session_year=? AND a.`session`=? AND a.hod_status='1' AND a.acad_status='1'
+)union
+(SELECT a.admn_no, CONCAT_WS(' ',b.first_name,b.middle_name,b.last_name) AS stu_name,a.semester,a.session_year,a.`session`,c.name AS dname, d.name AS cname,e.name AS bname,b.photopath
+FROM reg_exam_rc_form a
+INNER JOIN user_details b ON a.admn_no=b.id
+INNER JOIN departments c ON b.dept_id=c.id
+INNER JOIN cs_courses d ON d.id=a.course_id
+INNER JOIN cs_branches e ON e.id=a.branch_id
+WHERE a.admn_no=? AND a.session_year=? AND a.`session`=? AND a.hod_status='1' AND a.acad_status='1'
+)";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess));
+
+       echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    
+    function get_student_core_subject($admm_no,$sem,$syear,$sess){
+        
+        $sql = "select a.subject_id,a.name,b.sequence from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.course_aggr_id from reg_regular_form a  where a.admn_no=? and 
+a.semester=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1') and b.semester=?
+and b.sequence not like '%.%'";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess,$sem));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    function get_student_elec_subject($admm_no,$sem,$syear,$sess){
+        
+        $sql = "select s.subject_id,s.name,b.sub_seq as sequence from reg_regular_elective_opted b
+inner join subjects s on s.id=b.sub_id
+where form_id= (select a.form_id from reg_regular_form a  where a.admn_no=? and  a.semester=?
+and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1' )";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    function get_student_hons_subject($admm_no,$sem){
+        
+        $sql = "select a.subject_id,a.name,b.sequence from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.honours_agg_id from hm_form a where a.admn_no=? and a.honours='1' and a.honour_hod_status='Y')
+and b.semester=?";
+
+        $query = $this->db->query($sql,array($admm_no,$sem));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    function get_student_minor_subject($admm_no,$sem){
+        
+        $sql = "select a.subject_id,a.name,b.sequence from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(
+select m.minor_agg_id from hm_minor_details m where 
+m.form_id=(select a.form_id from hm_form a where a.admn_no=? and a.minor='1' and a.minor_hod_status='Y')
+and m.offered='1')
+and b.semester=?";
+
+        $query = $this->db->query($sql,array($admm_no,$sem));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    function get_student_all_subject($admm_no,$sem,$syear,$sess)
+    {
+        
+        $sql = "(select a.subject_id,a.name,'Core' as 'paper_type' from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.course_aggr_id from reg_regular_form a  where a.admn_no=? and 
+a.semester=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1') and b.semester=?
+and b.sequence not like '%.%')
+union
+(
+select d.subject_id,d.name,
+CASE (c.aggr_id) WHEN c.aggr_id not like '%honour%' THEN 'Honours' when c.aggr_id  like '%honour%' THEN 'Elective' END AS paper_type
+from reg_regular_elective_opted a
+inner join reg_regular_form b on a.form_id=b.form_id
+inner join course_structure c on c.id=a.sub_id
+inner join subjects d on d.id=a.sub_id
+where b.admn_no=? and  b.semester=?
+and b.session_year=? and b.`session`=?
+and b.hod_status='1' and b.acad_status='1'
+
+
+
+)
+union
+(
+select a.subject_id,a.name,'Honours' as 'paper_type' from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.honours_agg_id from hm_form a where a.admn_no=? and a.honours='1' and a.honour_hod_status='Y')
+and b.semester=? and b.sequence not like '%.%'
+)
+union
+(
+select a.subject_id,a.name,'Minor' as 'paper_type' from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(
+select m.minor_agg_id from hm_minor_details m where 
+m.form_id=(select a.form_id from hm_form a where a.admn_no=? and a.minor='1' and a.minor_hod_status='Y')
+and m.offered='1')
+and b.semester=?
+)";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess,$sem,$admm_no,$sem,$syear,$sess,$admm_no,$sem,$admm_no,$sem));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    function get_student_semester($admm_no,$syear,$sess){
+        
+        $sql = "select a.semester from reg_regular_form a where a.admn_no=?
+and a.session_year=? and a.`session`=?
+and a.hod_status='1' and a.acad_status='1'";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row()->semester;
+        } else {
+            return false;
+        }
+        
+    }
+    //------------------------Regular----------------------------------------------------------------
+    function get_approval_status_hod($admm_no,$sem,$syear,$sess){
+        
+        $sql = "select a.hod_status from reg_regular_form a
+where a.admn_no=? and a.semester=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1;";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row()->hod_status;
+        } else {
+            return false;
+        }
+        
+    }
+    
+    function get_approval_status_acad($admm_no,$sem,$syear,$sess){
+        
+        $sql = "select a.acad_status from reg_regular_form a
+where a.admn_no=? and a.semester=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1;";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row()->acad_status;
+        } else {
+            return false;
+        }
+        
+    }
+   //------------------------------------------------------------------------------------------------------------
+    
+   //------------------------Others----------------------------------------------------------------
+    function get_approval_status_hod_other($admm_no,$sem,$syear,$sess){
+        
+        $sql = "select A.hod_status from (
+(select a.* from reg_other_form a
+where a.admn_no=? and a.semester=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1)
+union
+(select a.* from reg_exam_rc_form a
+where a.admn_no=? and a.semester=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1)
+)A group by A.admn_no,A.course_id,A.branch_id,A.semester,A.session_year,A.session;";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess,$admm_no,$sem,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row()->hod_status;
+        } else {
+            return false;
+        }
+        
+    }
+    
+    function get_approval_status_acad_other($admm_no,$sem,$syear,$sess){
+        
+        $sql = "select A.acad_status from(
+(select a.* from reg_other_form a
+where a.admn_no=? and a.semester=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1)
+union
+(select a.* from reg_exam_rc_form a
+where a.admn_no=? and a.semester=? and a.session_year=? and a.`session`=?
+ORDER BY timestamp DESC    LIMIT 1)
+)A group by A.admn_no,A.course_id,A.branch_id,A.semester,A.session_year,A.session";
+
+        $query = $this->db->query($sql,array($admm_no,$sem,$syear,$sess,$admm_no,$sem,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row()->acad_status;
+        } else {
+            return false;
+        }
+        
+    }
+   //------------------------------------------------------------------------------------------------------------
+    
+    function get_student_all_subject_other($admm_no,$sem,$syear,$sess){
+        
+         $sql = "select s.subject_id,s.name,'Other' as 'paper_type' from reg_other_subject b
+inner join subjects s on s.id=b.sub_id
+inner join course_structure c on c.id=b.sub_id
+where form_id= (
+select A.form_id from
+(select a.* from reg_other_form a where a.admn_no=? and a.semester like '%?%' and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+union
+select a.* from reg_exam_rc_form a where a.admn_no=? and a.semester like '%?%' and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+)A
+group by A.admn_no,A.course_id,A.branch_id,A.semester,A.session_year,A.session
+) and c.semester like ?";
+
+        $query = $this->db->query($sql,array($admm_no,(int)$sem,$syear,$sess,$admm_no,(int)$sem,$syear,$sess,(int)$sem));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    
+    function get_student_all_subject_other_again($admm_no,$sem,$syear,$sess){
+        
+         $sql = "select s.subject_id,s.name,'Other' as 'paper_type' from reg_exam_rc_subject b
+inner join subjects s on s.id=b.sub_id
+inner join course_structure c on c.id=b.sub_id
+where form_id= (
+select A.form_id from
+(select a.* from reg_other_form a where a.admn_no=? a.semester like '%?%' and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+union
+select a.* from reg_exam_rc_form a where a.admn_no=? a.semester like '%?%' and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+)A
+group by A.admn_no,A.course_id,A.branch_id,A.semester,A.session_year,A.session
+) and c.semester like ?";
+
+        $query = $this->db->query($sql,array($admm_no,(int)$sem,$syear,$sess,$admm_no,(int)$sem,$syear,$sess,(int)$sem));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    
+    function get_student_semester_other($admm_no,$syear,$sess){
+        
+        $sql = "select A.semester,A.course_id from
+(select a.* from reg_other_form a where a.admn_no=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+union
+select a.* from reg_exam_rc_form a where a.admn_no=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+)A
+group by A.admn_no,A.course_id,A.branch_id,A.semester,A.session_year,A.session";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess,$admm_no,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();;
+        } else {
+            return false;
+        }
+        
+    }
+    
+    function get_student_all_subject_jrf($admm_no,$syear,$sess){
+        
+         $sql = "select s.subject_id,s.name,'JRF' as 'paper_type' from reg_exam_rc_subject b
+inner join subjects s on s.id=b.sub_id
+where form_id= (
+select a.form_id from reg_exam_rc_form a where a.admn_no=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1'
+)";
+
+        $query = $this->db->query($sql,array($admm_no,$syear,$sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+        
+    }
+    function get_student_all_subject_common($admm_no, $sem,$sec, $syear, $sess){
+        
+        $sem_sec=$sem.'_'.$sec;
+        $sql = "select a.subject_id,a.name,'Core' as 'paper_type' from subjects a
+inner join course_structure b on a.id=b.id
+where b.aggr_id=(select a.course_aggr_id from reg_regular_form a  where a.admn_no=? and 
+a.semester=? and a.section=? and a.session_year=? and a.`session`=? and a.hod_status='1' and a.acad_status='1') and b.semester='".$sem_sec."'
+and b.sequence not like '%.%'";
+
+        $query = $this->db->query($sql,array($admm_no, $sem,$sec, $syear, $sess));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+
+}
+
+?>

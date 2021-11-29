@@ -1,0 +1,80 @@
+<?php
+
+Class Alumni_other_details_model extends CI_Model
+{
+	var $table = 'alumni_stu_other_details';
+
+	function __construct()
+	{
+		parent::__construct();
+	}
+
+
+	function getUserById($id = '')
+	{
+		if($id == '')
+			return FALSE;
+		else
+		{
+			$query=$this->db->where('admn_no',$id)->get($this->table);
+			if($query->num_rows() ==1 )	return $query->row();
+			return FALSE;
+		}
+	}
+
+	function insert($data)
+	{
+		if($this->db->insert($this->table,$data))
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	function pending_insert($data)
+	{
+		if($this->db->insert('pending_'.$this->table,$data))
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	function get_student_other_details_by_id($stu_id = '')
+	{
+		if($stu_id != '')
+		{
+			$query = $this->db->where('admn_no="'.$stu_id.'"','',FALSE)->get($this->table);
+			if($query->num_rows() === 1)
+				return $query->row();
+			else
+				return FALSE;
+		}
+		else
+			return FALSE;
+	}
+
+	function get_pending_student_other_details_by_id($stu_id = '')
+	{
+		if($stu_id != '')
+		{
+			$query = $this->db->where('admn_no="'.$stu_id.'"','',FALSE)->get('pending_'.$this->table);
+			if($query->num_rows() === 1)
+				return $query->row();
+			else
+				return FALSE;
+		}
+		else
+			return FALSE;
+	}
+
+	function update_by_id($data,$id)
+	{
+		$this->db->update($this->table,$data,array('admn_no'=>$id));
+	}
+
+	function deletePendingDetailsWhere($data)
+	{
+		$this->db->delete('pending_'.$this->table,$data);
+	}
+}
+
+?>

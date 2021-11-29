@@ -1,0 +1,149 @@
+/* tabulation process
+ * Copyright (c) ISM dhanbad * 
+ * @category   phpExcel
+ * @package    exam_tabulation
+ * @copyright  Copyright (c) 2014 - 2015 Ism dhanbad
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
+ * @version    ##0.1##, #26/11/15#
+ * @Author     Ritu raj<rituraj00@rediffmail.com>
+ */
+$(document).ready(function () {
+    $('#sec').hide(); $('#admn-no').hide();
+    $.ajax({
+        url: site_url("attendance/attendance_ajax/get_session_year_exam"),
+        success: function (result) {
+            $('.gS').html(result);
+        }
+    });
+    $('#exm_type').on('change', function () {
+        var exists = false;
+        var exists1 = false;
+        $('#dept option').each(function () {
+            if (this.value == 'comm') {
+                exists = true;
+            }
+            else if (this.value == 'all') {
+                exists1 = true;
+            }
+        });
+        if (this.value == "regular") {
+            if (exists == true)
+                $("#dept option[value='comm']").remove();
+            else
+                $("#dept").append('<option value="comm">Common</option>');
+            if (exists1 == true)
+                $("#dept option[value='all']").remove();
+        }
+        else if (this.value == "prep") {
+            if (exists1 == true)
+                $("#dept option[value='all']").remove();
+            else
+                $("#dept").append('<option value="all">All</option>');
+
+            if (exists == true)
+                $("#dept option[value='comm']").remove();
+            $('#dept').val('all');
+        }
+        else {
+            if (exists1 == true)
+                $("#dept option[value='all']").remove();
+            if (exists == true)
+                $("#dept option[value='comm']").remove();
+        }
+    });
+   $('#dept').on('change', function () {
+        var session_year = $('#session_year_attendance').val();
+        if (this.value == "comm") {
+            $('#sec').show();
+            $.ajax({url: site_url("result_declaration/result_declaration_drside/get_section_common2/" + session_year), type: "json",
+                success: function (result) {
+                    $('#section_id').html(result);
+                    $('#section_id > option[value=""]').remove();
+                    $('#section_id option').eq(0).before('<option value="all">ALL</option>');
+                    $('#section_id').val('all');
+                }});
+        } else {
+            $('#sec').hide();
+        }
+    });
+    
+     $('#tab_for').on('change', function () {
+            if (this.value == "regno") {
+               $('#admn-no').show();               
+               
+            }else{
+                $('#admn-no').hide();
+                $('#admn_no').val(''); 
+            }
+      });
+// start  custom  validation of tabulation 
+       $.validator.addMethod("pattern_matching", function(value, element) {
+                return this.optional(element) || /^[-,+\w\s]*$/.test(value);
+            }, 'Put valid input.Only A-Z & 0-9 & comma (as separator) are allowed.');
+            
+// end
+
+      
+// start of tabulation  Form  validation
+
+    $("#srh_crt_form").validate({        
+         ignoreTitle: true,
+        rules: {
+            admn_no: {
+                required: function (element) {                  
+                    return ($('#tab_for').val() === "regno" ? true : false);
+                },
+                minlength: function (element) {
+                    return ($('#tab_for').val() === "regno" ? 10 : 0);
+                },
+                pattern_matching:true              
+            },
+            session_year: {
+                required: true
+            },
+            'session': {
+                required: true
+            },
+            exm_type: {
+                required: true
+            },
+            dept: {
+                required: true
+            }
+        },
+        tooltip_options: {
+            admn_no: {placement: 'top'},
+            session_year: {placement: 'top'},
+            session: {placement: 'top'},
+            exm_type: {placement: 'top'},
+            dept: {placement: 'top'}          
+        },
+        messages: {
+            admn_no: {
+                required: 'Put comma separated Admission No.(s) here without any space',
+                minlength: 'Atleast 1 Admission No required of lenght of 10 characters only',
+                pattern_matching: 'Put valid input.Only A-Z & 0-9 & comma (as separator) are allowed'
+               
+            },
+            session_year: {
+                required: 'Please choose session year',
+            },
+            'session': {
+                required: 'Please choose session',
+            },
+            exm_type: {
+                required: 'Please choose Type of Exam',
+            },
+            dept: {
+                required: 'Please choose Department',
+            }
+        },
+        /* submitHandler: function(form) {
+              $(form).ajaxSubmit();
+         }    */    
+    });
+      
+    
+   // end od validation   
+   
+});

@@ -1,0 +1,30 @@
+ #heading{
+    margin-left: 6%;
+  }
+  #stu_select{
+   float: right;
+  }
+  #border{
+    border: 1px solid #3C8DBC;
+    color: rgba(255,255,255,0.8);
+    text-shadow: #333 2px 2px 3px;
+    font-family: sans-serif;
+  }
+  #header_style{
+    background-color: #3C8DBC;
+    color: rgba(255,255,255,0.8);
+    text-shadow: #333 2px 2px 3px;
+    font-family: sans-serif;
+	}
+  #alter_colour1{
+      background-color: #3C8DBC;
+  }
+  #alter_colour2{
+      background-color: #3C8DBC;
+  }
+  #head_b{
+    padding-left: 5%;
+  }
+   #head_bb{
+    padding-left: 3%;
+  }

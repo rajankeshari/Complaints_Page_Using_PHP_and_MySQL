@@ -1,0 +1,42 @@
+<?php
+
+/* tabulation process
+ * Copyright (c) ISM dhanbad * 
+ * @category   phpExcel
+ * @package    exam_tabulation
+ * @copyright  Copyright (c) 2014 - 2015 Ism dhanbad
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
+ * @version    ##0.1##, #26/11/15#
+ * @Author     Ritu raj<rituraj00@rediffmail.com>
+*/
+
+if(!defined("BASEPATH")){ exit("No direct script access allowed"); }
+
+class Exam_tabulation_menu_model extends CI_Model
+{
+	function __construct()
+	{
+		// Call the Model constructor
+		parent::__construct();
+	}
+
+	
+        function getMenu()
+	{
+		$menu=array();		
+                $menu['exam_dr']=array();
+				 $menu['hod']=array();
+				 $menu['ft']=array();
+		$menu['exam_dr']["Exam tabulation"] = site_url('exam_tabulation/exam_tabulation');		
+		$menu['exam_dr']["Moderation"]= site_url('exam_moderation/moderation_admnno_wise');
+		$menu['exam_dr']["Result Declaration"] = site_url('result_declaration/result_declaration_drside');		
+		$menu['exam_dr']["Grade Sheet"]["View"] = site_url('student_grade_sheet/dr_grade_sheet');
+                $menu['exam_dr']["Grade Sheet"]["Bunch Print"] = site_url('student_grade_sheet/bunch_print_gradesheet');
+                $menu['exam_dr']["Grade Sheet"]["Remove Restriction"] = site_url('student_grade_sheet/dr_gs_remove_rest');
+                $menu['exam_dr']["Grade Sheet"]["Feedback Fine"] = site_url('student_grade_sheet/dr_gs_remove_feedback');
+				$menu['hod']["View Result"] = site_url('result_declaration/result_declaration_drside');
+				$menu['ft']["View Result"] = site_url('result_declaration/result_declaration_drside');
+				
+		return $menu;                                                
+	}
+}

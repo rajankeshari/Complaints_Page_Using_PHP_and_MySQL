@@ -1,0 +1,207 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Edit_student_details extends MY_Controller {
+
+    public function __construct() {
+        
+		parent::__construct(array('acad_dr'));
+        $this->load->helper(array('form', 'url'));
+        $this->load->library('form_validation');
+		$this->load->model('student_all_details/edit_student_model');
+        
+    } 
+
+    public function index() {
+	
+        $this->drawHeader("Edit Student");
+        $this->load->view('student_all_details/edit_student_details_view');
+        $this->drawFooter();
+    }
+	function show_student(){
+		
+		$admn_no = $this->input->post('admn_no');
+
+		
+		
+		//to check user is registerd in MIS or not
+		$status= $this->edit_student_model->check_user_details($admn_no);
+		//echo $this->db->last_query();die();
+		if(empty($status)){
+            $this->session->set_flashdata('flashError','Record Not Exists in MIS, Please Enter First.');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+        }
+		
+		
+
+        $data['stu_details'] = $this->edit_student_model->get_basic_details($admn_no);
+		$data['per_address'] = $this->edit_student_model->get_permanent_address($admn_no);
+		//echo $this->db->last_query();die();
+		
+
+        $this->drawHeader("Edit Student");
+        $this->load->view('student_all_details/edit_student_details_view',$data);
+        $this->drawFooter();
+        
+    } 
+    function save_record(){
+    	 date_default_timezone_set('Asia/Calcutta');
+    	$all_text = $this->input->post('all_text');
+    	$tbl = $this->input->post('tbl_name');
+    	$temp_tbl=explode('|', $tbl);
+    	// echo $all_text;
+    	// echo '<br>';
+    	// print_r($temp_tbl);
+    	// die();
+    	
+    	$data['field_name']=$temp_tbl[2];
+    	$data['old_value']=$temp_tbl[4];
+    	$data['admn_no']=$temp_tbl[1];
+    	$data['table_name']=$temp_tbl[0];
+    	$data['user_id']=$this->session->userdata('id');
+    	$data['created_on']=date("Y-m-d H:i:s");
+    	$data['remark1']='na';
+    	$data['remark2']='na';
+    	$data['remark3']='na';
+
+    	$this->db->trans_start();
+    	$pp=$this->edit_student_model->insert_edited_value($data); 
+		if($temp_tbl[0]=='user_address'){
+			$status=$this->edit_student_model->update_record_address($all_text,$temp_tbl[0],$temp_tbl[1],$temp_tbl[2],$temp_tbl[3]);
+		}
+			else{
+				$status=$this->edit_student_model->update_record($all_text,$temp_tbl[0],$temp_tbl[1],$temp_tbl[2],$temp_tbl[3]);
+			}
+		
+        
+    	$this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE)
+    {
+    	$this->session->set_flashdata('flashError','Something Wrong');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }else{
+    	$this->session->set_flashdata('flashSuccess','Record Updated');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }
+
+    	
+    	
+    	
+
+    }
+
+    function save_record_category(){
+    	 date_default_timezone_set('Asia/Calcutta');
+    	$all_text = $this->input->post('selcategory');
+    	$tbl = $this->input->post('tbl_name');
+    	$temp_tbl=explode('|', $tbl);
+    	$data['field_name']=$temp_tbl[2];
+    	$data['old_value']=$temp_tbl[4];
+    	$data['admn_no']=$temp_tbl[1];
+    	$data['table_name']=$temp_tbl[0];
+    	$data['user_id']=$this->session->userdata('id');
+    	$data['created_on']=date("Y-m-d H:i:s");
+    	$data['remark1']='na';
+    	$data['remark2']='na';
+    	$data['remark3']='na';
+
+    	$this->db->trans_start();
+    	$pp=$this->edit_student_model->insert_edited_value($data); 
+    $status=$this->edit_student_model->update_record($all_text,$temp_tbl[0],$temp_tbl[1],$temp_tbl[2],$temp_tbl[3]);
+        
+    	$this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE)
+    {
+    	$this->session->set_flashdata('flashError','Something Wrong');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }else{
+    	$this->session->set_flashdata('flashSuccess','Record Updated');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }
+
+    }
+	
+	function save_record_dob(){
+		 date_default_timezone_set('Asia/Calcutta');
+		$all_text = date("Y-m-d", strtotime($this->input->post('b_date')));
+    	$tbl = $this->input->post('tbl_name');
+    	$temp_tbl=explode('|', $tbl);
+    	$data['field_name']=$temp_tbl[2];
+    	$data['old_value']=$temp_tbl[4];
+    	$data['admn_no']=$temp_tbl[1];
+    	$data['table_name']=$temp_tbl[0];
+    	$data['user_id']=$this->session->userdata('id');
+    	$data['created_on']=date("Y-m-d H:i:s");
+    	$data['remark1']='na';
+    	$data['remark2']='na';
+    	$data['remark3']='na';
+
+    	$this->db->trans_start();
+    	$pp=$this->edit_student_model->insert_edited_value($data); 
+    $status=$this->edit_student_model->update_record($all_text,$temp_tbl[0],$temp_tbl[1],$temp_tbl[2],$temp_tbl[3]);
+        
+    	$this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE)
+    {
+    	$this->session->set_flashdata('flashError','Something Wrong');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }else{
+    	$this->session->set_flashdata('flashSuccess','Record Updated');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }
+    	
+    }
+	
+	// pwd
+	
+	 function save_record_pwd(){
+    	 date_default_timezone_set('Asia/Calcutta');
+    	$all_text = $this->input->post('selpwd');
+    	$tbl = $this->input->post('tbl_name');
+    	$temp_tbl=explode('|', $tbl);
+    	$data['field_name']=$temp_tbl[2];
+    	$data['old_value']=$temp_tbl[4];
+    	$data['admn_no']=$temp_tbl[1];
+    	$data['table_name']=$temp_tbl[0];
+    	$data['user_id']=$this->session->userdata('id');
+    	$data['created_on']=date("Y-m-d H:i:s");
+    	$data['remark1']='na';
+    	$data['remark2']='na';
+    	$data['remark3']='na';
+
+    	$this->db->trans_start();
+    	$pp=$this->edit_student_model->insert_edited_value($data); 
+    $status=$this->edit_student_model->update_record($all_text,$temp_tbl[0],$temp_tbl[1],$temp_tbl[2],$temp_tbl[3]);
+        
+    	$this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE)
+    {
+    	$this->session->set_flashdata('flashError','Something Wrong');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }else{
+    	$this->session->set_flashdata('flashSuccess','Record Updated');
+            redirect('/student_all_details/edit_student_details', 'refresh');
+            
+    }
+
+    }
+	
+    
+
+}
+?>
+
+ 

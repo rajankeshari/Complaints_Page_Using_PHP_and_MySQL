@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * Author: Anuj
+*/
+class Emp_meter_model extends CI_Model {
+    
+    
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    
+
+    function get_emp_meter_reading_temp($empno){//Presently not in use
+        //echo $empno;die();
+
+    	$myquery="select aemr.*, concat(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) as name,(select dp.name from departments dp where dp.id=ud.dept_id) as department from acc_emp_meter_reading_temp aemr inner join user_details ud on ud.id=aemr.empno";
+		$query=$this->db->query($myquery);
+		if($query->num_rows()>0){
+			return $query->result();
+		}
+		else{
+			return false;
+		}
+    }
+
+function get_previous_elec_bill_details($empno){
+    $myquery="select aeu.*, concat(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) as name,(select dp.name from departments dp where dp.id=ud.dept_id) as department from acc_elect_unit aeu inner join user_details ud on ud.id=aeu.empno where aeu.empno='".$empno."' order by aeu.year desc limit 12";
+        
+        $query=$this->db->query($myquery);
+        if($query->num_rows()>0){
+            return $query->result();
+        }
+        else{
+            return false;
+        }
+
+}
+ 
+        function check_status($yr,$mon,$emp)
+        {
+            $myquery = "select * from  acc_emp_meter_reading_temp where year=? and month=? and empno=?";
+
+             $query = $this->db->query($myquery,array($yr,$mon,$emp));
+
+             if ($query->num_rows() > 0) {
+                 //return TRUE;
+              return $query->row();
+
+             } else {
+                 return FALSE;
+             }
+        }
+   
+      function update_emp_meter_reading($data,$con)
+        {
+            if ($this->db->update('acc_emp_meter_reading_temp', $data,$con))
+                    return true;
+                else
+                    return FALSE;
+        }
+
+    function delete_emp_meter_readings($id){
+        $this->db->where('id',$id);
+        $this->db->delete("acc_emp_meter_reading_temp");
+    }
+
+    function insert_emp_meter_reading($data)
+        {
+            if ($this->db->insert('acc_emp_meter_reading_temp', $data))
+                    return $this->db->insert_id();
+                else
+                    return FALSE;
+        }
+
+        function get_no_of_ac($empno){
+
+$myquery = "select no_of_ac from acc_emp_ac_status where empno=? and status=1";
+
+             $query = $this->db->query($myquery,array($empno));
+
+             if ($query->num_rows() > 0) {
+                 return $query->row();
+
+             } else {
+                 return FALSE;
+             }
+
+        }
+
+
+        function get_emp_meter_reading(){
+        $myquery="select aemrt.*, concat(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) as name,(select dp.name from departments dp where dp.id=ud.dept_id) as department from acc_emp_meter_reading_temp aemrt inner join user_details ud on ud.id=aemrt.empno";
+        $query=$this->db->query($myquery);
+        if($query->num_rows()>0){
+            return $query->result();
+        }
+        else{
+            return false;
+        }
+    }
+}

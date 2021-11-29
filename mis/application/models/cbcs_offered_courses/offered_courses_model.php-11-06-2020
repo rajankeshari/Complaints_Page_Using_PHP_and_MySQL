@@ -1,0 +1,360 @@
+<?php
+class Offered_courses_model Extends CI_Model{
+	function __construct(){
+		parent::__construct();
+		$this->load->database();
+	}
+	//get Department list
+	function get_department_list(){
+		$sql="SELECT a.* FROM cbcs_departments a WHERE a.type='academic' AND a.status='1' ORDER BY a.name";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+	//get course list
+	function get_course_list(){
+		$sql="SELECT a.* FROM cbcs_courses a WHERE a.status='1' ORDER BY a.name";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+	//get branch list
+	function get_branch_list(){
+		$sql="SELECT a.* FROM cbcs_branches a WHERE a.status='1' ORDER BY a.name";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+	//get session year list
+	function get_session_year_list(){
+		$sql="SELECT a.session_year FROM mis_session_year a ORDER BY a.id desc";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+	//Get Session list
+	function get_session_list(){
+		$sql="SELECT a.session FROM mis_session a";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+	//Subject List
+	function get_offered_subject_details($dept){
+		$q='';
+		if($dept != ''){
+			$q=" WHERE a.dept_id='".$dept."' ";
+		}
+		$sql="SELECT a.*,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,e.name,c.course_credit_min,c.course_credit_max,d.course_id,d.mincp,d.maxcp
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id $q
+group by a.id
+ORDER BY a.id";
+		$result=$this->db->query($sql);
+		//echo $this->db->last_query();exit;
+		return $result->result();
+
+	}
+
+	function get_base_structure($dept,$course,$sess,$sy){
+		if($dept=='') $a="1=1";
+		else $a="z.dept_id='$dept'";
+		if($course=='') $a.=" AND 1=1";
+		else $a.=" AND z.course_id='$course'";
+		/*$sql="SELECT a.dept_id,b.course_id,b.branch_id,d.duration
+FROM dept_course a
+JOIN course_branch b ON a.course_branch_id=b.course_branch_id
+JOIN cbcs_departments c ON c.id=a.dept_id 
+JOIN cbcs_courses d ON d.id=b.course_id
+JOIN  cbcs_branches e ON e.id=b.branch_id 
+WHERE $a
+GROUP BY a.dept_id,b.course_id,b.branch_id
+ORDER BY d.duration,a.dept_id,b.branch_id";*/
+		$sql="SELECT z.* FROM ((SELECT a.dept_id,b.course_id,b.branch_id,d.duration
+FROM dept_course a
+JOIN course_branch b ON a.course_branch_id=b.course_branch_id
+JOIN cbcs_departments c ON c.id=a.dept_id
+JOIN cbcs_courses d ON d.id=b.course_id
+JOIN cbcs_branches e ON e.id=b.branch_id)
+UNION 
+(SELECT f.dept_id,f.course_id,f.branch_id,'' AS duration
+FROM old_course_structure f
+)) z
+WHERE $a
+GROUP BY z.dept_id,z.course_id,z.branch_id
+ORDER BY z.dept_id,z.course_id,z.branch_id";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+
+	function get_base_structure_for_excel($dept,$course,$sess,$sy){
+		if($dept=='') $a="1=1";
+		else $a="z.dept_id='$dept'";
+		if($course=='') $a.=" AND 1=1";
+		else $a.=" AND z.course_id='$course'";
+		
+		$sql="SELECT z.* FROM ((SELECT a.dept_id,b.course_id,b.branch_id,d.duration,c.name as d_name
+FROM dept_course a
+JOIN course_branch b ON a.course_branch_id=b.course_branch_id
+JOIN cbcs_departments c ON c.id=a.dept_id
+JOIN cbcs_courses d ON d.id=b.course_id
+JOIN cbcs_branches e ON e.id=b.branch_id)
+UNION 
+(SELECT f.dept_id,f.course_id,f.branch_id,'' AS duration,g.name AS d_name
+FROM old_course_structure f
+JOIN departments g ON g.id=f.dept_id
+)) z
+WHERE $a
+GROUP BY z.dept_id/*,z.course_id,z.branch_id*/
+ORDER BY z.dept_id,z.course_id,z.branch_id";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+
+	function get_offered_subject_filter_structure($dept,$course,$sess,$sy){
+		if($dept=='') $a="1=1";
+		else $a="a.dept_id='$dept'";
+		if($course=='') $a.=" AND 1=1";
+		else $a.=" AND a.course_id='$course'";
+	$sql="(SELECT b.sem,b.id,CONCAT(b.course_component,b.sequence) AS sub_category,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,b.sequence,e.name
+,a.dept_id,a.course_id,a.branch_id
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy' 
+GROUP BY b.course_component,b.sequence,a.dept_id,a.course_id,a.branch_id
+ORDER BY a.id)
+UNION
+(SELECT b.sem,b.id, CONCAT(b.course_component,b.sequence) AS sub_category,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,b.sequence,e.name,a.dept_id,a.course_id,a.branch_id
+FROM cbcs_subject_offered a
+JOIN cbcs_comm_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component /*AND e.course_id=a.course_id*/
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy' 
+GROUP BY b.course_component,b.sequence,a.dept_id,a.course_id,a.branch_id
+ORDER BY a.id)";
+
+	$result=$this->db->query($sql);
+		//echo $this->db->last_query();exit;
+	return $result->result();
+	}
+	//Subject List With Filter
+	function get_offered_subject_filter($dept,$course,$sess,$sy){
+
+		 
+	if($dept=='') $a="1=1";
+	else $a="a.dept_id='$dept'";
+	if($course=='') $a.=" AND 1=1";
+	else $a.=" AND a.course_id='$course'";
+$sql="(SELECT a.*,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,b.sequence,e.name,c.course_credit_min,c.course_credit_max,d.mincp,d.maxcp,f.name AS d_name,g.name AS c_name,h.name AS b_name
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy' 
+group by a.id
+ORDER BY a.id)
+UNION
+(SELECT a.*,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,b.sequence,e.name,c.course_credit_min,c.course_credit_max,d.mincp,d.maxcp,f.name AS d_name,g.name AS c_name,h.name AS b_name
+FROM cbcs_subject_offered a
+JOIN cbcs_comm_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component /*AND e.course_id=a.course_id*/
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy' 
+GROUP BY a.id
+ORDER BY a.id)";
+		$result=$this->db->query($sql);
+		//echo $this->db->last_query();exit;
+		return $result->result();
+	}
+
+	function get_offered_subject_filter_for_excel($dept,$course,$sess,$sy){
+		if($dept=='') $a="1=1";
+	else $a="a.dept_id='$dept'";
+	if($course=='') $a.=" AND 1=1";
+	else $a.=" AND a.course_id='$course'";
+		$sql="select x.* from (
+(SELECT a.*,'' as map_id,GROUP_CONCAT(DISTINCT(CONCAT_WS(' ',j.salutation,j.first_name,j.middle_name,j.last_name))) AS instructor
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+LEFT join cbcs_subject_offered_desc i ON i.sub_offered_id=a.id
+LEFT JOIN user_details j ON j.id=i.emp_no
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy' 
+GROUP BY a.id
+ORDER BY a.id) UNION (
+SELECT a.*,'' as map_id,GROUP_CONCAT(DISTINCT(CONCAT_WS(' ',j.salutation,j.first_name, j.middle_name,j.last_name))) AS instructor
+FROM cbcs_subject_offered a
+JOIN cbcs_comm_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component /*AND e.course_id=a.course_id*/
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+LEFT join cbcs_subject_offered_desc i ON i.sub_offered_id=a.id
+LEFT JOIN user_details j ON j.id=i.emp_no
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy' 
+GROUP BY a.id
+ORDER BY a.id)
+union(
+SELECT a.*,GROUP_CONCAT(DISTINCT(CONCAT_WS(' ',j.salutation,j.first_name,j.middle_name,j.last_name))) AS instructor
+FROM old_subject_offered a
+LEFT JOIN departments f ON f.id=a.dept_id
+LEFT JOIN cs_courses g ON g.id=a.course_id
+LEFT JOIN cs_branches h ON h.id=a.branch_id
+LEFT join old_subject_offered_desc i ON i.sub_offered_id=a.id
+LEFT JOIN user_details j ON j.id=i.emp_no
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy'
+GROUP BY a.id
+ORDER BY a.id)) x
+order by x.dept_id,x.course_id,x.branch_id,x.semester";
+$result=$this->db->query($sql);
+		//echo $this->db->last_query();exit;
+		return $result->result();
+	}
+
+	function get_offered_subject_filter_non_cbcs($dept,$course,$sess,$sy){
+		if($dept=='') $a="1=1";
+		else $a="a.dept_id='$dept'";
+		if($course=='') $a.=" AND 1=1";
+		$sql="SELECT a.*,b.sub_offered_id FROM old_subject_offered a 
+		left join old_subject_offered_desc b on b.sub_offered_id=a.id 
+		where a.session_year='$sy' and a.`session`='$sess' and $a AND if('$sess'='Monsoon',a.semester in (1,3,5,7,9),a.semester in (2,4,6,8,10)) group by a.id ORDER BY a.sub_category,a.created_on";
+		$result=$this->db->query($sql);
+		return $result->result();
+	}
+
+	function get_offered_subject_filter_structure_new($dept,$course,$branch,$sem,$sess,$sy,$cc){
+		$sql="SELECT a.sub_category,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,b.sequence,e.name
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+WHERE a.dept_id='$dept' AND a.course_id='$course' AND a.branch_id='$branch' AND a.semester='$sem'AND a.`session`='$sess' AND a.session_year='$sy' and b.course_component='$cc'
+GROUP BY b.course_component,b.sequence
+ORDER BY a.id";
+
+	$result=$this->db->query($sql);
+		//echo $this->db->last_query();exit;
+	return $result->result();
+	}
+
+
+	function get_offered_subject_filter_new($dept,$course,$branch,$sem,$sess,$sy,$cc){
+
+		$sql="SELECT a.*,b.`status`,b.lecture AS c_lecture,b.tutorial AS c_tutorial, b.practical AS c_practical,b.course_component,b.sequence,e.name,c.course_credit_min,c.course_credit_max,d.course_id,d.mincp,d.maxcp,f.name AS d_name,g.name AS c_name,h.name AS b_name
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+LEFT JOIN cbcs_departments f ON f.id=a.dept_id
+LEFT JOIN cbcs_courses g ON g.id=a.course_id
+LEFT JOIN cbcs_branches h ON h.id=a.branch_id
+WHERE a.dept_id='$dept' AND a.course_id='$course' AND a.branch_id='$branch' AND a.semester='$sem'AND a.`session`='$sess' AND a.session_year='$sy' and b.course_component='$cc'
+ORDER BY a.id";
+		$result=$this->db->query($sql);
+		//echo $this->db->last_query();exit;
+		return $result->result();
+	}
+
+function get_offered_coursestructure_filter($dept,$course,$branch_id,$sess,$sy){
+	if($dept=='') $a="1=1";
+	else $a="a.dept_id='$dept'";
+	if($course=='') $a.=" AND 1=1";
+	else $a.=" AND a.course_id='$course'";
+	if($branch_id=='') $a.=" AND 1=1";
+	else $a.=" AND a.branch_id='$branch_id'";
+	$sql="(SELECT a.sem,a.`status`,a.lecture AS c_lecture,a.tutorial AS c_tutorial, a.practical AS c_practical,a.course_component,a.sequence,e.name,c.course_credit_min,c.course_credit_max,a.course_id,'$dept' as dept_id,'$branch_id' as branch_id ,d.mincp,d.maxcp 
+
+FROM cbcs_coursestructure_policy a
+
+JOIN cbcs_curriculam_policy c ON c.id=a.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=a.course_component AND e.course_id=a.course_id
+
+WHERE a.course_id='$course' AND if('$sess'='Monsoon',a.sem in (1,3,5,7,9),a.sem in (2,4,6,8,10))
+and concat(a.course_component,a.sequence) not in (
+SELECT if(a.unique_sub_pool_id = 'NA' OR a.unique_sub_pool_id = '',a.sub_category,a.unique_sub_pool_id)
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy'
+ORDER BY a.id))
+union 
+(SELECT a.sem,a.`status`,a.lecture AS c_lecture,a.tutorial AS c_tutorial, a.practical AS c_practical,a.course_component,a.sequence,e.name,c.course_credit_min,c.course_credit_max,d.course_id,'$dept' as dept_id,'$branch_id' as branch_id ,d.mincp,d.maxcp 
+
+FROM cbcs_comm_coursestructure_policy a
+
+JOIN cbcs_curriculam_policy c ON c.id=a.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=a.course_component 
+
+WHERE a.course_id='$course' AND if('$sess'='Monsoon',a.sem in (1,3,5,7,9),a.sem in (2,4,6,8,10))
+and concat(a.course_component,a.sequence) not in (
+SELECT if(a.unique_sub_pool_id = 'NA' OR a.unique_sub_pool_id = '',a.sub_category,a.unique_sub_pool_id)
+FROM cbcs_subject_offered a
+JOIN cbcs_comm_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component 
+WHERE $a AND a.`session`='$sess' AND a.session_year='$sy'
+ORDER BY a.id))";
+$result=$this->db->query($sql);
+//echo $this->db->last_query();exit;
+return $result->result();
+
+}
+
+function get_offered_coursestructure_filter_new($dept,$course,$branch,$sem,$sess,$sy,$cc){
+	$sql="SELECT a.`status`,a.lecture AS c_lecture,a.tutorial AS c_tutorial, a.practical AS c_practical,a.course_component,a.sequence,e.name,c.course_credit_min,c.course_credit_max,d.course_id,d.mincp,d.maxcp 
+
+FROM cbcs_coursestructure_policy a
+
+JOIN cbcs_curriculam_policy c ON c.id=a.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=a.course_component AND e.course_id=a.course_id
+
+WHERE a.course_id='$course' AND a.sem='$sem' AND a.course_component='$cc'
+and concat(a.course_component,a.sequence) not in (
+SELECT if(a.unique_sub_pool_id = 'NA' OR a.unique_sub_pool_id = '',a.sub_category,a.unique_sub_pool_id)
+FROM cbcs_subject_offered a
+JOIN cbcs_coursestructure_policy b ON b.course_id=a.course_id AND b.sem=a.semester AND (CONCAT(b.course_component,b.sequence)=a.sub_category OR CONCAT(b.course_component,b.sequence)=a.unique_sub_pool_id)
+JOIN cbcs_curriculam_policy c ON c.id=b.cbcs_curriculam_policy_id
+JOIN cbcs_credit_points_policy d ON d.id=c.cbcs_credit_points_policy_id
+JOIN cbcs_course_component e ON e.id=b.course_component AND e.course_id=a.course_id
+WHERE a.dept_id='$dept' AND a.course_id='$course' AND a.branch_id='$branch' AND a.semester='$sem' AND a.`session`='$sess' AND a.session_year='$sy'
+ORDER BY a.id)";
+$result=$this->db->query($sql);
+return $result->result();
+}
+}
+
+?>

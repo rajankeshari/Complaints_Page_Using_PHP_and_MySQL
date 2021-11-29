@@ -1,0 +1,86 @@
+<?php
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+*/
+
+
+
+class Exam_attd_model extends CI_Model
+{
+	
+	
+	function __construct()
+	{
+		// Call the Model constructor
+		parent::__construct();
+	}
+	
+        function getCourseOfferedByDept($id){
+            $q=$this->db->get_where($this->sem_subject,array('form_id'=>$id));
+            if($q->num_rows() > 0){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        function getCourseByDept(){
+           if($this->input->post('dept')!="comm"){
+             $sql="select concat(x.course_id,'(',x.branch_id,')') as sheet_name ,x.course_id,cs_courses.duration from(
+                      select  a.dept_id,upper(b.course_id) as course_id,b.branch_id  from dept_course a  join course_branch b  on a.course_branch_id=b.course_branch_id  and a.dept_id=? and b.course_id!='capsule'  and b.course_id!=?
+                        group by b.course_id,b.branch_id)x
+                         left join cs_courses on cs_courses.id=x.course_id";
+             $secure_array=array($this->input->post('dept'),'comm');            
+             $query = $this->db->query($sql, $secure_array);
+            //   echo $this->db->last_query();  die(); 
+          if ($query->num_rows() > 0)
+              return $query->result();
+           else {
+             return 0;
+          }
+        }else{
+               $sql="select concat(x.course_id,'(',x.branch_id,')') as sheet_name ,x.course_id,cs_courses.duration from(
+                      select  a.dept_id,upper(b.course_id) as course_id,b.branch_id  from dept_course a  join course_branch b  on a.course_branch_id=b.course_branch_id  and b.course_id!='capsule'  and b.course_id=?
+                        group by b.course_id,b.branch_id)x
+                         left join cs_courses on cs_courses.id=x.course_id";
+             $secure_array=array('comm');            
+             $query = $this->db->query($sql, $secure_array);
+             // echo $this->db->last_query(); 
+          if ($query->num_rows() > 0)
+              return $query->result();
+           else {
+             return 0;
+          }
+        }
+            //return array()
+      }
+        
+        function getStudentList($dept,$course_id,$branch_id,$sem){
+            $sql="select dpt.name as dept_name ,br.name as branch_name,    c.name as course_name , B.admn_no,concat_ws(' ',ud.first_name,ud.middle_name,ud.last_name) as st_name ,A.dept_id,A.course_id,A.branch_id ,B.semester
+                  from
+                 (select course_id,dept_id,branch_id from dept_course a  join course_branch b  on a.course_branch_id=b.course_branch_id  and a.dept_id=? group by b.course_id,b.branch_id)A
+                  inner join
+                  (select admn_no,course_id,branch_id ,semester from   reg_regular_form where  session=?  and session_year=? and hod_status=? and  acad_status=?
+                   and course_id=? and branch_id=? and  semester=?)B 
+                    on A.course_id=B.course_id  and A.branch_id=B.branch_id  
+                    left join user_details ud on ud.id=B.admn_no
+                    left join courses c on upper(c.id)=upper(A.course_id)
+                    left join branches br on upper(br.id)=upper(A.branch_id)
+                    left join departments dpt on dpt.id =A.dept_id order by B.admn_no
+                   ";            
+            $secure_array=array($dept,$this->input->post('session'),$this->input->post('session_year'),'1','1',$course_id,$branch_id,$sem);            
+             $query = $this->db->query($sql, $secure_array);
+            // echo $this->db->last_query(); die();
+
+        if ($query->num_rows() > 0)
+           return $query->result();
+        else {
+            return 0;
+        }
+      }
+        
+
+}
+?>

@@ -1,0 +1,117 @@
+<?php
+
+class Subject_master_dept_model extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+        function get_sub_master_all(){
+            $sql = "select * from cbcs_course_master order by sub_name";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+           return $query->result();
+        } else {
+           return false;
+        }
+
+    }
+	
+	
+	function get_sub_master_deptwise($id){
+            $sql = "select * from cbcs_course_master where dept_id='$id' order by sub_name";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+           return $query->result();
+        } else {
+           return false;
+        }
+
+    }
+        
+
+        function sub_master_insert($data) {
+        if ($this->db->insert('cbcs_course_master', $data))
+        return $this->db->insert_id();
+            //return TRUE;
+        else
+            return FALSE;
+    }
+    function insert_backup($id,$action){
+        
+        $sql = "insert into cbcs_course_master_backup select * from cbcs_course_master where id=?";
+        $query = $this->db->query($sql,array($id));
+
+        $sql = "update cbcs_course_master_backup set action='".$action."' where id=".$id;
+        $query = $this->db->query($sql);
+
+        if($action=='modify'){
+            $sql = "update cbcs_course_master set action='".$action."' where id=".$id;
+            $query = $this->db->query($sql);
+        }
+
+        if ($this->db->affected_rows() > 0) {
+            return TRUE;
+        } else {
+            return false;
+        }
+
+
+    }
+     function delete_rowid($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('cbcs_course_master');
+    }
+
+    function sub_master_update($data,$con)
+    {
+        $con1['id'] = $con;
+         if($this->db->update('cbcs_course_master',$data,$con1))
+         {
+                    return true;
+         } 
+            return false;
+            
+    }
+
+    function get_sub_master_lastrow($id){
+
+        $sql = "select * from cbcs_course_master where id=?";
+        $query = $this->db->query($sql,array($id));
+        if ($this->db->affected_rows() > 0) {
+           return $query->row();
+        } else {
+           return false;
+        }
+
+    }
+
+    function delete_record_all($syear,$sess,$cid,$bid){
+            
+                    $sql="delete from cbcs_course_master where session_year=? and session=? and course_id=? and branch_id=?";
+                
+            $query = $this->db->query($sql,array($syear,$sess,$cid,$bid));
+
+            if ($this->db->affected_rows() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } 
+
+    function insert_subject_master($data)
+    {
+            
+           
+        $this->db->insert_batch('cbcs_course_master',$data['values']);
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+              
+    }
+
+}
+
+?>

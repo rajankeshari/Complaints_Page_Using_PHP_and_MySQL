@@ -1,0 +1,96 @@
+<?php
+
+class Cash_prize_report extends CI_Model {
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    function get_student($syear,$did,$cid,$bid,$sem,$gender,$category,$pc)
+    {
+        
+        
+        $sql = "select a.admn_no,concat_ws(' ',b.first_name,b.middle_name,b.last_name) as stu_name,a.dept,a.course,a.branch,a.semester,a.gpa,a.`status` ,
+c.name as dname,d.name as cname,e.name as bname,b.sex,b.category
+from final_semwise_marks_foil a 
+inner join user_details b on b.id=a.admn_no
+inner join departments c on c.id=lcase(a.dept)
+inner join cs_courses d on d.id=lcase(a.course)
+inner join cs_branches e on e.id=lcase(a.branch)
+where  a.`session`='Winter' 
+and a.`type`='R' and a.`status`='Pass' ";
+
+        
+     
+        
+        if($syear!=''){
+            
+            $sql.="and a.session_yr='".$syear."'";
+           
+            
+        }
+        if($did!='none'){
+            $sql.="and a.dept='".$did."'";
+           
+        }
+        if($cid!='none'){
+            $sql.="and a.course='".$cid."'";
+            
+        }
+        if($bid!='none'){
+            $sql.="and a.branch='".$bid."'";
+            
+        }
+        if($sem!=''){
+            $sql.="and a.semester='".$sem."'";
+            
+        }
+        if($gender!='both'){
+            $sql.="and b.sex='".$gender."'";
+            
+        }
+        if($category!='all'){
+            $sql.="and b.category='".$category."'";
+            
+        }
+        if($pc=='yes'){
+            $sql.="and b.physically_challenged='".$pc."'";
+            
+        }
+        
+        
+        
+        
+        $query = $this->db->query("$sql order by a.dept,a.course,a.branch,a.semester,a.admn_no");
+
+      // echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+    }
+    
+    function get_student_monsoon($syear,$admn_no)
+    {
+          
+        $sql = "select a.admn_no,concat_ws(' ',b.first_name,b.middle_name,b.last_name) as stu_name,a.dept,a.course,a.branch,a.semester,a.gpa,a.`status`
+from final_semwise_marks_foil a 
+inner join user_details b on b.id=a.admn_no
+where a.session_yr=? and a.`session`='Monsoon' 
+and a.`type`='R' and a.admn_no=?";
+
+        $query = $this->db->query($sql,array($syear,$admn_no));
+
+       //echo $this->db->last_query(); die();
+        if ($this->db->affected_rows() >= 0) {
+            return $query->row();
+        } else {
+            return false;
+        }
+    }
+    
+
+}
+
+?>

@@ -1,0 +1,673 @@
+<?php if (!defined("BASEPATH")) {
+    exit("No direct script access allowed");
+}
+
+class Student_registration_model extends CI_Model {
+
+function __construct() {
+    parent::__construct();
+    
+}
+
+function get_session_year_list(){
+	$sql="select a.session_year from mis_session_year a order by a.id desc ";
+	$result=$this->db->query($sql);
+	return $result->result();
+}
+
+function get_session_list(){
+	$sql="select a.`session` from mis_session a";
+	$result=$this->db->query($sql);
+	return $result->result();
+}
+
+function get_stu_details($sy,$session,$admn){
+	/*$sql="(select a.*,c.semester,d.name as course_name,e.name as branch_name,f.name as dept_name
+from user_details a
+join users b on b.id=a.id
+join reg_regular_form c on c.admn_no=a.id
+join cbcs_courses d on d.id=c.course_id
+join cbcs_branches e on e.id=c.branch_id
+join cbcs_departments f on f.id=a.dept_id
+where a.id='$admn' and b.auth_id='stu' and c.session_year='$sy' and c.`session`='$session'
+group by a.id)
+union
+(select a.*,c.semester,d.name as course_name,e.name as branch_name,f.name as dept_name
+from user_details a
+join users b on b.id=a.id
+join reg_other_form c on c.admn_no=a.id
+join cbcs_courses d on d.id=c.course_id
+join cbcs_branches e on e.id=c.branch_id
+join cbcs_departments f on f.id=a.dept_id
+where a.id='$admn' and b.auth_id='stu' and c.session_year='$sy' and c.`session`='$session'
+group by a.id)
+union
+(select a.*,c.semester,d.name as course_name,e.name as branch_name,f.name as dept_name
+from user_details a
+join users b on b.id=a.id
+join reg_exam_rc_form c on c.admn_no=a.id
+join cbcs_courses d on d.id=c.course_id
+join cbcs_branches e on e.id=c.branch_id
+join cbcs_departments f on f.id=a.dept_id
+where a.id='$admn' and b.auth_id='stu' and c.session_year='$sy' and c.`session`='$session'
+group by a.id)";*/
+$sql="select x.* from (select a.*,c.semester,d.name as course_name,e.name as branch_name,f.name as dept_name,c.hod_status,c.hod_remark,c.acad_status,c.acad_remark,c.course_id as stu_course,c.branch_id
+from user_details a
+join users b on b.id=a.id
+join reg_regular_form c on c.admn_no=a.id
+join cbcs_courses d on d.id=c.course_id
+join cbcs_branches e on e.id=c.branch_id
+join cbcs_departments f on f.id=a.dept_id
+where a.id='$admn' and b.auth_id='stu' and c.session_year='$sy' and c.`session`='$session'
+order by c.form_id desc limit 100)x
+group by x.id
+union
+select x.* from (select a.*,c.semester,d.name as course_name,e.name as branch_name,f.name as dept_name,c.hod_status,c.hod_remark,c.acad_status,c.acad_remark,c.course_id as stu_course,c.branch_id
+from user_details a
+join users b on b.id=a.id
+join reg_other_form c on c.admn_no=a.id
+join cbcs_courses d on d.id=c.course_id
+join cbcs_branches e on e.id=c.branch_id
+join cbcs_departments f on f.id=a.dept_id
+where a.id='$admn' and b.auth_id='stu' and c.session_year='$sy' and c.`session`='$session'
+order by c.form_id desc limit 100)x
+group by x.id
+union
+select x.* from (select a.*,c.semester,d.name as course_name,e.name as branch_name,f.name as dept_name,c.hod_status,c.hod_remark,c.acad_status,c.acad_remark,c.course_id as stu_course,c.branch_id
+from user_details a
+join users b on b.id=a.id
+join reg_exam_rc_form c on c.admn_no=a.id
+join cbcs_courses d on d.id=c.course_id
+join cbcs_branches e on e.id=c.branch_id
+join cbcs_departments f on f.id=a.dept_id
+where a.id='$admn' and b.auth_id='stu' and c.session_year='$sy' and c.`session`='$session'
+order by c.form_id desc limit 100)x
+group by x.id";
+	$result=$this->db->query($sql);
+	//echo $this->db->last_query();
+	return $result->result();
+}
+
+function get_stu_course($sy,$session,$admn,$hide){
+// 	$sql="select a.*,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,e.name as dept_name,f.semester,'cbcs' as type
+// from cbcs_stu_course a
+// join cbcs_courses b on b.id=a.course
+// join cbcs_branches c on c.id=a.branch
+// join user_details d on d.id=a.admn_no 
+// join cbcs_departments e on e.id=d.dept_id
+// join reg_regular_form f on f.admn_no=a.admn_no
+// where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session'";
+	/*$sql="(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,e.name as dept_name,f.semester,'cbcs' as type
+from cbcs_stu_course a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no  and f.session_year='$sy' and f.`session`='$session'
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session')
+union
+(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,e.name as dept_name,f.semester,'old' as type
+from old_stu_course a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.session_year='$sy' and f.`session`='$session'
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session')";*/
+$val='';
+if($hide=='hide'){
+	$val="and a.course != 'comm' and a.branch!='comm'";
+}
+$sql="(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,e.name as dept_name,f.semester,
+'cbcs' as type, g.lecture,g.tutorial,g.practical,'CBCS' as stu_type
+from cbcs_stu_course a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.form_id=a.form_id and f.session_year='$sy' and f.`session`='$session'
+join cbcs_subject_offered g on g.id=a.sub_offered_id or g.sub_code=a.subject_code /*and g.session_year=a.session_year and a.`session`=a.`session` and g.dept_id=d.dept_id *//*and g.course_id=a.course and g.branch_id=a.branch*/
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session' and f.hod_status='1' and f.acad_status='1' $val
+group by a.id)
+union
+(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,
+e.name as dept_name,f.semester,'old' as type,g.lecture,g.tutorial,g.practical,'OLD' as stu_type
+from old_stu_course a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.form_id=a.form_id and f.session_year='$sy' and f.`session`='$session'
+join old_subject_offered g on g.id=a.sub_offered_id or g.sub_code=a.subject_code /*and g.session_year=a.session_year and a.`session`=a.`session` and g.dept_id=d.dept_id*/ /*and g.course_id=a.course and g.branch_id=a.branch*/
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session' and f.hod_status='1' and f.acad_status='1' $val
+group by a.id)";
+	$result=$this->db->query($sql);
+	//echo $this->db->last_query();
+	return $result->result();
+	
+}
+
+function get_stu_course_other($sy,$session,$admn){
+/*$sql="select a.*,b.sub_seq,b.sub_id,c.subject_id,c.name,c.lecture,c.tutorial,c.practical
+from reg_other_form a
+join reg_other_subject b on b.form_id=a.form_id
+join subjects c on c.id=b.sub_id
+where a.session_year='$sy' and a.`session`='$session' and a.admn_no='$admn'
+";*/
+$sql="(select a.*,b.sub_seq,b.sub_id,c.subject_id,c.name,c.lecture,c.tutorial,c.practical,'Present' as type
+from reg_other_form a
+join reg_other_subject b on b.form_id=a.form_id
+join subjects c on c.id=b.sub_id
+where a.session_year='$sy' and a.`session`='$session' and a.admn_no='$admn' and a.hod_status='1' and a.acad_status='1')
+union
+(select a.*,b.sub_seq,b.sub_id,c.subject_id,c.name,c.lecture,c.tutorial,c.practical,'Deleted' as type
+from reg_other_form a
+join reg_other_subject_backup b on b.form_id=a.form_id
+join subjects c on c.id=b.sub_id
+where a.session_year='$sy' and a.`session`='$session' and a.admn_no='$admn' and a.hod_status='1' and a.acad_status='1')";
+	$result=$this->db->query($sql);
+	return $result->result();
+}
+
+function get_stu_course_exam($sy,$session,$admn){
+	$sql="(select a.*,b.sub_seq,b.sub_id,c.subject_id,c.name,c.lecture,c.tutorial,c.practical,'Present' as type
+from reg_exam_rc_form a
+join reg_exam_rc_subject b on b.form_id=a.form_id
+join subjects c on c.id=b.sub_id
+where a.session_year='$sy' and a.`session`='$session' and a.admn_no='$admn' and a.hod_status='1' and a.acad_status='1')
+union
+(select a.*,b.sub_seq,b.sub_id,c.subject_id,c.name,c.lecture,c.tutorial,c.practical,'Deleted' as type
+from reg_exam_rc_form a
+join reg_exam_rc_subject_backup b on b.form_id=a.form_id
+join subjects c on c.id=b.sub_id
+where a.session_year='$sy' and a.`session`='$session' and a.admn_no='$admn' and a.hod_status='1' and a.acad_status='1')";
+ 	$result=$this->db->query($sql);
+ 	return $result->result();
+}
+
+function get_department_list(){
+	$sql="select a.* from cbcs_departments a where a.`type`='academic' and status='1'";
+	$result=$this->db->query($sql);
+	return $result->result();
+}
+
+
+function get_offered_subject_list($sy,$session,$dept_id){
+	//$dept_id=$this->session->userdata('dept_id');
+	//$sql="select a.* from cbcs_subject_offered a where a.session_year='$sy' and a.`session`='$session' and a.dept_id='$dept_id'";
+	$sql="(select a.*,'' as map_id,'CBCS' as type,b.name as bname 
+	from cbcs_subject_offered a 
+	inner join cbcs_branches b on b.id=a.branch_id
+	where a.session_year='$sy' and a.`session`='$session' and a.dept_id='$dept_id')
+	union
+	(select a.*,'OLD' as type,b.name as bname 
+	from old_subject_offered a 
+	inner join cbcs_branches b on b.id=a.branch_id
+	where a.session_year='$sy' and a.`session`='$session' and a.dept_id='$dept_id')";
+	$result=$this->db->query($sql);
+	//echo $this->db->last_query();exit;
+	return $result->result();
+}
+
+public function delete_stu_course($id,$type,$action){
+	$user_id=$this->session->userdata('id');
+	$date=date('Y-m-d H:i:s');
+	if($type=='cbcs'){
+		$tbl1='cbcs_stu_course';
+		$tbl2='cbcs_stu_course_backup';
+		if($action=='drop'){
+			$this->db->query("INSERT INTO stu_exam_absent_mark (form_id,admn_no,course_aggr_id,semester,session_year,session,sub_id,ex_type,status,
+			timestamp,userid) 
+			SELECT a.form_id,a.admn_no,'' as course_aggr_id,c.semester,a.session_year,a.`session`,a.subject_code as sub_id,'regular' AS ex_type,'B' AS STATUS,
+			'$date' AS `timestamp`,'$user_id' AS userid
+			FROM $tbl1 a
+			JOIN reg_regular_form c ON c.form_id=a.form_id AND c.admn_no=a.admn_no
+			WHERE a.id='$id'");
+		}
+ 	//echo $this->db->last_query();die();
+	}
+	elseif($type=='old'){
+		$tbl1='old_stu_course';
+		$tbl2='old_stu_course_backup';
+		if($action=='drop'){
+			$this->db->query("INSERT INTO stu_exam_absent_mark (form_id,admn_no,course_aggr_id,semester,session_year,session,sub_id,ex_type,status,
+			timestamp,userid) 
+			SELECT a.form_id,a.admn_no,a.course_aggr_id,c.semester,a.session_year,a.`session`,a.subject_code as sub_id,'regular' AS ex_type,'B' AS STATUS,
+			'$date' AS `timestamp`,'$user_id' AS userid
+			FROM $tbl1 a
+			JOIN reg_regular_form c ON c.form_id=a.form_id AND c.admn_no=a.admn_no
+			WHERE a.id='$id'");
+		}
+ 	//echo $this->db->last_query();//die();
+	}
+	// $data=$this->db->query("SELECT * FROM cbcs_stu_course WHERE id='$id'");
+	// echo '<pre>';print_r($data);die();
+	
+	$this->db->query("INSERT INTO $tbl2 SELECT a.*,'$action|$user_id' as deleted_by,'$date' as deleted_time FROM $tbl1 a WHERE a.id='$id'");
+	//echo $this->db->last_query();
+	
+	
+	#$this->db->query("update $tbl2 a set a.log=concat_ws('|',a.session_year,a.`session`,a.admn_no,a.subject_code,'$user_id','$date') where a.id='$id'");
+	//echo "DELETE FROM $tbl1 WHERE id='$id'";die();
+	if($this->db->query("DELETE FROM $tbl1 WHERE id='$id'")){
+		//echo $this->db->last_query();die();
+		return TRUE;
+	}
+	else{
+		//echo '2<br>';echo $this->db->last_query();die();
+		return FALSE;
+	}
+}
+
+public function delete_stu_course_other($id,$sequence,$admn,$sy,$sess){
+	$user_id=$this->session->userdata('id');
+	$date=date('Y-m-d H:i:s');
+
+	$this->db->query("INSERT INTO reg_other_subject_backup SELECT a.*,'$admn' as admn_no,'$user_id' as deleted_by,'$date' as deleted_time FROM reg_other_subject a WHERE a.form_id='$id' and a.sub_seq='$sequence'");
+
+
+
+	$this->db->query("INSERT INTO stu_exam_absent_mark (form_id,admn_no,course_aggr_id,semester,session_year,session,sub_id,ex_type,status,
+timestamp,userid) 
+SELECT a.form_id,'$admn' AS admn_no, CONCAT_WS('_',c.course_id,c.branch_id,
+REPLACE('$sy', '-', '_')) as course_aggr_id,c.semester,'$sy' as session_year,'$sess' as session,a.sub_id,'other' AS ex_type,'B' AS STATUS, '$date' AS `timestamp`,'$user_id' AS userid
+from reg_other_subject a
+join subjects b on b.id=a.sub_id
+join reg_other_form c on c.form_id=a.form_id
+where a.form_id='$id' and a.sub_seq='$sequence'");
+
+	//echo $this->db->last_query();die();
+
+	if($this->db->query("DELETE FROM reg_other_subject  WHERE form_id='$id' and sub_seq='$sequence'"))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+public function delete_stu_course_exam($id,$sequence,$admn,$sy,$sess){
+	$user_id=$this->session->userdata('id');
+	$date=date('Y-m-d H:i:s');
+	
+	$this->db->query("INSERT INTO reg_exam_rc_subject_backup SELECT a.*,'$admn' as admn_no,'$user_id' as deleted_by,'$date' as deleted_time FROM reg_exam_rc_subject a WHERE a.form_id='$id' and a.sub_seq='$sequence'");
+	//echo $this->load->last_query();die();
+	$this->db->query("INSERT INTO stu_exam_absent_mark (form_id,admn_no,course_aggr_id,semester,session_year,session,sub_id,ex_type,status,
+timestamp,userid) 
+SELECT a.form_id,'$admn' AS admn_no, CONCAT_WS('_',c.course_id,c.branch_id,
+REPLACE('$sy', '-', '_')) as course_aggr_id,c.semester,'$sy' as session_year,'$sess' as session,a.sub_id,'exam' AS ex_type,'B' AS STATUS, '$date' AS `timestamp`,'$user_id' AS userid
+from reg_exam_rc_subject a
+join subjects b on b.id=a.sub_id
+join reg_exam_rc_form c on c.form_id=a.form_id
+where a.form_id='$id' and a.sub_seq='$sequence'");
+	
+	if($this->db->query("DELETE FROM reg_exam_rc_subject  WHERE form_id='$id' and sub_seq='$sequence'"))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+public function insert_offered_subject($stu_type,$admn,$sub_offer_id,$sub_type,$sy,$sess,$sem,$sub_course,$stu_course,$s_code,$branch,$s_sem){
+	$user_id=$this->session->userdata('id');
+	$date=date('Y-m-d H:i:s');
+	$sql='';
+	if($sub_type=='CBCS' || $stu_course == 'jrf'){ 
+		$tbl1='old_subject_offered';
+		$tbl2='cbcs_subject_offered';
+		$tbl3='cbcs_stu_course';
+		$tbl4='old_subject_offered_desc';
+		$tbl5='cbcs_subject_offered_desc';
+		//echo $stu_course;
+		if($stu_course == 'jrf' && $sub_course != 'jrf'){
+			if($sub_type == 'CBCS'){
+				//$sql='';
+				$query=$this->db->query("select a.id from $tbl2 a 
+			where a.session_year='$sy' and a.`session`='$sess' and a.id != '$sub_offer_id' and a.sub_code='$s_code' and a.course_id='jrf' and a.branch_id='$branch'
+			group by a.id");
+			//echo $this->db->last_query();
+
+				$rowcount = $query->num_rows();
+				if($rowcount==0){
+					$sql="INSERT INTO $tbl2
+					SELECT '' as id,a.session_year,a.session,a.dept_id,'jrf' as course_id,'$branch' as branch_id,'$s_sem' as semester,a.unique_sub_pool_id,a.unique_sub_id,a.sub_name,a.sub_code,a.lecture,a.tutorial,a.practical,a.credit_hours,a.contact_hours,a.sub_type,a.wef_year,a.wef_session,a.pre_requisite,a.pre_requisite_subcode,a.fullmarks,a.no_of_subjects,a.sub_category,a.sub_group,a.criteria,a.minstu,a.maxstu,a.remarks,'$user_id' as created_by,'$date' as created_on,'' as last_updated_by,null as last_updated_on,a.action
+					FROM $tbl2 a
+					WHERE a.id='$sub_offer_id'";
+				}
+				else
+				{
+					$result=$query->result();
+					$sub_offer_id=$result[0]->id;
+				}
+				
+			}
+			elseif($sub_type == 'OLD'){
+				$query=$this->db->query("select a.id from $tbl2 a 
+			where a.session_year='$sy' and a.`session`='$sess' and a.sub_code='$s_code' and a.course_id='jrf' and a.branch_id='$branch' group by a.id");
+
+				$rowcount = $query->num_rows();
+				if($rowcount==0){
+				$sql="INSERT INTO $tbl2
+					SELECT '' as id,a.session_year,a.session,a.dept_id,'jrf' as course_id,'$branch' as branch_id,'$s_sem' as semester,a.unique_sub_pool_id,a.unique_sub_id,a.sub_name,a.sub_code,a.lecture,a.tutorial,a.practical,a.credit_hours,a.contact_hours,a.sub_type,a.wef_year,a.wef_session,a.pre_requisite,a.pre_requisite_subcode,a.fullmarks,a.no_of_subjects,a.sub_category,a.sub_group,a.criteria,a.minstu,a.maxstu,a.remarks,'$user_id' as created_by,'$date' as created_on,'' as last_updated_by,null as last_updated_on,a.action
+					FROM $tbl1 a
+					WHERE a.id='$sub_offer_id'";
+				}
+				else
+				{
+					$result=$query->result();
+					$sub_offer_id=$result[0]->id;
+				}
+
+			}
+		}
+		//$sql='';
+	// 	if($sub_type=='OLD'){
+	// 		$query=$this->db->query("select b.id from $tbl1 a 
+	// join $tbl2 b on b.session_year=a.session_year and b.`session`=a.`session` and b.dept_id=a.dept_id and b.course_id=a.course_id and b.branch_id=a.branch_id and a.sub_code=b.sub_code
+	// where a.session_year='$sy' and a.`session`='$sess' /*and a.dept_id='$dept'*/ and a.id='$sub_offer_id'
+	// group by a.id");
+
+	// 		$rowcount = $query->num_rows();
+	// 		if($rowcount==0){
+	// 		$sql="INSERT INTO $tbl2
+	// 			SELECT '' as id,a.session_year,a.session,a.dept_id,a.course_id,a.branch_id,a.semester,a.unique_sub_pool_id,a.unique_sub_id,a.sub_name,a.sub_code,a.lecture,a.tutorial,a.practical,a.credit_hours,a.contact_hours,a.sub_type,a.wef_year,a.wef_session,a.pre_requisite,a.pre_requisite_subcode,a.fullmarks,a.no_of_subjects,a.sub_category,a.sub_group,a.criteria,a.minstu,a.maxstu,a.remarks,'$user_id' as created_by,'$date' as created_on,'' as last_updated_by,null as last_updated_on,a.action
+	// 			FROM $tbl1 a
+	// 			WHERE a.id='$sub_offer_id'";
+	// 		}
+	// 		else
+	// 		{
+	// 			$result=$query->result();
+	// 			$sub_offer_id=$result[0]->id;
+	// 		}
+	// 	}
+	}
+	else{
+		$tbl1='cbcs_subject_offered';
+		$tbl2='old_subject_offered';
+		$tbl3='old_stu_course';
+		$tbl4='cbcs_subject_offered_desc';
+		$tbl5='old_subject_offered_desc';
+		$dept=$this->session->userdata('dept_id');
+	// 	$sql='';
+	// 	if($sub_type=='CBCS'){
+	// 		$query=$this->db->query("select b.id from $tbl1 a 
+	// join $tbl2 b on b.session_year=a.session_year and b.`session`=a.`session` and b.dept_id=a.dept_id and b.course_id=a.course_id and b.branch_id=a.branch_id and a.sub_code=b.sub_code
+	// where a.session_year='$sy' and a.`session`='$sess' /*and a.dept_id='$dept'*/ and a.id='$sub_offer_id'
+	// group by a.id");
+	// //echo $this->db->last_query();
+
+	// 		$rowcount = $query->num_rows();
+	// 		if($rowcount==0){
+	// 			$sql="INSERT INTO $tbl2
+	// 			SELECT '' as id,a.session_year,a.session,a.dept_id,a.course_id,a.branch_id,a.semester,a.unique_sub_pool_id,a.unique_sub_id,a.sub_name,a.sub_code,a.lecture,a.tutorial,a.practical,a.credit_hours,a.contact_hours,a.sub_type,a.wef_year,a.wef_session,a.pre_requisite,a.pre_requisite_subcode,a.fullmarks,a.no_of_subjects,a.sub_category,a.sub_group,a.criteria,a.minstu,a.maxstu,a.remarks,'$user_id' as created_by,'$date' as created_on,'' as last_updated_by,null as last_updated_on,a.action,'' AS map_id
+	// 			FROM $tbl1 a
+	// 			WHERE a.id='$sub_offer_id'";
+	// 		}
+	// 		else
+	// 		{
+	// 			$result=$query->result();
+	// 			$sub_offer_id=$result[0]->id;
+	// 		}
+	// 	}
+	}
+	if($sql != ''){
+		$id=$sub_offer_id;
+		$this->db->query($sql);
+		$sub_offer_id = $this->db->insert_id();
+		$this->db->query("INSERT INTO $tbl5 (sub_offered_id,part,emp_no,coordinator,sub_id,section)
+		SELECT '$sub_offer_id',a.part,a.emp_no,a.coordinator,a.sub_id,a.section
+		FROM $tbl4 a
+		WHERE a.sub_offered_id='$id'");
+		
+	}
+	//die();
+
+/*
+	if($stu_type==$sub_type){
+		if($stu_type=='CBCS'){
+			$tbl2='cbcs_subject_offered';
+			$tbl3='cbcs_stu_course';
+		}
+		else{
+			$tbl2='old_subject_offered';
+			$tbl3='old_stu_course';
+		}
+	}
+	else
+	{
+		$user_id=$this->session->userdata('id');
+		$date=date('Y-m-d H:i:s');
+		if($stu_type=='OLD' && $sub_type=='CBCS'){
+			$tbl1='cbcs_subject_offered';
+			$tbl2='old_subject_offered';
+			$tbl3='old_stu_course';
+			$tbl4='cbcs_subject_offered_desc';
+			$tbl5='old_subject_offered_desc';
+			$dept=$this->session->userdata('dept_id');
+			$sql='';
+			$query=$this->db->query("select b.id from $tbl1 a 
+join $tbl2 b on b.session_year=a.session_year and b.`session`=a.`session` and b.dept_id=a.dept_id and b.course_id=a.course_id and b.branch_id=a.branch_id and a.sub_code=b.sub_code
+where a.session_year='$sy' and a.`session`='$sess'  and a.id='$sub_offer_id'
+group by a.id");
+
+			$rowcount = $query->num_rows();
+			if($rowcount==0){
+				$sql="INSERT INTO $tbl2
+				SELECT '' as id,a.session_year,a.session,a.dept_id,a.course_id,a.branch_id,a.semester,a.unique_sub_pool_id,a.unique_sub_id,a.sub_name,a.sub_code,a.lecture,a.tutorial,a.practical,a.credit_hours,a.contact_hours,a.sub_type,a.wef_year,a.wef_session,a.pre_requisite,a.pre_requisite_subcode,a.fullmarks,a.no_of_subjects,a.sub_category,a.sub_group,a.criteria,a.minstu,a.maxstu,a.remarks,'$user_id' as created_by,'$date' as created_on,'' as last_updated_by,null as last_updated_on,a.action,'' AS map_id
+				FROM $tbl1 a
+				WHERE a.id='$sub_offer_id'";
+			}
+			else
+			{
+				$result=$query->result();
+				$sub_offer_id=$result[0]->id;
+			}
+
+		}
+		elseif($stu_type=='CBCS' && $sub_type=='OLD')
+		{
+			$tbl1='old_subject_offered';
+			$tbl2='cbcs_subject_offered';
+			$tbl3='cbcs_stu_course';
+			$tbl4='old_subject_offered_desc';
+			$tbl5='cbcs_subject_offered_desc';
+			$sql='';
+			$query=$this->db->query("select b.id from $tbl1 a 
+join $tbl2 b on b.session_year=a.session_year and b.`session`=a.`session` and b.dept_id=a.dept_id and b.course_id=a.course_id and b.branch_id=a.branch_id and a.sub_code=b.sub_code
+where a.session_year='$sy' and a.`session`='$sess'  and a.id='$sub_offer_id'
+group by a.id");
+
+			$rowcount = $query->num_rows();
+			if($rowcount==0){
+			$sql="INSERT INTO $tbl2
+				SELECT '' as id,a.session_year,a.session,a.dept_id,a.course_id,a.branch_id,a.semester,a.unique_sub_pool_id,a.unique_sub_id,a.sub_name,a.sub_code,a.lecture,a.tutorial,a.practical,a.credit_hours,a.contact_hours,a.sub_type,a.wef_year,a.wef_session,a.pre_requisite,a.pre_requisite_subcode,a.fullmarks,a.no_of_subjects,a.sub_category,a.sub_group,a.criteria,a.minstu,a.maxstu,a.remarks,'$user_id' as created_by,'$date' as created_on,'' as last_updated_by,null as last_updated_on,a.action
+				FROM $tbl1 a
+				WHERE a.id='$sub_offer_id'";
+			}
+			else
+			{
+				$result=$query->result();
+				$sub_offer_id=$result[0]->id;
+			}
+		}
+		if($sql != ''){
+			$id=$sub_offer_id;
+			$this->db->query($sql);
+			$sub_offer_id = $this->db->insert_id();
+			$this->db->query("INSERT INTO $tbl5 (sub_offered_id,part,emp_no,coordinator,sub_id,section)
+			SELECT '$sub_offer_id',a.part,a.emp_no,a.coordinator,a.sub_id,a.section
+			FROM $tbl4 a
+			WHERE a.sub_offered_id='$id'");
+			
+		}
+
+	}*/
+
+
+	//echo "INSERT INTO stu_course_details (id,type,stu_course_id,admn_no,created_by) values ('','$stu_type','$sub_offer_id','$admn','$user_id')";
+	$this->db->query("INSERT INTO stu_course_details (id,type,stu_course_id,admn_no,created_by) values ('','$stu_type','$sub_offer_id','$admn','$user_id')");
+	//echo $this->db->last_query();die();
+	$result=$this->db->query("select * from $tbl2 where id='$sub_offer_id'");
+		$s_offered=$result->result();
+		$sy=$s_offered[0]->session_year;
+		$sess=$s_offered[0]->session;
+		$result1=$this->db->query("select a.* from reg_regular_form a where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$sess' AND a.hod_status='1' AND a.acad_status='1'");
+		$stu=$result1->result();
+		$data['form_id']=$stu[0]->form_id;
+		$data['admn_no']=$admn;
+		$data['sub_offered_id']=$sub_offer_id;
+		$data['subject_code']=$s_offered[0]->sub_code;
+		// if($stu_type=='OLD'){
+		// 	$data['course_aggr_id']=$stu[0]->course_id.'_'.$stu[0]->branch_id.'_'.str_replace('-','_',$s_offered[0]->session_year);
+		// }
+		if($sub_type=='OLD' && $stu_course != 'jrf'){
+			$data['course_aggr_id']=$stu[0]->course_id.'_'.$stu[0]->branch_id.'_'.str_replace('-','_',$s_offered[0]->session_year);
+		}
+		$data['subject_name']=$s_offered[0]->sub_name;
+		$data['sub_category']=$s_offered[0]->sub_category;
+		$data['course']=$stu[0]->course_id;
+		$data['branch']=$stu[0]->branch_id;
+		$data['session_year']=$s_offered[0]->session_year;
+		$data['session']=$s_offered[0]->session;
+		$data['updated_at']=$date;
+		//echo $result1->num_rows();die();
+		if($result->num_rows()>0){
+			$this->db->insert($tbl3,$data);
+			$insert_id = $this->db->insert_id();
+			$data1['type']=$sub_type;
+			$data1['form_id']=$stu[0]->form_id;
+			$data1['admn_no']=$admn;
+			$data1['stu_course_id']=$insert_id;
+			$data1['added_by']='add|'.$user_id.'|'.$date;
+			// echo "<pre>";
+			// print_r($data1);
+			// echo "</pre>";
+			$this->db->insert('cbcs_old_backup',$data1);
+		}
+		//echo $this->db->last_query();die();
+	
+}
+
+function get_stu_course_dropped($sy,$session,$admn,$hide){
+	$val='';
+if($hide=='hide'){
+	$val="and a.course != 'comm' and a.branch!='comm'";
+}
+$sql="(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,e.name as dept_name,f.semester,
+'cbcs' as type, g.lecture,g.tutorial,g.practical,'CBCS' as stu_type
+from cbcs_stu_course_backup a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.form_id=a.form_id and f.session_year='$sy' and f.`session`='$session'
+join cbcs_subject_offered g on g.id=a.sub_offered_id or g.sub_code=a.subject_code /*and g.session_year=a.session_year and a.`session`=a.`session` and g.dept_id=d.dept_id *//*and g.course_id=a.course and g.branch_id=a.branch*/
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session' AND a.deleted_by LIKE '%drop%' and f.hod_status='1' and f.acad_status='1' $val
+group by a.id)
+union
+(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,
+e.name as dept_name,f.semester,'old' as type,g.lecture,g.tutorial,g.practical,'OLD' as stu_type
+from old_stu_course_backup a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.form_id=a.form_id and f.session_year='$sy' and f.`session`='$session'
+join old_subject_offered g on g.id=a.sub_offered_id or g.sub_code=a.subject_code /*and g.session_year=a.session_year and a.`session`=a.`session` and g.dept_id=d.dept_id*/ /*and g.course_id=a.course and g.branch_id=a.branch*/
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session' AND a.deleted_by LIKE '%drop%' and f.hod_status='1' and f.acad_status='1' $val
+group by a.id)";
+	$result=$this->db->query($sql);
+	//echo $this->db->last_query();
+	return $result->result();
+	
+}
+
+function get_stu_course_deleted($sy,$session,$admn,$hide){
+	$val='';
+if($hide=='hide'){
+	$val="and a.course != 'comm' and a.branch!='comm'";
+}
+$sql="(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,e.name as dept_name,f.semester,
+'cbcs' as type, g.lecture,g.tutorial,g.practical,'CBCS' as stu_type
+from cbcs_stu_course_backup a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.form_id=a.form_id and f.session_year='$sy' and f.`session`='$session'
+join cbcs_subject_offered g on g.id=a.sub_offered_id or g.sub_code=a.subject_code /*and g.session_year=a.session_year and a.`session`=a.`session` and g.dept_id=d.dept_id *//*and g.course_id=a.course and g.branch_id=a.branch*/
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session' AND a.deleted_by LIKE '%delete%' and f.hod_status='1' and f.acad_status='1' $val
+group by a.id)
+union
+(select a.id,a.admn_no,a.subject_code,a.subject_name,b.name as course_name,c.name as branch_name,concat_ws(' ',d.salutation,d.first_name,d.middle_name,d.last_name) as stu_name,
+e.name as dept_name,f.semester,'old' as type,g.lecture,g.tutorial,g.practical,'OLD' as stu_type
+from old_stu_course_backup a
+join cbcs_courses b on b.id=a.course
+join cbcs_branches c on c.id=a.branch
+join user_details d on d.id=a.admn_no 
+join cbcs_departments e on e.id=d.dept_id
+join reg_regular_form f on f.admn_no=a.admn_no and f.form_id=a.form_id and f.session_year='$sy' and f.`session`='$session'
+join old_subject_offered g on g.id=a.sub_offered_id or g.sub_code=a.subject_code /*and g.session_year=a.session_year and a.`session`=a.`session` and g.dept_id=d.dept_id*/ /*and g.course_id=a.course and g.branch_id=a.branch*/
+where a.admn_no='$admn' and a.session_year='$sy' and a.`session`='$session' AND a.deleted_by LIKE '%delete%' and f.hod_status='1' and f.acad_status='1' $val
+group by a.id)";
+	$result=$this->db->query($sql);
+	//echo $this->db->last_query();
+	return $result->result();
+	
+}
+
+function add_subject_again_from_drop($id,$type,$a_type){
+	$user_id=$this->session->userdata('id');
+	$date=date('Y-m-d H:i:s');
+	//$remark3='add|'.$user_id.'|'.$date;
+	if($type=='cbcs'){
+		$tbl1='cbcs_stu_course_backup';
+		$tbl2='cbcs_stu_course';
+	}else{
+		$tbl1='old_stu_course_backup';
+		$tbl2='old_stu_course';
+	}
+	$query=$this->db->query("SELECT a.* FROM $tbl1 a WHERE a.id='$id'");
+	$details=$query->result();
+	$data=array(
+		'form_id'=>$details[0]->form_id,
+		'admn_no'=>$details[0]->admn_no,
+		'sub_offered_id'=>$details[0]->sub_offered_id,
+		'subject_code'=>$details[0]->subject_code,
+		'course_aggr_id'=>$details[0]->course_aggr_id,
+		'subject_name'=>$details[0]->subject_name,
+		'priority'=>$details[0]->priority,
+		'sub_category'=>$details[0]->sub_category,
+		'sub_category_cbcs_offered'=>$details[0]->sub_category_cbcs_offered,
+		'course'=>$details[0]->course,
+		'branch'=>$details[0]->branch,
+		'session_year'=>$details[0]->session_year,
+		'session'=>$details[0]->session,
+	);
+	$this->db->insert($tbl2,$data);
+	$insert_id = $this->db->insert_id();
+	$data1['type']=$type;
+	$data1['form_id']=$details[0]->form_id;
+	$data1['admn_no']=$details[0]->admn_no;
+	$data1['stu_course_id']=$insert_id;
+	$data1['added_by']='add|'.$user_id.'|'.$date;
+	// echo "<pre>";
+	// print_r($data1);
+	// echo "</pre>";
+	$this->db->insert('cbcs_old_backup',$data1);
+	if($a_type=='drop'){
+		$form_id=$details[0]->form_id;
+		$admn_no=$details[0]->admn_no;
+		$session_year=$details[0]->session_year;
+		$session=$details[0]->session;
+		$subject_code=$details[0]->subject_code;
+		$this->db->query("DELETE FROM `stu_exam_absent_mark` WHERE form_id='$form_id' AND admn_no='$admn_no' AND session_year='$session_year' AND session='$session' AND sub_id='$subject_code'");
+	}
+	//echo $this->db->last_query();exit;
+	if($this->db->query("DELETE FROM $tbl1 where id='$id'")){
+		return true;
+	}else{
+		return false;
+	}
+
+}
+
+
+}

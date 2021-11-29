@@ -1,0 +1,264 @@
+<?php 
+class Marks_upload_main_process extends CI_Model{
+  
+    private $marksMaster = 'marks_master';
+    private $marksDes = 'marks_subject_description';
+    private $dipankarSir = 'marksentry';
+    private $semcode = 'dip_m_semcode';
+    private $subjects = 'subjects';
+    private $courseSt = 'course_structure';
+            
+        function insertMarksMaster($data){
+        if($this->db->insert($this->marksMaster,$data)){
+            return true;
+        }
+        return false;
+    }
+    
+    function updateMarksMaster($data,$con){
+       if($this->db->update($this->marksMaster,$data,$con)){
+           return true;
+       }
+       return false;
+    }
+    
+    function getMarksMaster($con=''){
+        
+        if(is_array($con)){
+          $q= $this->db->get_where($this->marksMaster,$con);
+        }else{
+            $q=$this->db->get($this->marksMaster);
+        }
+        if($q->num_rows() >0){
+            return $q->row();
+        }
+            return false;
+    }
+    
+    function insertMarksDesInsert($data){
+        if($this->db->insert_batch($this->marksDes,$data)){
+            return true;
+        }
+        return false;
+    }
+    
+    function updateMarksDes($data,$con){
+       if($this->db->update($this->marksDes,$data,$con)){
+           return true;
+       }
+       return false;
+    }
+    
+    function getMarksDes($con=''){
+         if(is_array($con)){
+          $q= $this->db->get_where($this->marksDes,$con);
+        }else{
+            $q=$this->db->get($this->marksDes);
+        }
+        if($q->num_rows() >0){
+            return $q->result();
+        }
+            return false;
+    }
+    
+    function userDetailsById($id){
+          $q= $this->db->get_where('user_details',array('id'=>$id));
+          if($q->num_rows() >0){
+            return $q->row();
+        }
+        return false;
+          
+    }
+    
+    function sumfields($id,$type,$markId,$maindata){
+      //   print_r($_POST);
+        if($type != 'U'){
+        $total=$this->db->query("select (sum(a.sessional)+sum(a.theory)+sum(a.practical)) as total, admn_no from marks_subject_description as a where id=?",array('id'=>$id))->row();
+        $Max = $this->getMaxNumber($markId);
+        if($total->total > $Max){
+            $Max = $total->total;
+        }
+        $grade=$this->getGrade($Max,$total->total);
+      //  echo $this->db->last_query();
+        $this->updateMarksDes(array('total'=>$total->total,'grade'=>$grade), array('id'=>$id));
+        $data['total'] = $total->total;
+        $data['Max'] = $Max;
+        if($total->total > $Max){
+            
+        }else{
+        $data['grade']= $grade;
+        }
+        //dipankarSir Processing Start//
+        $maindata['admn_no']=$total->admn_no;
+        $maindata['total']=$total->total;
+        $maindata['type']=$type;
+        
+        $this->DipankarSirProcess($this->input->post('course'), $this->input->post('branch'), $this->input->post('semester'), $this->input->post('sub_id'), $maindata, $id);
+        //End DipankarSir Process//
+        return $data;
+        }else{
+         $total= $this->db->select('total')->get_where($this->marksDes,array('id'=>$id))->row();
+          $Max = $this->getMaxNumber($markId);
+        $grade=$this->getGrade($Max,$total->total);
+        $this->updateMarksDes(array('total'=>$total->total,'grade'=>$grade), array('id'=>$id));
+        $data['total'] = $total->total;
+        $data['Max'] = $Max;
+        $data['grade']= $grade;
+         //dipankarSir Processing Start//
+        $maindata['admn_no']=$total->admn_no;
+        $maindata['total']=$total->total;
+        $maindata['type']=$type;
+        
+        $this->DipankarSirProcess($this->input->post('course'), $this->input->post('branch'), $this->input->post('semester'), $this->input->post('sub_id'), $maindata, $id);
+        //End DipankarSir Process//
+        return $data;
+        }
+    }
+    
+    function getMaxNumber($marksId){
+       // echo $marksId;
+        $q=$this->db->select_max('total', 'Max')->get_where($this->marksDes,array('marks_master_id'=>$marksId))->row();
+        return $q->Max;
+    }
+    
+    function getGrade($max,$get,$session='2013_2014'){
+       // echo $max."-".$get;
+        $q=$this->db->query("select * from relative_grading_table as a where a.highest_marks=? and ? BETWEEN `a`.`min` and `a`.`max` and a.effected_form=?",array($max,$get,$session))->row();
+        //echo $this->db->last_query();
+        return $q->grade;
+    }
+    
+   
+    
+    private function insertDipkankarSirTable($data){
+            if($this->db->insert($this->dipankarSir,$data))
+            return true;
+        return false;
+    }
+   private function getdipankarSir($id){
+        $q=$this->db->get_where($this->dipankarSir,array('marksid'=>$id));
+        if($q->num_rows() >0)
+            return true;
+        return false;
+    }
+    
+   private function updateDipkankarSir($data,$con){
+       if($this->db->update($this->dipankarSir,$data,$con)){
+           return true;
+       }
+       return false;
+    }
+   private function DipankarSirProcess($c,$b,$s,$subId,$maindata,$markId){
+        $semcode = $this->getSemCode($c, $b, $s);
+        $subject =$this->getsubject($subId);
+        
+        $data['YSESSION'] = '1516';
+        $data['sem_code'] = $semcode->semcode;
+        $data['dept']= $semcode->dept;
+        $data['adm_no'] = strtoupper($maindata['admn_no']);
+        $data['stu_name']= $this->gatName($maindata['admn_no']);
+        $data['wsms']='ms';
+        $data['examtype']='R';
+        $data['subje_code']=$subject->subject_id;
+        $data['subje_orde'] = $this->getSeq($subId);
+        $data['subje_name']=$subject->name;
+        $data['subje_type']=$maindata['type'];
+        $data['ltp']=$subject->lecture."-".$subject->tutorial."-".$subject->practical;
+        if (isset($maindata['sessional'])) {
+            $data['sessional'] = $maindata['sessional'];
+        }else if (isset($maindata['theory'])) {
+            $data['theory'] = $maindata['theory'];
+        }else if (isset($maindata['practical'])){
+            $data['practical'] = $maindata['practical'];
+        }   else if(isset($maindata['total'])){
+            $data['total'] = $maindata['total'];
+        }
+        $data['efectfrom']=$this->getEffectivefrom($subId);
+        $data['crhrs']=$subject->credit_hours;
+        //$data['crpts'];
+      //  $data['g_e'];
+        
+        
+        if($this->getdipankarSir($markId)){
+           
+            $this->updateDipkankarSir($data,array('marksid'=>$markId));                   
+        }else{
+             $data['marksid'] =$markId;
+            $this->insertDipkankarSirTable($data);
+        }
+        
+        
+    }
+    
+    private function getSemCode($course,$branch,$sem){
+        $q=$this->db->get_where($this->semcode,array('course'=>$course,'branch'=>$branch,'sem'=>$sem));
+        //echo $this->db->last_query();
+        if($q->num_rows() > 0){
+            return $q->row();
+        }
+        return false;
+    }
+    
+    private function getsubject($id){
+         $q=$this->db->get_where($this->subjects,array('id'=>$id));
+        if($q->num_rows() >0){
+            return $q->row(); 
+        }
+        return false;
+    }
+    
+   private function getSeq($id){
+         $q=$this->db->get_where($this->courseSt,array('id'=>$id));
+        if($q->num_rows() >0){
+            if(is_float($this->get_numeric($q->row()->sequence))){
+                $r=explode('.',(string)$q->row()->sequence);
+                return $r[0];
+            }else{
+               return   $q->row()->sequence;          
+            }
+        }
+        return false;
+    }
+   private function getEffectivefrom($id){
+       $q=$this->db->get_where($this->courseSt,array('id'=>$id));
+        if($q->num_rows() >0){
+             $r=explode('_',$q->row()->aggr_id);
+               if($r[2] == '2009'){
+                   return '0910';
+               }else if($r[2] == '2010'){
+                   return '1011';
+               }else if($r[2] == '2011'){
+                   return '1112';
+               }else if($r[2] == '2012'){
+                   return '1213';
+               }else if($r[2] == '2013'){
+                   return '1314';
+               }else if($r[2] == '2014'){
+                   return '1415';
+               }else if($r[2] == '2015'){
+                   return '1516';
+               }else if($r[2] == '2016'){
+                   return '1617';
+               }else if($r[2] == '2017'){
+                   return '1718';
+               }
+            }
+   }
+    
+    protected function get_numeric($val) {
+				if (is_numeric($val)) {
+					return $val + 0;
+				}
+				return 0;
+			}
+                        
+    private function gatName($id){
+         $q=$this->db->get_where('user_details',array('id'=>$id));
+        if($q->num_rows() >0){
+            return strtoupper($q->row()->first_name." ".$q->row()->middle_name." ".$q->row()->last_name);
+            }
+        return false;
+    }
+}
+
+?>

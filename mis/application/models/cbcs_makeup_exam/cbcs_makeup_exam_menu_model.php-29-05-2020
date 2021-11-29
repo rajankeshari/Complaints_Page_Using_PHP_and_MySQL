@@ -1,0 +1,366 @@
+<?php
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Description of common_dept_app
+ *
+ * @author Ritu Raj <rituraj00@rediffmail.com>
+ */
+class Cbcs_makeup_exam_menu_model extends CI_Model {
+
+    function getMenu() {
+
+        // For DR Exam
+
+        
+        //$menu['adug']['Makeup Exam Details'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam');
+        
+        
+       
+       
+		//ADAC Starts
+		$menu['adac']['Academic']['Academic Performance'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/acadmic_performance');
+		$menu['adac']['Academic']['Course Coordinator Details'] = site_url('course_coordinator/course_coordinator/courseCoordinatorDetails');
+		$menu['adac']['Academic']['Defaulter']['Defaulter List'] = site_url('attendance/ar_acad_attendance_controller');
+		$menu['adac']['Academic']["Drop Out Student"]['Mark Drop Out'] = site_url('drop_student/drop_student');
+		$menu['adac']['Academic']["Drop Out Student"]['Report'] = site_url('drop_student/drop_student_report');
+		$menu['adac']['Academic']['Manage Students']=array();
+		$menu['adac']['Academic']["Manage Students"]["View Student"]["Details"] = site_url('student_view_report/view');
+		$menu['adac']['Academic']["Manage Students"]["View Student"]["Report"] = site_url('student_view_report/reports');       
+		$menu['adac']['Academic']['Migration Certificate'] = array();
+        $menu['adac']['Academic']['Migration Certificate']['Fill Migration'] = site_url('student_migration_certificate/migration_certificate_deo');
+        $menu['adac']['Academic']['Migration Certificate']['Issue Migration'] = site_url('student_migration_certificate/migration_print');
+        $menu['adac']['Academic']['Migration Certificate']['Migration Status'] = site_url('student_migration_certificate/migration_print_already');
+		$menu['adac']['Academic']['OBC Subcategory'] = site_url('acad_report/academic_report');
+		$menu['adac']['Academic']["Pass Out Student"]['Mark Pass Out'] = site_url('alumni/passout_student');
+		$menu['adac']['Academic']["Pass Out Student"]['Report'] = site_url('alumni/passout_student_report');
+		$menu['adac']['Academic']['Registration/Exam Date Open Close'] = site_url('sem_date_open_close/semester_date_open_close');
+		$menu['adac']['Academic']["View Course Structure"] = site_url('course_structure/view/index/'.($this->session->userdata("dept_id")));
+        //$menu['adac']['Academic']['PHD'] = array();
+        //$menu['adac']['Academic']['PHD']['Ongoing'] = site_url('phdawarded/phdcurrent');
+		//$menu['adac']['Academic']['PHD']['Awarded'] = site_url('phdawarded/phdawardedlist');
+        //$menu['adac']['Academic']['PHD']['Status Update'] = site_url('phdawarded/phdawarded');
+		
+			
+		
+		$menu['adac']['Examination']['CBCS Transcript/Gradesheet'] = site_url('transcript_cbcs/transcript_single');
+		$menu['adac']['Examination']['Backlog Details']=site_url('registration_report/registration_report/index/backpaper');
+		$menu['adac']['Examination']['Exam Attendance Sheet'] = site_url('attendance/exam_attendance/exam_attendance_index');
+		$menu['adac']['Examination']["Grade Sheet"]["OLD"] = site_url('student_grade_sheet/dr_grade_sheet');   
+		$menu['adac']['Examination']["Grade Sheet"]["CBCS"] = site_url('cbcs_grade_sheet/dr_grade_sheet');
+		$menu['adac']['Examination']['Grade Submission']['Status'] = site_url('marks_monitor/cbcs_monitor_marks_submission');
+		
+	
+		
+		//ADAC End
+		
+		//ADPG Starts
+		 $menu['adpg']['Academic']['Academic Performance'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/acadmic_performance');
+		 $menu['adpg']['Academic']['Defaulter']['Defaulter List'] = site_url('attendance/ar_acad_attendance_controller');
+		 //$menu['adpg']['Academic']["Course Mapping"]= site_url('subject_mapping/cbcs_departmentwise/');
+		 $menu['adpg']['Academic']['Manage Students']=array();
+		 $menu['adpg']['Academic']["Manage Students"]["View Student"]["Details"] = site_url('student_view_report/view');
+		 $menu['adpg']['Academic']["Manage Students"]["View Student"]["Report"] = site_url('student_view_report/reports');
+		 $menu['adpg']['Academic']['OBC Subcategory'] = site_url('acad_report/academic_report');
+		 $menu['adpg']['Academic']['PHD'] = array();
+         $menu['adpg']['Academic']['PHD']['Awarded'] = site_url('phdawarded/phdawardedlist');
+		 $menu['adpg']['Academic']['PHD']['Examination']['Individual'] = site_url('jrf_reg/jrf_registration');
+         $menu['adpg']['Academic']['PHD']['Examination']['Report'] = site_url('jrf_reg/jrf_registration/showreport');
+         $menu['adpg']['Academic']['PHD']['Ongoing'] = site_url('phdawarded/phdcurrent');
+		 $menu['adpg']['Academic']['PHD']['Status Update'] = site_url('phdawarded/phdawarded');
+		 $menu['adpg']['Academic']['Student Attendance'] = site_url( 'attendance/student_attendance/addCustomAttendance');
+		 $menu['adpg']['Academic']["View Course Structure"] = site_url('course_structure/view/index/'.($this->session->userdata("dept_id")));
+		 
+		 $menu['adpg']['CBCS']['Course Structure Policy'] = site_url('cbcs_coursestructure_policy/coursestructure');
+		 
+		 $menu['adpg']['Examination']['Backlog Details']=site_url('registration_report/registration_report/index/backpaper');	
+		 $menu['adpg']['Examination']['Exam Attendance Sheet'] = site_url('attendance/exam_attendance/exam_attendance_index');
+		 $menu['adpg']['Examination']["Grade Sheet"]["OLD"] = site_url('student_grade_sheet/dr_grade_sheet');   
+		 $menu['adpg']['Examination']["Grade Sheet"]["CBCS"] = site_url('cbcs_grade_sheet/dr_grade_sheet');
+		 $menu['adpg']['Examination']['Grade Submission']['Status'] = site_url('marks_monitor/cbcs_monitor_marks_submission');
+		 $menu['adpg']['Examination']['Makeup Exam Details'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam');
+		 
+		 
+		 
+		 $menu['adpg']['Registration']['2019 Onwards']['Final Registration']['Add/Remove Course']=site_url('student_registration/student_registration');
+         $menu['adpg']['Registration']['2019 Onwards']['Final Registration']['Pending Registration']=site_url('final_registration/final_registration');
+		 $menu['adpg']['Registration']['2019 Onwards']['Pre Registration'] = site_url('pre_registration/student_registration');
+		 $menu['adpg']['Registration']['2019 Onwards']["Registration Report"]["Programme Wise"] = site_url('student_sem_form_all/viewandprint_all');
+		 $menu['adpg']['Registration']['2019 Onwards']["Registration Report"]["Course Wise"] = site_url('student_sem_form_all/viewandprint_all_cwise');
+		 //$menu['adpg']['Registration']['Student Registration'] = site_url('student_registration/student_registration');
+		 $menu['adpg']['Registration']['2019 Onwards']['Unregistered Candidate']=site_url('unregister_candidates/unregister_candidates');
+		 $menu['adpg']['Registration']['2015 to 2018']['Semester Registration']=site_url('mis_dashboard/stu_registration');
+		 
+		 
+		 
+		//ADPG End
+		 
+		//ADUG Starts
+		 $menu['adug']['Academic']['Academic Performance'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/acadmic_performance');
+		 $menu['adug']['Academic']["Course Mapping"]= site_url('subject_mapping/cbcs_departmentwise/');
+		 $menu['adug']['Academic']['Defaulter']['Defaulter List'] = site_url('attendance/ar_acad_attendance_controller');
+		 $menu['adug']['Academic']['Manage Students']=array();
+		 $menu['adug']['Academic']["Manage Students"]["View Student"]["Details"] = site_url('student_view_report/view');
+		 $menu['adug']['Academic']["Manage Students"]["View Student"]["Report"] = site_url('student_view_report/reports');
+		 $menu['adug']['Academic']['OBC Subcategory'] = site_url('acad_report/academic_report');
+		 $menu['adug']['Academic']['Section Division']=array();
+		 $menu['adug']['Academic']['Section Division']['Course Wise'] = site_url('student_sec_division/section_course_wise');
+		 $menu['adug']['Academic']['Section Division']['Create Section'] = site_url('student_sec_division/section_div_form');
+		 $menu['adug']['Academic']['Section Division']['Edit Section'] = array();
+		 $menu['adug']['Academic']['Section Division']['Edit Section']['Insert Student'] = site_url('student_sec_division/insert_new');
+		 $menu['adug']['Academic']['Section Division']['Edit Section']['Update Student Section'] = site_url('student_sec_division/update_section');
+		 $menu['adug']['Academic']['Section Division']['View Section'] = site_url('student_sec_division/section_view_details');
+		 $menu['adug']['Academic']['Student Attendance'] = site_url( 'attendance/student_attendance/addCustomAttendance');
+		 $menu['adug']['Academic']["View Course Structure"] = site_url('course_structure/view/index/'.($this->session->userdata("dept_id")));
+		
+		 $menu['adug']['CBCS']['Course Structure Policy'] = site_url('cbcs_coursestructure_policy/coursestructure');
+		 $menu['adug']['CBCS']['ESO']['Guided ESO'] = site_url('cbcs_guided_eso/eso_mapping');
+		 $menu['adug']['CBCS']['ESO']['Offered ESO'] = site_url('cbcs_guided_eso/eso_mapping/offered_eso');
+		 $menu['adug']['CBCS']['Modular Course'] = site_url('cbcs_coursestructure_policy/modular_course_division');
+		 $menu['adug']['CBCS']['Offer Common Course'] = site_url('cbcs_offered_subjects/offer_subject_common');
+		
+		 //$menu['adug']['Academic']['PHD'] = array();
+         //$menu['adug']['Academic']['PHD']['Ongoing'] = site_url('phdawarded/phdcurrent');
+		 //$menu['adug']['Academic']['PHD']['Awarded'] = site_url('phdawarded/phdawardedlist');
+         //$menu['adug']['Academic']['PHD']['Status Update'] = site_url('phdawarded/phdawarded');
+		 
+		$menu['adug']['Examination']['Backlog Details']=site_url('registration_report/registration_report/index/backpaper'); 		 
+		$menu['adug']['Examination']['Exam Attendance Sheet'] = site_url('attendance/exam_attendance/exam_attendance_index');		
+		$menu['adug']['Examination']["Grade Sheet"]["2019 Onwards"] = site_url('cbcs_grade_sheet/dr_grade_sheet');   
+		$menu['adug']['Examination']["Grade Sheet"]["2015 to 2018"] = site_url('student_grade_sheet/dr_grade_sheet');
+		$menu['adug']['Examination']['Grade Submission']['Status'] = site_url('marks_monitor/cbcs_monitor_marks_submission');
+		$menu['adug']['Examination']['Makeup Exam Details'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam');
+		 
+		 
+		 $menu['adug']['Registration']['2019 Onwards']['Final Registration']['Add/Remove Course']=site_url('student_registration/student_registration');
+         $menu['adug']['Registration']['2019 Onwards']['Final Registration']['Pending Registration']=site_url('final_registration/final_registration');
+		 $menu['adug']['Registration']['2019 Onwards']['Pre Registration'] = site_url('pre_registration/student_registration');
+		 $menu['adug']['Registration']['2019 Onwards']["Registration Report"]["Course Wise"] = site_url('student_sem_form_all/viewandprint_all_cwise');
+		 $menu['adug']['Registration']['2019 Onwards']["Registration Report"]["Programme Wise"] = site_url('student_sem_form_all/viewandprint_all');
+		 //$menu['adug']['Registration']['Student Registration'] = site_url('student_registration/student_registration');
+		 $menu['adug']['Registration']['2019 Onwards']['Unregistered Candidate']=site_url('unregister_candidates/unregister_candidates');
+		 $menu['adug']['Registration']['2015 to 2018']['Semester Registration']=site_url('mis_dashboard/stu_registration');
+		
+		//ADUG End
+		//Dean Acad Starts
+		$menu['dean_acad']['Academic']['Academic Performance'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/acadmic_performance');
+		$menu['dean_acad']['Academic']["Class Engaged"] = site_url('class_engaged/class_engaged_details');
+		$menu['dean_acad']['Academic']['Defaulter']['Defaulter List'] = site_url('attendance/ar_acad_attendance_controller');
+		$menu['dean_acad']['Academic']['Feedback']['2019 Onwards']['View Semester Feedback'] = site_url('feedback_cbcs/dean/fbs_select_teacher');
+		$menu['dean_acad']['Academic']['Feedback']['2019 Onwards']['View Exit Feedback'] = site_url('feedback_cbcs/dean/fbe_select_session');
+		$menu['dean_acad']['Academic']['Feedback']['2015 to 2018']['View Semester Feedback'] = site_url('feedback/dean/fbs_select_teacher');
+		$menu['dean_acad']['Academic']['Feedback']['2015 to 2018']['View Exit Feedback'] = site_url('feedback/dean/fbe_select_session');
+		$menu['dean_acad']['Academic']['Manage Students']=array();
+		$menu['dean_acad']['Academic']["Manage Students"]["View Student"]["Details"] = site_url('student_view_report/view');
+		$menu['dean_acad']['Academic']["Manage Students"]["View Student"]["Report"] = site_url('student_view_report/reports');
+		$menu['dean_acad']['Academic']['PHD'] = array();
+        $menu['dean_acad']['Academic']['PHD']['Awarded'] = site_url('phdawarded/phdawardedlist');
+		$menu['dean_acad']['Academic']['PHD']['Examination']['Individual'] = site_url('jrf_reg/jrf_registration');
+        $menu['dean_acad']['Academic']['PHD']['Examination']['Report'] = site_url('jrf_reg/jrf_registration/showreport');
+        $menu['dean_acad']['Academic']['PHD']['Ongoing'] = site_url('phdawarded/phdcurrent');
+		$menu['dean_acad']['Academic']['PHD']['Status Update'] = site_url('phdawarded/phdawarded');
+		
+		$menu['dean_acad']['Academic']['Section Division']=array();
+		$menu['dean_acad']['Academic']['Section Division']['Course Wise'] = site_url('student_sec_division/section_course_wise');
+		$menu['dean_acad']['Academic']['Section Division']['Create Section'] = site_url('student_sec_division/section_div_form');
+		$menu['dean_acad']['Academic']['Section Division']['Edit Section'] = array();
+		$menu['dean_acad']['Academic']['Section Division']['Edit Section']['Insert Student'] = site_url('student_sec_division/insert_new');
+		$menu['dean_acad']['Academic']['Section Division']['Edit Section']['Update Student Section'] = site_url('student_sec_division/update_section');
+		$menu['dean_acad']['Academic']['Section Division']['View Section'] = site_url('student_sec_division/section_view_details');
+		$menu['dean_acad']['Academic']['Student Attendance'] = site_url( 'attendance/student_attendance/addCustomAttendance');
+		
+		$menu['dean_acad']['CBCS']['Credit Point Policy'] = site_url('cbcs_credit_points_policy/credit_point_policy');
+	    $menu['dean_acad']['CBCS']['Curriculam Policy'] = site_url('cbcs_curriculam_policy/curriculam');
+        $menu['dean_acad']['CBCS']['Common (Institute Core) Policy'] = site_url('cbcs_policy/institute_core_policy');
+        $menu['dean_acad']['CBCS']['Common (Institute Core) Master'] = site_url('cbcs_master/institute_core_master');
+        $menu['dean_acad']['CBCS']['Common Course Structure Policy'] = site_url('cbcs_coursestructure_policy/comm_coursestructure');
+	    $menu['dean_acad']['CBCS']['Offer Common Course'] = site_url('cbcs_offered_subjects/offer_subject_common');
+
+		$menu['dean_acad']['Examination']["Grade Sheet"]["2019 Onwards"] = site_url('cbcs_grade_sheet/dr_grade_sheet');
+		$menu['dean_acad']['Examination']["Grade Sheet"]["2015 to 2018"] = site_url('student_grade_sheet/dr_grade_sheet');   
+		$menu['dean_acad']['Examination']['Grade Submission']['Status'] = site_url('marks_monitor/cbcs_monitor_marks_submission');
+		$menu['dean_acad']['Examination']['Makeup Exam Details'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam');
+		$menu['dean_acad']['Examination']['Marks Correction'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/marks_coorection');
+		$menu['dean_acad']['Examination']['Marks Entry'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/marks_entry');
+		$menu['dean_acad']['Examination']['Marks/Grade Reopen']['Grade'] = site_url('course_coordinator/cbcs_marks_upload_control');
+        $menu['dean_acad']['Examination']['Marks/Grade Reopen']['Marks Upload'] = site_url('course_coordinator/cbcs_marks_upload_control/marks_upload');
+		
+
+		$menu['dean_acad']['Registration']['2019 Onwards']['Final Registration']['Add/Remove Course']=site_url('student_registration/student_registration');
+        $menu['dean_acad']['Registration']['2019 Onwards']['Final Registration']['Pending Registration']=site_url('final_registration/final_registration');
+		$menu['dean_acad']['Registration']['2019 Onwards']['Pre Registration'] = site_url('pre_registration/student_registration');
+		$menu['dean_acad']['Registration']['2019 Onwards']["Registration Report"]["Programme Wise"] = site_url('student_sem_form_all/viewandprint_all');
+		$menu['dean_acad']['Registration']['2019 Onwards']["Registration Report"]["Course Wise"] = site_url('student_sem_form_all/viewandprint_all_cwise');
+		 //$menu['dean_acad']['Registration']['Student Registration'] = site_url('student_registration/student_registration');
+		$menu['dean_acad']['Registration']['2019 Onwards']['Unregistered Candidate']=site_url('unregister_candidates/unregister_candidates');
+		$menu['dean_acad']['Registration']['2015 to 2018']['Semester Registration']=site_url('mis_dashboard/stu_registration');
+		
+		
+			
+		
+		//Dean Acad End
+		
+		//HOD Starts
+		$menu['hod']['Academic']["Class Engaged"] = site_url('class_engaged/class_engaged_details');
+		$menu['hod']['Academic']['Class Materials'] = site_url('faculty_tutorials/assignment_admin_side');
+		$menu['hod']['Academic']["Course Mapping"]= site_url('subject_mapping/cbcs_departmentwise/');
+		$menu['hod']['Academic']['Delete Attendance']= site_url('attendance/cbcs_delete_attendance/');
+		$menu['hod']['Academic']["Disciplinary Action"]['View All Student Actions'] = site_url('dsw_disciplinary_action/hod_students_actions/all_actions_by_department');
+		$menu['hod']['Examination']['Exam Attendance Sheet'] = site_url('attendance/exam_attendance/exam_attendance_hod');
+		$menu['hod']['Academic']['Feedback']['2019 Onwards']['View Semester Feedback'] = site_url('feedback_cbcs/hod/fbs_select_teacher');
+		$menu['hod']['Academic']['Feedback']['2015 to 2018']['View Semester Feedback'] = site_url('feedback/hod/fbs_select_teacher');
+	//	$menu['hod']['Academic']['Feedback']['Old Feedback']['Running Semester Feedback'] = site_url('feedback/hod/fbr_select_teacher');
+		$menu['hod']['Academic']["Non-CBCS Course Offer"]['Non CBCS']= site_url('non_cbcs/non_cbcs');
+		$menu['hod']['Academic']["View Course Structure"] = site_url('course_structure/view/index/'.($this->session->userdata("dept_id")));
+		
+		$menu['hod']["Assign Roles"]["DPGC Convener"] = site_url('department_auth/dpgc_main');
+		$menu['hod']["Assign Roles"]["DUGC Convener"] = site_url('department_auth/dugc_main');
+		$menu['hod']["Assign Roles"]["Time Table In-charge"] = site_url('department_auth/ttcauthcontrol');		
+		
+		$menu['hod']["CBCS"]["Assign Course Coordinator"] = site_url('cbcs_offered_subjects/offer_subject/course_coordinator');
+		$menu['hod']["CBCS"]["Course Component Deletion"] = site_url('marks_distribution/marks_distribution/course_component');
+		$menu['hod']['CBCS']['Course Master']['Course Wise'] = site_url('cbcs_subject_master/subject_master_dept');
+		$menu['hod']["CBCS"]["Credit Point Master"] = site_url('cbcs_credit_points_master/credit_point_master');
+		$menu['hod']["CBCS"]["Curriculum Master"] = site_url('cbcs_curriculam_master/curriculammaster');
+		$menu['hod']["CBCS"]["Offer Course"] = site_url('cbcs_offered_subjects/offer_subject');
+		$menu['hod']["CBCS"]["Online Course"]["Offer Online Course"] = site_url('cbcs_subject_master/subject_master_dept/offer_online_course');
+		$menu['hod']["CBCS"]["Online Course"]["Approve Registration"] = site_url('cbcs_subject_master/subject_master_dept/approve_online_course');
+		
+		$menu['hod']['Examination']["Grade Sheet"]["2019 Onwards"] = site_url('cbcs_grade_sheet/dr_grade_sheet');
+		$menu['hod']['Examination']["Grade Sheet"]["2015 to 2018"] = site_url('student_grade_sheet/dr_grade_sheet');   
+		
+		$menu['hod']['Registration']['2019 Onwards']['Pre Registration'] = site_url('pre_registration/student_registration');
+		$menu['hod']['Registration']['2019 Onwards']["Registration Report"]["Course Wise"] = site_url('student_sem_form_all/viewandprint_all_cwise');
+		$menu['hod']['Registration']['2019 Onwards']["Registration Report"]["Programme Wise"] = site_url('student_sem_form_all/viewandprint_all');
+		$menu['hod']['Registration']['2019 Onwards']['Student Registration'] = site_url('student_registration/student_registration');
+		$menu['hod']['Registration']['2015 to 2018']['Semester Registration']=site_url('mis_dashboard/stu_registration');
+		
+		
+		
+		
+		//$menu['hod']['CBCS']['Course Master']= array();
+		//$menu['hod']['CBCS']['Course Master']['Course Wise'] = site_url('cbcs_subject_master/subject_master_dept');
+	
+		
+		//HOD End
+	    
+		
+		
+		
+		
+		// Faculty  Starts
+		
+		$menu['ft']['Academic']['Attendance Sheet']['Exam Attendance Sheet'] = site_url('attendance/exam_attendance/');
+		$menu['ft']['Academic']['Attendance Sheet']['Generate Sheet'] = site_url('attendance/cbcs_attendance/');
+		$menu['ft']['Academic']['Attendance Sheet']['Upload Attendance Sheet'] = site_url('upload/cbcs_upload_attendance/');
+		$menu['ft']['Academic']['Class Materials'] = site_url('faculty_tutorials/choose_syear_sess/');
+		$menu['ft']['Academic']['Course Mapping Status']= site_url('subject_mapping/faculty_sm_status/');
+		$menu['ft']['Academic']['Offered Courses']['CBCS']= site_url('/cbcs_details/view_course_structure');
+		$menu['ft']['Academic']['Offered Courses']['Non CBCS']= site_url('course_structure/view/index/cse');
+		$menu['ft']['Academic']['Time Table']['CBCS']= site_url('time_table/view_time_table');
+		$menu['ft']['Academic']['Time Table']['Non-CBCS']= site_url('time_table/view_time_table_old');
+		
+		//$menu['ft']['Examination']['Course Coordinator'] = site_url('course_coordinator/course_coordinator');   
+		$menu['ft']['Examination']['Makeup Exam Marks Upload'] = site_url('cbcs_makeup_exam/cbcs_makeup_exam/makeup_exam_marks_upload');
+		$menu['ft']['Examination']['Result']['2019 Onwards'] = site_url('result_declaration/result_declaration_drside/index/cbcs');   
+		$menu['ft']['Examination']['Result']['2017 to 2018'] = site_url('result_declaration/result_declaration_drside');   
+		$menu['ft']['Examination']['Result']['2015 to 2016'] = site_url('result_declaration-old-ver/result_declaration_drside');   
+		$menu['ft']['Examination']['Weightage & Marks Upload'] = site_url('common_dept_app/common_dept_app');   
+
+		$menu['ft']['Feedback']['2019 Onwards']['Semester Feedback'] = site_url('feedback_cbcs/faculty');
+		$menu['ft']['Feedback']['2019 Onwards']['Check Feedback Courses'] = site_url('feedback_cbcs/check_feedback_subjects_faculty');
+		$menu['ft']['Feedback']['2015 to 2018']['Semester Feedback'] = site_url('feedback/faculty');
+		$menu['ft']['Feedback']['2015 to 2018']['Check Feedback Courses'] = site_url('feedback/check_feedback_subjects_faculty');
+		
+		$menu['ft']['Research']['Project Management']['Project']['View Project']= site_url('accounts_project/view_project');
+		$menu['ft']['Research']['Project Management']['Funding Agency']['View Agency']= site_url('accounts_project/funding_agency/view_funding_agency');
+		$menu['ft']['Research']['Project Management']['Funds Management']['Add New Bill']= site_url('accounts_project/billing');
+		$menu['ft']['Research']['Project Management']['Funds Management']['Bill History']= site_url('accounts_project/billing/view_history');
+
+
+		// Faculty END
+		
+		// Student Starts
+		
+		$menu['stu']['Academic']['Attendance'] = site_url('attendance/student_attendance');
+		$menu['stu']['Academic']['Class Materials'] = site_url('faculty_tutorials/student_choose_syear_sess');
+		$menu['stu']['Academic']['Course Structure']['CBCS']= site_url('/cbcs_student_template/view_course_structure');
+		$menu['stu']['Academic']['Course Structure']['Non CBCS']= site_url('course_structure/view/index/cse');
+		$menu['stu']['Academic']['Time Table']['CBCS']= site_url('time_table/view_time_table');
+		$menu['stu']['Academic']['Time Table']['Non-CBCS']= site_url('time_table/view_time_table_old');
+
+		$menu['stu']['Bookings']['Hostel Booking']['Received OTP']= site_url('hs_reg/hostel_booking/received_otp');
+		$menu['stu']['Bookings']['Hostel Booking']['Choose Room Partner']= site_url('hs_reg/hostel_booking/choose_room_partner');
+		$menu['stu']['Bookings']['Hostel Booking']['Enter OTP']= site_url('hs_reg/hostel_booking/enter_otp');
+		$menu['stu']['Bookings']['Hostel Booking']['Room Booking']= site_url('hs_reg/hostel_booking/book_room');
+		$menu['stu']['Bookings']['Hostel Booking']['View Booked Room']= site_url('hs_reg/hostel_booking/completed_room_booking');
+		$menu['stu']['Bookings']['Hostel Booking']['Sent Request']= site_url('hs_reg/hostel_booking/success_otp');
+		$menu['stu']['Bookings']['SAH Booking']['Booking Form']= site_url('sah_booking/booking/form');
+		$menu['stu']['Bookings']['SAH Booking']['Track Booking']= site_url('sah_booking/booking/track_status');
+		$menu['stu']['Bookings']['SAH Booking']['Booked History']= site_url('sah_booking/booking/history');
+		$menu['stu']['Bookings']['Sports']['Group']['Create Group'] = site_url('spo_section/group');
+		$menu['stu']['Bookings']['Sports']['Group']['Group Request'] = site_url('spo_section/group/group_request_list');
+		$menu['stu']['Bookings']['Sports']['Group']['Rejected Group'] = site_url('spo_section/group/view_rejected_group');
+		$menu['stu']['Bookings']['Sports']['Group']['View Group'] = site_url('spo_section/group/view_group');
+		$menu['stu']['Bookings']['Sports']['Issue Item'] = site_url('spo_section/issue_item');
+		$menu['stu']['Bookings']['Sports']['View History'] = site_url('spo_section/issue_history/view_current_history');
+		$menu['stu']['Bookings']['Swimming Booking']['Registration'] = site_url('swimming/student_registration');
+		$menu['stu']['Bookings']['Swimming Booking']['Status'] = site_url('swimming/student_registration/view_status');
+
+		$menu['stu']['Examination']['Grade Sheets'][ '2019 Onwards'] = site_url('cbcs_grade_sheet/cbcs_grade_sheet_final_foil ');   
+		$menu['stu']['Examination']['Grade Sheets'][ '2015 to 2018'] = site_url('student_grade_sheet/grade_sheet_final_foil ');   
+		$menu['stu']['Examination']['Hall Ticket'] = site_url('student_hall_ticket/hall_ticket');   
+		$menu['stu']['Examination']['Weightage & Marks View'] = site_url('student/student_subject_weightage');   
+		
+		$menu['stu']['Miscellaneous']['Complaint General']['Register Complaint']= site_url('complaint/register_complaint');
+		$menu['stu']['Miscellaneous']['Complaint General']['View Complaints']= site_url('complaint/view_own_complaint');
+		$menu['stu']['Miscellaneous']['Edit Hindi Name']= site_url('student/student_ctl');
+		$menu['stu']['Miscellaneous']['Edit Photo']= site_url('change_photo/student_change_photo');
+		$menu['stu']['Miscellaneous']['Register Email ID']= site_url('register_mail_id/register_mail_id_main');
+		$menu['stu']['Miscellaneous']['Set/Reset Security Questions']= site_url('sec_inside/sec_inside_controller/change_security_questions');
+
+		$menu['stu']['Registration']['Semester Registration'] = site_url('semreg_all/semester_registration_tabs');
+		$menu['stu']['Registration']['Online Courses'] = site_url('student_sem_form_all/online_reg_course');
+		
+		$menu['stu']['Feedback'] ['2019 Onwards']['Semester Feedback Receipt'] = site_url('feedback_cbcs/cbcs_student/semester_feedback_receipt_form');
+		$menu['stu']['Feedback'] ['2019 Onwards']['Exit Feedback Receipt'] = site_url('feedback_cbcs/cbcs_student/exit_feedback_receipt');
+		//$menu['stu']['Feedback'] ['2019 Onwards']['Semester Feedback'] = site_url('feedback_cbcs/cbcs_check_feedback_subjects');
+		//$menu['stu']['Feedback']   ['2019 Onwards']['Exit Feedback'] = site_url('feedback_cbcs/cbcs_student/fill_exit_feedback');
+		$menu['stu']['Feedback'] ['2015 to 2018']['Semester Feedback Receipt'] = site_url('feedback/student/semester_feedback_receipt_form');
+		$menu['stu']['Feedback'] ['2015 to 2018']['Exit Feedback Receipt'] = site_url('feedback/student/exit_feedback_receipt');
+		
+
+	// Student END
+	
+	// EMP START
+	
+		$menu['emp']['Bookings']['SAH Booking']['Booking Form']= site_url('sah_booking/booking/form');
+		$menu['emp']['Bookings']['SAH Booking']['Track Booking']= site_url('sah_booking/booking/track_status');
+		$menu['emp']['Bookings']['SAH Booking']['Booked History']= site_url('sah_booking/booking/history');
+		$menu['emp']['Bookings']['Sports']['Issue Item'] = site_url('spo_section/employee');
+		$menu['emp']['Bookings']['Sports']['View History'] = site_url('spo_section/employee/view_history');
+		$menu['emp']['Bookings']['Swimming Booking']['Registration'] = site_url('swimming/emp_registration');
+		$menu['emp']['Bookings']['Swimming Booking']['Status'] = site_url('swimming/emp_registration/view_status');
+		$menu['emp']['Bookings']['Vehicle Booking']['Booking Form']['Official Use']= site_url('car_booking/booking/official');
+		$menu['emp']['Bookings']['Vehicle Booking']['Booking Form']['Other Use']= site_url('car_booking/booking/other');
+		$menu['emp']['Bookings']['Vehicle Booking']['Booking Form']['Personal Use']= site_url('car_booking/booking/personal');
+		$menu['emp']['Bookings']['Vehicle Booking']['Track Booking'] = site_url('car_booking/booking/viewBookingStatus');
+		$menu['emp']['Bookings']['Vehicle Booking']['Booked History'] = site_url('car_booking/booking/empReport');
+		
+		
+		$menu['emp']['Miscellaneous']['Register Email ID']= site_url('register_mail_id/register_mail_emp');
+		$menu['emp']['Miscellaneous']['Set/Reset Security Questions']= site_url('sec_inside/sec_inside_controller/change_security_questions');
+	
+	// EMP END
+		
+        return $menu;
+    }
+
+}
+
+?>

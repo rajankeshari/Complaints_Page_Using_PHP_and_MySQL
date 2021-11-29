@@ -1,0 +1,103 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Feb 3, 2016, 2:40:58 PM
+    Author     : RITU RAJ <rituraj@rediffmail.com>
+*/
+.black{
+    color: #000;
+}
+body{ 
+    font-size: 12px;      
+    padding: 40px;
+    overflow-x: hidden; /* For Opera */
+    -webkit-box-shadow:
+        inset #19d4ff 0 0 0 5px,
+        inset #18cdf7 0 0 0 1px,
+        inset #53dfff 0 0 0 10px,
+        inset #50d8f7 0 0 0 11px,
+        inset #8ce9ff 0 0 0 16px,
+        inset #88e2f7 0 0 0 17px,
+        inset #c5f4ff 0 0 0 22px,
+        inset #bfecf7 0 0 0 23px;
+    -moz-box-shadow:
+        inset #19d4ff 0 0 0 5px,
+        inset #18cdf7 0 0 0 1px,
+        inset #53dfff 0 0 0 10px,
+        inset #50d8f7 0 0 0 11px,
+        inset #8ce9ff 0 0 0 16px,
+        inset #88e2f7 0 0 0 17px,
+        inset #c5f4ff 0 0 0 22px,
+        inset #bfecf7 0 0 0 23px;
+    box-shadow:
+        inset #19d4ff 0 0 0 5px,
+        inset #18cdf7 0 0 0 1px,
+        inset #53dfff 0 0 0 10px,
+        inset #50d8f7 0 0 0 11px,
+        inset #8ce9ff 0 0 0 16px,
+        inset #88e2f7 0 0 0 17px,
+        inset #c5f4ff 0 0 0 22px,
+        inset #bfecf7 0 0 0 23px;
+}
+.bg{
+    -khtml-opacity:.50; 
+    -moz-opacity:.50; 
+    -ms-filter:alpha(opacity=50);
+    filter:alpha(opacity=50);
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0.5);
+    opacity:.50;      
+    background-image: url('../../images/ism/ismlogo.png'); background-position:center; background-repeat: no-repeat; 
+ }
+h2{ font:14px; font-weight:bold;}
+table{ width:100%;}
+.form-control{ width:50px;}
+
+.anuj {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+.anuj td {
+    border: 1px solid black;
+}
+.anuj tr {
+    border: 1px solid black;
+}
+
+.anuj th {
+    border: 1px solid black;
+}
+div.absolute {
+    position: absolute;
+    top: 80px;
+    right: 0;
+    width: 200px;
+    height: 100px;
+    border: 3px solid #73AD21;
+} 
+body:before, body:after {
+    content: "";
+    position: fixed;
+    background: #0d5196;
+    left: 0;
+    right: 0;
+    height:1px;
+}
+body:before {
+    top: 0;
+}
+body:after {
+    bottom: 0;
+}
+body {
+    border-left: 1px solid #0d5196;
+    border-right: 1px solid #0d5196;  
+}
+
+
+
+
+
+

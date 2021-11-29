@@ -1,0 +1,319 @@
+<?php
+	class Moved_alumni_model extends CI_model
+	{
+
+		 function __construct()
+		 {
+		 	parent::__construct();
+		 }
+
+
+		var $table_userdetails = 'alumni_details';
+		var $table_dept_course = 'dept_course';
+		var $table_course = 'courses';
+		var $table_branch = 'branches';
+		var $table_subject = 'subjects';
+		var $table_course_structure = 'course_structure';
+		var $table_elective_group = 'elective_group';
+		var $table_course_branch = 'course_branch';
+		var $table_elective_offered = 'elective_offered';
+	  	var $table_depts = 'departments';
+
+		 function get_admn_no()
+		{
+			$query = $this->db->query("SELECT admn_no FROM `alumni_basic_details`");
+				foreach($query->result_array() as $row){
+					//$new_row['label']=htmlentities(stripslashes($row['name_in_hindi']." - ".$row['admn_no']));
+					$new_row['value']=htmlentities(stripslashes($row['admn_no']));
+					$row_set[] = $new_row; //build an array
+				}
+				echo json_encode($row_set); //format the array into json data
+		}
+	 	
+		function get_depts()
+		{
+			$query = $this->db->get_where($this->table_depts, array('type'=>'academic'));
+			return $query->result();
+		}
+		function get_course()
+		{
+			
+			$query = $this->db->query("SELECT * from courses");
+			if($query->num_rows() > 0)
+				return $query->result();
+			else
+				return false;
+		}
+		function get_branch()
+		{
+			$query = $this->db->query("SELECT * from branches");
+			if($query->num_rows() > 0)
+				return $query->result();
+			else
+				return false;
+		}
+		
+		function get_course_dept($id)
+		{
+			
+			$query = $this->db->query("SELECT * from courses");
+			if($query->num_rows() > 0)
+				return $query->result();
+			else
+				return false;
+		}
+		
+		function get_course_bydept($dept_id)
+		{
+			
+			$query = $this->db->query("SELECT DISTINCT course_branch.course_id,id,name,duration FROM 
+			courses INNER JOIN course_branch ON course_branch.course_id = courses.id INNER JOIN dept_course ON 
+			dept_course.course_branch_id = course_branch.course_branch_id WHERE dept_course.dept_id ='".$dept_id."'");
+			
+			if($query->num_rows() > 0)
+				return $query->result();
+			else
+				return false;
+		}
+		function get_branch_bycourse($course,$dept)
+		{
+			$query = $this->db->query("SELECT DISTINCT id,name,dept_course.course_branch_id FROM branches INNER JOIN course_branch ON course_branch.branch_id = branches.id INNER JOIN dept_course ON dept_course.course_branch_id = course_branch.course_branch_id WHERE course_branch.course_id = '".$course."' AND dept_course.dept_id = '".$dept."'");
+			if($query->num_rows() > 0)
+				return $query->result();
+			else
+				return false;
+		}
+		function get_auth($admn_no)
+		{
+			$this->load->database();
+			$this->db->select('auth_id');
+			$this->db->from('users');
+			$this->db->where('id',$admn_no);
+			$query=$this->db->get();
+			$auth=$query->result();
+			return $auth[0]->auth_id=='alu';
+		}
+		/* function get_alumni_by_year($year)
+		 {
+		 
+		 	if($year>=2016)
+		 	{
+		 		$year = $year-1;
+		 	$sql = "SELECT alumni_final_semwise_marks_foil.admn_no AS adm_no ,alumni_details.first_name, alumni_details.middle_name, branches.name as dept_name ,
+		 			alumni_details.last_name FROM alumni_final_semwise_marks_foil, alumni_details,branches,alumni_academic
+		 			WHERE  alumni_final_semwise_marks_foil.session_yr like ? AND alumni_final_semwise_marks_foil.admn_no = alumni_details.id  AND 
+		 		(
+		 				( alumni_final_semwise_marks_foil.course like ? AND alumni_final_semwise_marks_foil.semester = '8')OR
+		 			(
+		 				((alumni_final_semwise_marks_foil.course like ?) OR (course like ?)) AND alumni_final_semwise_marks_foil.semester ='10' 
+		 			AND alumni_final_semwise_marks_foil.status like ?)
+		 				 
+		 		) AND branches.id = alumni_academic.branch_id AND alumni_academic.admn_no = alumni_final_semwise_marks_foil.admn_no GROUP BY alumni_final_semwise_marks_foil.admn_no
+		 			";
+		 	$query = $this->db->query($sql , array("$year%","B.TECH%","DUAL%","INT%","PAS%"));
+		 	return $query->result();
+		 	}
+		 	else
+		 	{
+		 		$year = $year -1;
+		 		$year = $year%100;
+
+		 		$sql = "SELECT alumni_tabulation1.adm_no AS adm_no , alumni_tabulation1.stu_name , branches.name as dept_name FROM alumni_tabulation1  , branches , alumni_academic
+		 			WHERE  alumni_tabulation1.ysession like ?  AND
+		 		(
+		 				( alumni_tabulation1.sem_code like ? AND alumni_tabulation1.sem_code like ?)OR
+		 			(
+		 				((alumni_tabulation1.sem_code like ?) OR (alumni_tabulation1.sem_code like ?)) AND alumni_tabulation1.sem_code like ? 
+		 			AND alumni_tabulation1.passfail like ?)  AND alumni_tabulation1.adm_no like ? 
+		 		) AND branches.id = alumni_academic.branch_id AND alumni_academic.admn_no = alumni_tabulation1.adm_no group by alumni_tabulation1.adm_no
+		 			";
+		 	$query = $this->db->query($sql , array("$year%","BT%","%8","D%","I%","%X","P%","%JE%"));
+		 	return $query->result();
+
+		 	}
+		 	
+		 }
+*/
+		 function getData($dept_nm,$course_nm,$branch_nm,$state_nm,$category,$bgroup,$year,$gender )
+		{
+
+			
+			/*
+			$sql= "SELECT stu_details.admn_no, user_details.first_name, user_details.middle_name, user_details.last_name, user_details.category, user_details.email, user_details.dept_id, user_other_details.mobile_no, stu_academic.course_id, stu_academic.branch_id, stu_academic.semester, user_address.state, stu_details.blood_group, stu_admn_fee.payment_made_on
+			FROM ((((user_details INNER JOIN user_other_details ON user_details.id = user_other_details.id) INNER JOIN stu_academic ON user_details.id = stu_academic.admn_no) INNER JOIN user_address ON user_details.id = user_address.id) INNER JOIN stu_details ON user_details.id = stu_details.admn_no) INNER JOIN stu_admn_fee ON user_details.id = stu_admn_fee.admn_no  where 1=1
+			 ";
+			*/
+			// echo "model function called!!!";
+
+			 $flag = 0;
+			 $sql = "";
+			if($year>=2016)
+		 	{
+		 		$flag=1;
+		 		$year = $year-1;
+		 		$sql = "SELECT alumni_final_semwise_marks_foil.admn_no AS adm_no ,alumni_details.first_name, alumni_details.middle_name, 
+		 			alumni_details.last_name, branches.name as dept_name FROM alumni_final_semwise_marks_foil, alumni_details, branches ,alumni_academic,alumni_basic_details,alumni_address
+		 			WHERE  alumni_final_semwise_marks_foil.session_yr like ? AND alumni_final_semwise_marks_foil.admn_no = alumni_details.id AND
+		 			(
+		 				(
+		 				(
+		 					(alumni_academic.course_id ='b.tech' OR alumni_academic.course_id ='be')
+		 					 AND alumni_final_semwise_marks_foil.semester = '8'
+		 				) 
+		 				 OR
+		 				(
+		 				 	(alumni_academic.course_id ='m.sc.tech' OR alumni_academic.course_id ='execmba')
+		 				 	AND alumni_final_semwise_marks_foil.semester = '6'
+		 				)
+		 				 OR
+		 				(
+		 					(alumni_academic.course_id ='dualdegree' OR alumni_academic.course_id ='int.m.sc' OR alumni_academic.course_id ='int.msc.tech')	   
+		 					AND 
+		 					alumni_final_semwise_marks_foil.semester ='10' 
+		 			        
+		 			    )
+		 			    OR
+		 			    (
+		 			    	(alumni_academic.course_id ='mba' OR alumni_academic.course_id = 'm.tech' OR alumni_academic.course_id ='m.sc')
+		 			    	AND
+		 			    	alumni_final_semwise_marks_foil.semester = '4'
+		 			    )
+		 			    OR
+		 			    (
+		 			    	alumni_academic.course_id = 'jrf'
+		 			    )
+		 			    OR
+		 			    (	
+		 			    	alumni_academic.course_id = 'm.phil' AND alumni_final_semwise_marks_foil.semester = '2'
+		 			    )
+		 			    )
+		 			    AND
+		 			        alumni_final_semwise_marks_foil.status like ?
+		 				 
+		 			)
+		 		AND
+		 		 branches.id = alumni_academic.branch_id 
+		 		 AND 
+		 		 alumni_final_semwise_marks_foil.admn_no = alumni_academic.admn_no
+		 		 AND alumni_academic.admn_no = alumni_basic_details.admn_no
+		 			AND alumni_academic.admn_no = alumni_address.id
+		 			";
+
+		 	
+		 	//$query = $this->db->query($sql , array("$year%","B.TECH%","BE%","EXE%","DUAL%","INT%","M.TECH%","MS%","JRF%","PAS%"));
+		 		
+		 	//$query = $this->db->query($sql , array("$year%","B.TECH%","BE%","EXE%","DUAL%","INT%","M.T%","MS%","JRF%","PAS%"));
+		 	//return $query->result();
+		 	}
+		 	else
+		 	{
+		 	//	echo "query building \n";
+		 		$year = $year -1;
+		 		$year = $year%100;
+
+		 		$sql = "SELECT alumni_tabulation1.adm_no AS adm_no , alumni_tabulation1.stu_name , branches.name as dept_name FROM alumni_tabulation1,
+		 		branches, alumni_academic,alumni_basic_details,alumni_address,alumni_details
+		 			WHERE  alumni_tabulation1.ysession like ? AND 
+		 			(
+		 				(( (alumni_academic.course_id ='b.tech' OR alumni_academic.course_id ='be') AND alumni_tabulation1.sem_code like ?)
+		 				OR
+		 				(
+		 					((alumni_academic.course_id ='dualdegree' OR alumni_academic.course_id ='int.m.sc' OR alumni_academic.course_id ='int.msc.tech') AND alumni_tabulation1.sem_code like ?)
+		 				)
+		 				OR
+		 				(
+		 					((alumni_academic.course_id ='mba' OR alumni_academic.course_id = 'm.tech' OR alumni_academic.course_id ='m.sc') AND alumni_tabulation1.sem_code like ?)
+		 				)
+		 				OR
+		 				(
+		 					(alumni_academic.course_id ='m.sc.tech' OR alumni_academic.course_id ='execmba' ) AND alumni_tabulation1.sem_code like ?
+		 				)
+		 				OR
+		 				(
+		 					alumni_academic.course_id = 'm.phil' AND alumni_tabulation1.sem_code like ?
+		 				)
+		 				OR
+		 				(	
+		 					alumni_academic.course_id = 'jrf'
+		 				)
+
+		 				)
+		 				AND 
+		 				alumni_tabulation1.passfail like ?
+		 			)
+		 			AND branches.id = alumni_academic.branch_id 
+		 			AND alumni_academic.admn_no = alumni_tabulation1.adm_no 
+		 			AND alumni_academic.admn_no = alumni_basic_details.admn_no
+		 			AND alumni_academic.admn_no = alumni_details.id
+		 			AND alumni_academic.admn_no = alumni_address.id
+		 			";
+
+		 	//$query = $this->db->query($sql , array("$year%","BT%","BE%","%8","DD%","IM%","%X","MT","MS","%MBA%","%4","%EMB%","%6","P%","%JE%"));
+				
+		 	//$query = $this->db->query($sql , array("$year%","BT%","BE%","%8","DD%","IM%","%X","MT","MS","%MBA%","%4","%EMB%","%6","P%","%JE%"));
+		 	//return $query->result();
+
+		 	}
+			
+			if ($dept_nm)
+			{
+					$sql .= " AND alumni_details.dept_id='".$dept_nm."'";
+			}
+			if ($course_nm)
+			{
+					$sql .= " AND alumni_academic.course_id='".$course_nm."'";
+			}
+			if ($branch_nm)
+			{
+					$sql .= " AND alumni_academic.branch_id='".$branch_nm."'";
+			}
+			
+			if ($state_nm)
+			{
+					$sql .= " AND alumni_address.state='".$state_nm."' And alumni_address.type='permanent'";
+			}
+			if ($category)
+			{
+					$sql .= " AND alumni_details.category='".$category."'";
+			}
+			if ($bgroup)
+			{
+					$sql .= " AND alumni_basic_details.blood_group='".$bgroup."'";
+			}
+		///	ssif ($year)
+			//{
+			//		$sql .= " AND stu_academic.enrollment_year='".$year."'";
+			//}
+            if ($gender)
+			{
+					$sql .= " AND alumni_details.sex='".$gender."'";
+			}
+			$sql.=" group by alumni_basic_details.admn_no";
+			if($flag==0)			
+			{
+				$query = $this->db->query($sql , array("$year%","%8","%X","%4","%6","%2","P%"));
+
+				//if($query->num_rows() == 0)	return FALSE;
+				return $query->result();
+
+			}
+			else
+			{
+				//$this->db->beginTransaction();
+				$query = $this->db->query($sql , array("$year%","PAS%"));
+		 		//if($query->num_rows() == 0)	return FALSE;
+				
+		 		return $query->result();
+				
+			}
+
+
+		}
+		 function get_duration($adm_no)
+		 {
+		 	$sql="SELECT course_id AS course FROM alumni_stu_academic WHERE admn_no = '$adm_no' ";
+		 	$query = $this->db->query($sql);
+		 	return $query->result();
+		 }
+		}
+		?>

@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * Author: Anuj
+*/
+class Form16_model extends CI_Model {
+    
+    
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    function getEmpName($empno){
+    	$q="select ucase(concat(ud.first_name,'_',ud.middle_name,'_',ud.last_name)) as name from user_details ud where ud.id=?";
+    	if($query=$this->db->query($q,$empno)){
+    		if($query->num_rows()>0){
+    			return $query->result_array();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    }
+
+    function getSalaryDetails($empno,$fy){
+    	$data=$this->getFYDetails($fy);
+    	$q="select apd.* from acc_pay_details apd where date(concat(2000+apd.yr,'-',apd.MON,'-01')) between '".$data['from']."-03-01' and '".$data['to']."-02-01' and apd.EMPNO=? order by date(concat(2000+apd.yr,'-',apd.MON,'-01'))";
+    	if($query=$this->db->query($q,$empno)){
+    		if($query->num_rows()>0){
+    			//echo $this->db->last_query();die();
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+    }
+
+    function getConHon($empno,$fy,$type){
+        //echo $type;die();
+    	$data=$this->getFYDetails($fy);
+    	$q="select apd.* from acc_other_income apd where apd.date between '".$data['from']."-03-01' and '".$data['to']."-02-01' and apd.emp_no=? and apd.type=? order by apd.date";
+    	if($query=$this->db->query($q,array($empno,$type))){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+    }
+
+    function getEmpDetails($empno){
+        $q="select ebd.emp_no, concat(COALESCE(ud.first_name,''),' ',COALESCE(ud.middle_name,''),' ',COALESCE(ud.last_name,'')) as name,(select ucase(dgs.name) from designations dgs where dgs.id=ebd.designation)as design,(select dpt.name from departments dpt where dpt.id=ud.dept_id) as dept,(select apd.PNRNO from acc_pay_details apd where apd.EMPNO=? and length(apd.PRAN) limit 1) as PRAN from (select A.emp_no,A.designation from emp_basic_details A where A.emp_no=?) as ebd left join user_details ud on ud.id=ebd.emp_no";
+        if($query=$this->db->query($q,array($empno,$empno))){
+            if($query->num_rows()>0){
+                return $query->result();
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
+    function getFYDetails($fy){
+    	$data['from']=(int)substr($fy,0,4);
+    	$yr=(int)substr($fy,2,4);
+    	if($yr==99){
+    		$data['to']=$data['from']-$yr+100;
+    	}
+    	else{
+    		$data['to']=$data['from']-$yr+(int)substr($fy,5);
+    	}
+    	
+    	return $data;
+    }
+
+}
+

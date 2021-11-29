@@ -1,0 +1,12 @@
+application/config/database.php
+application/config/config.php
+application/logs
+application/config/config.php
+/nbproject/private/
+assets/files/
+assets/images/
+.idea/
+application/core
+ssh_key
+ssh_key.pub
+application/models/user/users_model.php

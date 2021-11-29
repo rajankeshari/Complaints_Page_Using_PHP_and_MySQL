@@ -1,0 +1,431 @@
+<?php
+
+/**
+ * Author: Anuj
+*/
+class Finance_account_misc_report_model extends CI_Model {
+    
+    
+
+    function __construct() {
+        parent::__construct();
+    }
+
+    /**------------------------------GIS REPORT----------------------------------------*/
+
+    function getGIS($arr=''){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.GIS, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.GIS>0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+
+    function getTotalGIS($arr=''){
+    	$q="select sum(GIS) as TOTAL from acc_pay_details apd where apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*----------------------------------New GIS-------------*/
+    function getNGIS($arr=''){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.NLIC AS GIS, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.NLIC>0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    function getTotalNGIS($arr=''){
+    	$q="select sum(NLIC) as TOTAL from acc_pay_details apd where apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*------------------------Canara Report------------------------------*/
+    function getCanara($arr=''){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.CANARA, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.CANARA>0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    function getTotalCanara($arr=''){
+    	$q="select sum(CANARA) as TOTAL from acc_pay_details apd where apd.CANARA>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*-------------------------------Income Tax-------------------------------*/
+    function getITAX($arr=''){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.ITAX, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.ITAX>0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    
+    function getTotalITAX($arr=''){
+    	$q="select sum(ITAX) as TOTAL from acc_pay_details apd where apd.ITAX>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*---------------------------------DCPS-----------------------------------*/
+     function getDcps($arr=''){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.DCPS, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.DCPS>0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			if(strcmp($key, 'GROUP')==0){
+    				if(strcmp($value,"A")==0){
+    					$q.=" and apd.$key"."='".$value."'";
+    				}
+    				else{
+    					$q.=" and apd.$key"."<>'A'";
+    				}
+    			}
+    			else{
+    				$q.=" and ".$key."=".$value;
+    			}
+    			
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    
+    function getTotalDcps($arr=''){
+    	$q="select sum(ITAX) as TOTAL from acc_pay_details apd where apd.ITAX>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*---------------------------------DCPS-----------------------------------*/
+     function getRD($arr=''){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.CTD as RD, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.CTD>0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			if(strcmp($key, 'GROUP')==0){
+    				if(strcmp($value,"A")==0){
+    					$q.=" and apd.$key"."='".$value."'";
+    				}
+    				else{
+    					$q.=" and apd.$key"."<>'A'";
+    				}
+    			}
+    			else{
+    				$q.=" and ".$key."=".$value;
+    			}
+    			
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    
+    function getTotalRD($arr=''){
+    	$q="select sum(CTD) as TOTAL from acc_pay_details apd where apd.CTD>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*----------------------------------------------------------*/
+    function getAdvances($arr='',$adv){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.".$adv." as adv, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.".$adv.">0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			if(strcmp($key, 'GROUP')==0){
+    				if(strcmp($value,"A")==0){
+    					$q.=" and apd.$key"."='".$value."'";
+    				}
+    				else{
+    					$q.=" and apd.$key"."<>'A'";
+    				}
+    			}
+    			else{
+    				$q.=" and ".$key."=".$value;
+    			}
+    			
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    function getAdvName($adv){
+        $q="select ucase(adf.alis) as adv from acc_deduction_field_tbl adf where adf.field=?";
+        $query=$this->db->query($q,$adv);
+        if($query->num_rows()>0){
+            $result=$query->row();
+            return $result->adv;
+        }
+        else{
+            return false;
+        }
+    }
+    function getTotalAdvances($arr=''){
+    	$q="select sum(CTD) as TOTAL from acc_pay_details apd where apd.CTD>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			$q.=" and ".$key."=".$value;
+    		}
+    	}
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*----------------------------------------------------------*/
+    function getClubs($arr='',$club){
+    	$q="SELECT apd.EMPNO,apd.MON,apd.YR, apd.".$club." as club, apd.NAME , apd.DEPT, apd.DESIG FROM acc_pay_details apd  WHERE apd.".$club.">0";
+    	//$q="SELECT DISTINCT(apd.EMPNO),apd.MON,apd.YR, apd.GIS, CONCAT(ud.salutation,' ',ud.first_name,' ',ud.middle_name,' ',ud.last_name) AS name, (SELECT dpt.name FROM departments dpt WHERE dpt.id=ud.dept_id) AS dept,(SELECT UPPER(des.name) FROM designations des WHERE des.id=ebd.designation) AS desig FROM acc_pay_details apd LEFT JOIN user_details ud ON CAST(apd.EMPNO AS CHAR(50))=ud.id LEFT JOIN emp_basic_details ebd ON CAST(apd.EMPNO AS CHAR(50))=ebd.emp_no WHERE apd.GIS>0";
+    	if(count($arr)>0){
+    		foreach ($arr as $key => $value) {
+    			if(strcmp($key, 'GROUP')==0){
+    				if(strcmp($value,"A")==0){
+    					$q.=" and apd.$key"."='".$value."'";
+    				}
+    				else{
+    					$q.=" and apd.$key"."<>'A'";
+    				}
+    			}
+    			else{
+    				$q.=" and ".$key."=".$value;
+    			}
+    			
+    		}
+    	}
+    	$q.=" order by cast(apd.EMPNO as DECIMAL)";
+    	//echo $q;die();
+    	if($query=$this->db->query($q)){
+    		if($query->num_rows()>0){
+    			return $query->result();
+    		}
+    		else{
+    			return false;
+    		}
+    	}
+    	else{
+    		return false;
+    	}
+
+    }
+    /*----------------------------------------------------------*/
+    function getMonForQueryOld(){
+    $myquery="select distinct(MON) from acc_pay_details order by MON";
+    if($query=$this->db->query($myquery)){
+        if($query->num_rows()>0){
+            return $query->result();
+        }
+        else{
+            return false;
+        }
+    }
+   }
+   
+   function getYrForQueryOld(){
+    $myquery="select distinct(YR) from acc_pay_details order by YR";
+    if($query=$this->db->query($myquery)){
+        if($query->num_rows()>0){
+            return $query->result();
+        }
+        else{
+            return false;
+        }
+    }
+   }
+
+}

@@ -1,0 +1,285 @@
+<?php
+
+/**
+ * Author: Rohit Rana
+*/
+class salary_slip_model extends CI_Model {
+    
+    protected $temp_tbl ='acc_pay_details_temp';
+    protected $main_tbl ='acc_pay_details';
+
+    function __construct() {
+        parent::__construct();
+    }
+
+  function getTempTblDesc(){
+    $q = 'show full columns from '.$this->temp_tbl;
+    return $this->db->query($q)->result();
+ 
+  }
+
+  function GetTempSalaryEmp($id){
+     $res= $this->db->get_where($this->temp_tbl,['EMPNO'=>$id]);
+     if($res->num_rows() >0)
+      return $res->row();
+
+    return false;
+  }
+
+  function updateTmpFieldFull($f){
+
+      foreach($f as $v){
+            $r[$v] = 0;
+      }
+      $this->db->update($this->temp_tbl,$r);
+  }
+  function updateTmpFieldFullParticular($f,$id){
+      $empno=explode(',', $id);
+      //var_dump($empno);die();
+      foreach($f as $v){
+            $r[$v] = 0;
+      }
+      $this->db->where_in('empno',$empno);
+      $this->db->update($this->temp_tbl,$r);
+      //echo $this->db->last_query();die();
+  }
+  function getAllEmpById($id){
+  $res = $this->db->query("select * from (select a.id as id,concat_ws(' ',a.salutation,a.first_name,a.middle_name,a.last_name) as name from user_details a where a.id REGEXP '^[0-9]+$' and a.id <>' ' group by a.id ) A left join (select b.EMPNO from acc_pay_details_temp b group by b.EMPNO ) B on A.id =B.EMPNO where A.id like ? and B.EMPNO <>'' order by case when A.id like ? then 1 when A.id like ? then 2 when A.id like ? then 3 end limit 10",['%'.$id.'%',$id.'%','%'.$id.'%','%'.$id]);
+  // echo  $this->db->last_query();
+     if($res->num_rows() > 0)
+      return $res->result();
+    return false;
+  }
+
+
+  function getAllEmpByName($Name){
+   $res= $this->db->query("select * from (select a.id as id,concat_ws(' ',a.salutation,a.first_name,a.middle_name,a.last_name) as name from user_details a where REGEXP '^[0-9]+$' and a.id <>' ') A left join 
+(select b.EMPNO from acc_pay_details_temp b group by b.EMPNO ) B on A.id =B.EMPNO where a.name like '%?%' and B.EMPNO <>''  order by case when B.EMPNO like '?%'  then 1       
+                  when B.EMPNO like '%?%' then 2       
+                  when B.EMPNO like '%?'  then 3 end    
+             limit 10",['%'.$Name.'%',$Name.'%','%'.$Name.'%','%'.$Name]);
+      if($res->num_rows() >0)
+      return $res->result();
+    return false;
+  }
+
+ protected function getLetestMonthTempSlipDetails(){
+    	
+    	$this->db->trans_start();
+
+    	$q="truncate ".$this->temp_tbl;
+    		$this->db->query($q);
+		$q="insert into ".$this->temp_tbl."  select * from ".$this->main_tbl." a where a.YR =(select max(YR) from acc_pay_details ) and a.MON =(select max(MON) from acc_pay_details where YR=a.YR ) ";
+			$this->db->query($q);
+		$q="update ".$this->temp_tbl." set MON=if(MON=12,1,MON+1)";
+			$this->db->query($q);
+
+		$this->db->trans_complete();
+
+		 return $this->db->trans_status();
+			                                                        
+
+    }
+
+/*  30-10-19
+   protected function getLetestMonthTempSlipDetails(){
+    	
+    	$this->db->trans_start();
+
+    	$q="truncate ".$this->temp_tbl;
+    		$this->db->query($q);
+		$q="insert into ".$this->temp_tbl."  select * from ".$this->main_tbl." a where a.YR =(select max(YR) from acc_pay_details ) and a.MON =(select max(MON) from acc_pay_details where YR=a.YR ) ";
+			$this->db->query($q);
+		$q="update ".$this->temp_tbl." set MON=if(MON=12,1,MON+1)";
+			$this->db->query($q);
+
+		$this->db->trans_complete();
+
+		 return $this->db->trans_status();
+			                                                        
+
+    }*/
+
+
+  protected function InsertIntoMainTbl(){
+   	 $this->db->trans_start();
+       		$q="insert into ".$this->main_tbl."  select * from ".$this->temp_tbl;
+          //echo $q;die();
+    			$this->db->query($q);
+    			$this->getLetestMonthTempSlipDetails();
+	   $this->db->trans_complete();
+
+		 return $this->db->trans_status();
+   }
+
+  /* 
+  30-10-19
+  
+  protected function InsertIntoMainTbl(){
+   	 $this->db->trans_start();
+       		$q="insert into ".$this->main_tbl."  select * from ".$this->temp_tbl;
+          //echo $q;die();
+    			$this->db->query($q);
+    			$this->getLetestMonthTempSlipDetails();
+	   $this->db->trans_complete();
+
+		 return $this->db->trans_status();
+   }
+*/
+   protected function DeleteDecleardSlip($mon,$year){
+
+   	$q="delete from ".$main_tbl." where MON=? and YR=?";
+   		$this->db->query($q,[$mon,$year]);
+   		
+   }
+
+   function DeclearSalary(){
+   		$this->InsertIntoMainTbl();
+   }
+
+
+   function getdepartments(){
+    $myquery="select * from departments";
+    $query=$this->db->query($myquery);
+    //echo $this->db->last_query();die();
+    if($query->num_rows()>0){
+      return $query->result();
+    }
+    else{
+      return false;
+    }
+   }
+
+   function getdepartmentsFA(){
+    $myquery="select distinct(DEPT) as id, DEPT as name from acc_pay_details order by dept";
+    $query=$this->db->query($myquery);
+    //echo $this->db->last_query();die();
+    if($query->num_rows()>0){
+      return $query->result();
+    }
+    else{
+      return false;
+    }
+   }
+
+   function getEmpNo($cond){
+    $myquery="select EMPNO from acc_pay_details apd where 1=1";
+    foreach ($cond as $key => $value) {
+        if(strcmp($key, 'MON')==0||strcmp($key, 'YR')==0){
+           $myquery=$myquery." and apd.".$key."=".$value;
+        }
+        else{
+          $myquery=$myquery." and apd.".$key."='".$value."'";
+          /*
+            if($key=='DEPT'){
+              $myquery=$myquery." and ud.dept_id='".$value."'";
+            }
+            else{
+              
+            }
+            */
+        }
+      }
+      $query=$this->db->query($myquery." order by cast(apd.EMPNO as INT) asc");
+      //echo $this->db->last_query();die();
+      if($query->num_rows()>0){
+        return $query->result();
+      }
+      else{
+        return false;
+      }
+   }
+
+    function getEmpNoWithDept($cond){
+    $myquery="select distinct(apd.EMPNO) from acc_pay_details apd inner join user_details ud on apd.EMPNO=ud.id where 1=1";
+    foreach ($cond as $key => $value) {
+        if(strcmp($key, 'MON')==0||strcmp($key, 'YR')==0){
+           $myquery=$myquery." and apd.".$key."=".$value;
+        }
+        else{
+            if($key=='DEPT'){
+              $myquery=$myquery." and ud.dept_id='".$value."'";
+            }
+            else{
+              $myquery=$myquery." and apd.".$key."='".$value."'";
+            }
+           
+        }
+      }
+      $query=$this->db->query($myquery);
+      if($query->num_rows()>0){
+        return $query->result();
+      }
+      else{
+        return false;
+      }
+   }
+
+   function getMonthYearForSMS(){
+    $q="select apdt.MON,apdt.YR from acc_pay_details_temp apdt limit 1";
+    if($query=$this->db->query($q)){
+      if($query->num_rows()>0){
+        return $query->result();
+      }
+      else{
+        return false;
+      }
+    }
+   }
+   
+      /*--------------Finantial Year Management-------------*/
+
+   function getFY($fy){
+    $q="select date_format(afd.start_from,'%d-%m-%Y') as start_from,date_format(afd.end_to,'%d-%m-%Y') as end_to from acc_fyear_details afd where afd.fy=?";
+    if($query=$this->db->query($q,$fy)){
+      if($query->num_rows()>0){
+        return $query->result();
+      }
+      else{
+        return false;
+      }
+    }
+    else{
+      return false;
+    }
+
+   }
+
+   function saveFY($data){
+    if($this->db->insert('acc_fyear_details',$data)){
+      return true;
+    }
+    else{
+      return false;
+    }
+   }
+
+   function editFY($data,$cond){
+    $this->db->set($data);
+    $this->db->where($cond);
+    if($this->db->update('acc_fyear_details')){
+      return true;
+    }
+    else{
+      return false;
+    }
+   }
+
+   function getFYAll(){
+    if($query=$this->db->get('acc_fyear-details')){
+      if($query->num_rows()>0){
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+    else{
+      return false;
+    }
+   }
+
+   /*----------------------------------------------------*/
+}
+
+?>
